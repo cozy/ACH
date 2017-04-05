@@ -1,10 +1,11 @@
 const fs = require('fs')
 const cozy = require('cozy-client-js')
 
-const DATA_FILE = 'data.json'
 const TOKEN_FILE = 'token.json'
-const COZY_URL = 'http://cozy.tools:8080'
 const CLIENT_NAME = 'ACH'
+
+const COZY_URL = process.argv.length > 2 ? process.argv[2] : 'http://cozy.tools:8080'
+const DATA_FILE = process.argv.length > 3 ? process.argv[3] : 'data.json'
 
 const data = JSON.parse(fs.readFileSync(DATA_FILE))
 
