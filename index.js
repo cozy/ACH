@@ -1,9 +1,77 @@
-const http = require('http');
-const opn = require('opn');
+const fs = require('fs')
 const cozy = require('cozy-client-js')
 
-function onRegistered(client, url) {
+const DATA_FILE = 'data.json'
+const TOKEN_FILE = 'token.json'
+const COZY_URL = 'http://cozy.tools:8080'
+const CLIENT_NAME = 'ACH'
+
+const data = JSON.parse(fs.readFileSync(DATA_FILE))
+
+//returns a cozy client instance, using the stored token or a new one
+const getCozyClient = () => {  
+  return new Promise((resolve, reject) => {
+    let cozyClient = null
+    
+    try {
+      //try to load a locally stored token and use that
+      let stored = JSON.parse(fs.readFileSync(TOKEN_FILE))
+      console.log('Using stored token')
+
+      cozyClient = new cozy.Client()
+
+      cozyClient.init({
+        cozyURL: COZY_URL,
+        token: stored.token
+      })
+      
+      resolve(cozyClient)
+    }
+    catch (err) {
+      //no token found, generate a new one
+      console.log('Performing OAuth flow (' + err.toString() + ')')
+      
+      let permissions = []
+      
+      for (let docType in data) {
+        permissions.push(docType.toString() + ':ALL')
+      }
+      
+      cozyClient = new cozy.Client({
+        cozyURL: COZY_URL,
+        oauth: {
+          storage: new cozy.MemoryStorage(),
+          clientParams: {
+            redirectURI: 'http://localhost:3333/do_access',
+            softwareID: CLIENT_NAME,
+            clientName: CLIENT_NAME,
+            scopes: permissions
+          },
+          onRegistered: onRegistered,
+        }
+      })
+
+      cozyClient.authorize().then((creds) => {
+        let token = creds.token.accessToken;
+        try {
+          fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8');
+          resolve(cozyClient)
+        }
+        catch (err) {
+          reject(err);
+        }
+      })
+    }
+  })
+}
+
+//handle the redirect url in the oauth flow
+const onRegistered = (client, url) => {
+  const http = require('http');
+  const opn = require('opn');
+
   let server
+  
   return new Promise((resolve) => {
     server = http.createServer((request, response) => {
       if (request.url.indexOf('/do_access') === 0) {
@@ -12,28 +80,28 @@ function onRegistered(client, url) {
         response.end()
       }
     })
+    
     server.listen(3333, () => {
-      opn(url);
+      opn(url)
     })
   })
-    .then(
-      (url) => { server.close(); return url; },
-      (err) => { server.close(); throw err; }
-    )
+  .then(
+    (url) => { server.close(); return url },
+    (err) => { server.close(); throw err }
+  )
 }
 
-const cozyClient = new cozy.Client({
-  cozyURL: 'http://cozy.tools:8080',
-  oauth: {
-    storage: new cozy.MemoryStorage(),
-    clientParams: {
-      redirectURI: 'http://localhost:3333/do_access',
-      softwareID: 'ACH-0.1',
-      clientName: 'ACH!',
-      scopes: ['files/images:read']
-    },
-    onRegistered: onRegistered,
+//start the actual import
+getCozyClient().then(cozyClient => {
+  for (const docType in data){
+    const docs = data[docType];
+    
+    Promise.all(docs.map(doc => (cozyClient.data.create(docType, doc))))
+    .then(result => {
+      console.log(result)
+    }, error => {
+      console.warn(error)
+    })
+    
   }
 })
-
-cozyClient.authorize().then((creds) => console.log(creds))

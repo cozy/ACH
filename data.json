@@ -1,0 +1,12 @@
+{
+  "io.cozy.bankoperations": [
+    {
+      "bankAccount": "",
+      "title": "",
+      "date": "10/04/2017",
+      "amount": 50.4,
+      "raw": "",
+      "dateImport": "10/04/2017"
+    }
+  ]
+}
