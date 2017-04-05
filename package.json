@@ -1,0 +1,22 @@
+{
+  "name": "ach",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "btoa": "^1.1.2",
+    "core-js": "^2.4.1",
+    "cozy-client-js": "^0.1.9",
+    "isomorphic-fetch": "^2.2.1",
+    "opn": "^4.0.2",
+    "pouchdb": "^6.1.2",
+    "pouchdb-find": "^0.10.5",
+    "regenerator-runtime": "^0.10.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
