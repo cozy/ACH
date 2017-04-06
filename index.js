@@ -4,65 +4,27 @@ const cozy = require('cozy-client-js')
 const TOKEN_FILE = 'token.json'
 const CLIENT_NAME = 'ACH'
 
-const COZY_URL = process.argv.length > 2 ? process.argv[2] : 'http://cozy.tools:8080'
-const DATA_FILE = process.argv.length > 3 ? process.argv[3] : 'data.json'
+const getClientWithoutToken = (url, docTypes = []) => {
+  let permissions = docTypes.map(docType => (docType.toString() + ':ALL'))
 
-const data = JSON.parse(fs.readFileSync(DATA_FILE))
-
-//returns a cozy client instance, using the stored token or a new one
-const getCozyClient = () => {  
-  return new Promise((resolve, reject) => {
-    let cozyClient = null
-    
-    try {
-      //try to load a locally stored token and use that
-      let stored = JSON.parse(fs.readFileSync(TOKEN_FILE))
-      console.log('Using stored token')
-
-      cozyClient = new cozy.Client()
-
-      cozyClient.init({
-        cozyURL: COZY_URL,
-        token: stored.token
-      })
-      
-      resolve(cozyClient)
+  let cozyClient = new cozy.Client({
+    cozyURL: url,
+    oauth: {
+      storage: new cozy.MemoryStorage(),
+      clientParams: {
+        redirectURI: 'http://localhost:3333/do_access',
+        softwareID: CLIENT_NAME,
+        clientName: CLIENT_NAME,
+        scopes: permissions
+      },
+      onRegistered: onRegistered,
     }
-    catch (err) {
-      //no token found, generate a new one
-      console.log('Performing OAuth flow (' + err.toString() + ')')
-      
-      let permissions = []
-      
-      for (let docType in data) {
-        permissions.push(docType.toString() + ':ALL')
-      }
-      
-      cozyClient = new cozy.Client({
-        cozyURL: COZY_URL,
-        oauth: {
-          storage: new cozy.MemoryStorage(),
-          clientParams: {
-            redirectURI: 'http://localhost:3333/do_access',
-            softwareID: CLIENT_NAME,
-            clientName: CLIENT_NAME,
-            scopes: permissions
-          },
-          onRegistered: onRegistered,
-        }
-      })
+  })
 
-      cozyClient.authorize().then((creds) => {
-        let token = creds.token.accessToken;
-        try {
-          fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8');
-          resolve(cozyClient)
-        }
-        catch (err) {
-          reject(err);
-        }
-      })
-    }
+  return cozyClient.authorize().then((creds) => {
+    let token = creds.token.accessToken;
+    fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8');
+    return cozyClient;
   })
 }
 
@@ -73,36 +35,105 @@ const onRegistered = (client, url) => {
 
   let server
   
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     server = http.createServer((request, response) => {
       if (request.url.indexOf('/do_access') === 0) {
-        console.log('Received access from user with url', request.url)
         resolve(request.url)
         response.end()
       }
     })
     
     server.listen(3333, () => {
-      opn(url)
+      opn(url, {wait: false});
     })
   })
-  .then(
-    (url) => { server.close(); return url },
-    (err) => { server.close(); throw err }
-  )
+  .then(url => {
+    server.close(); 
+    return url; 
+  }, err => {
+    server.close(); 
+    throw err; 
+  });
 }
 
-//start the actual import
-getCozyClient().then(cozyClient => {
+//returns a client when there is already a stored token
+const getClientWithToken = (url, docTypes) => {  
+  return new Promise((resolve, reject) => {
+    try {
+      //try to load a locally stored token and use that
+      let stored = JSON.parse(fs.readFileSync(TOKEN_FILE))
+
+      let cozyClient = new cozy.Client()
+
+      cozyClient.init({
+        cozyURL: url,
+        token: stored.token
+      })
+      
+      resolve(cozyClient)
+    }
+    catch (err) {
+      reject(err)
+    }
+  })
+}
+
+//imports a set of data. Data must be a map, with keys being a doctype, and the value an array of attributes maps.
+const importData = (cozyClient, data) => {
   for (const docType in data){
     const docs = data[docType];
     
     Promise.all(docs.map(doc => (cozyClient.data.create(docType, doc))))
-    .then(result => {
-      console.log(result)
-    }, error => {
-      console.warn(error)
+    .then(results => {
+      console.log('Imported ' + results.length + ' ' + docType + ' document(s)');
+      console.log(results.map(result => (result._id)));
+    }, err => {
+      if (err.name == 'FetchError' && err.status == 400){
+        console.warn(err.reason.error);
+      }
+      else if (err.name == 'FetchError' && err.status == 403){
+        console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions? You can generate a new one with the "-t" option.');
+      }
+      else {
+        console.warn(err);
+      }
     })
-    
   }
+}
+
+//the CLI interface
+let program = require('commander');
+program
+  .version('0.1')
+  .option('-t --token', 'Generate a new token')
+  .option('-u --url', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".')
+  .option('-f --file', 'The file containing the JSON data to import. Defaults to "example-data.json".')
+  .parse(process.argv);
+
+//first preload the data to import. We'll need this to generate a token later
+const dataFile = program.file ? program.file.toString() : 'example-data.json';
+const data = JSON.parse(fs.readFileSync(dataFile));
+
+//build the list of doctypes we want to manipulate
+let docTypes = [];
+for (let docType in data) {
+  docTypes.push(docType);
+}
+
+//define the target url
+const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080';
+
+//now get a client
+let getClient = program.token ? getClientWithoutToken : getClientWithToken;
+
+getClient(cozyUrl, docTypes)
+.then(client => {
+  //client loaded! The only thing we support at the moment is importing the data file, so let's do that.
+  importData(client, data);
+})
+.catch(err => {
+  if (err.message === "ENOENT: no such file or directory, open '"+TOKEN_FILE+"'")
+    console.warn('No stored token found, are you sure you generated one? Use option "-t" if you want to generate one next time.');
+  else
+    console.warn(err);
 })
