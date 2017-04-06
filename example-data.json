@@ -1,12 +1,14 @@
 {
   "io.cozy.bankoperations": [
+    {{#repeat 3}}
     {
-      "bankAccount": "",
-      "title": "CARTE DOCTEUR MELUCHE",
-      "date": "10/04/2017",
-      "amount": 25.0,
+      "bankAccount": "MaBank",
+      "title": "CARTE DOCTEUR {{lastName}}",
+      "date": "{{date '2017:04-01' '2017-04-10'}}",
+      "amount": {{float 2 500 round=0.01}},
       "raw": "",
-      "dateImport": "10/04/2017"
+      "dateImport": "{{date '2017:04-01' '2017-04-10'}}"
     }
+    {{/repeat}}
   ]
 }

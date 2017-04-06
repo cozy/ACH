@@ -105,10 +105,11 @@ const importData = (cozyClient, data) => {
   for (const docType in data){
     const docs = data[docType];
     
-    Promise.all(docs.map(doc => (cozyClient.data.create(docType, doc))))
+    Promise.all(docs.map(doc => cozyClient.data.create(docType, doc)))
     .then(results => {
       console.log('Imported ' + results.length + ' ' + docType + ' document' + (results.length > 1 ? 's' : ''));
       console.log(results.map(result => (result._id)));
+      console.log(results);
     }, err => {
       if (err.name == 'FetchError' && err.status == 400){
         console.warn(err.reason.error);
@@ -161,12 +162,16 @@ program.command('import [file]')
 .action(file => {
   if (!file) file = 'example-data.json';
   
+  const dummyjson = require('dummy-json')
+  
   //get the url of the cozy
   const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080';
   
   //collect the doctypes that we're going to import
   let docTypes = [];
-  let data = JSON.parse(fs.readFileSync(file));
+  let template = fs.readFileSync(file, {encoding: 'utf8'});
+  
+  let data = JSON.parse(dummyjson.parse(template));
   
   for (let docType in data) {
     docTypes.push(docType);
