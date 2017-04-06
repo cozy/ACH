@@ -1,8 +1,11 @@
-const fs = require('fs')
-const cozy = require('cozy-client-js')
+const fs = require('fs');
+const cozy = require('cozy-client-js');
+
+const package = require('./package.json');
 
 const TOKEN_FILE = 'token.json'
-const CLIENT_NAME = 'ACH'
+const CLIENT_NAME = package.name.toUpperCase();
+const SOFTWARE_ID = CLIENT_NAME + '-' + package.version;
 
 const getClientWithoutToken = (url, docTypes = []) => {
   let permissions = docTypes.map(docType => (docType.toString() + ':ALL'))
@@ -13,7 +16,7 @@ const getClientWithoutToken = (url, docTypes = []) => {
       storage: new cozy.MemoryStorage(),
       clientParams: {
         redirectURI: 'http://localhost:3333/do_access',
-        softwareID: CLIENT_NAME,
+        softwareID: SOFTWARE_ID,
         clientName: CLIENT_NAME,
         scopes: permissions
       },
@@ -61,7 +64,7 @@ const getClientWithToken = (url, docTypes) => {
   return new Promise((resolve, reject) => {
     try {
       //try to load a locally stored token and use that
-      let stored = JSON.parse(fs.readFileSync(TOKEN_FILE))
+      let stored = require('./' + TOKEN_FILE);
 
       let cozyClient = new cozy.Client()
 
@@ -148,7 +151,7 @@ const dropCollections = (client, docTypes) => {
 //the CLI interface
 let program = require('commander');
 program
-.version('0.1')
+.version(package.version)
 .option('-t --token', 'Generate a new token.')
 .option('-u --url', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".');
 

@@ -4,4 +4,4 @@ Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you create (and later ma
 
 Install ACH by cloning the repo and running `npm i`.
 
-Use it by running `node index.js -h` or `npm start -h`.
+Use it by running `node index.js` or `npm start`.
