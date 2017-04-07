@@ -37,7 +37,7 @@ const onRegistered = (client, url) => {
   const opn = require('opn');
 
   let server
-  
+
   return new Promise((resolve, reject) => {
     server = http.createServer((request, response) => {
       if (request.url.indexOf('/do_access') === 0) {
@@ -45,22 +45,22 @@ const onRegistered = (client, url) => {
         response.end()
       }
     })
-    
+
     server.listen(3333, () => {
       opn(url, {wait: false});
     })
   })
   .then(url => {
-    server.close(); 
-    return url; 
+    server.close();
+    return url;
   }, err => {
-    server.close(); 
-    throw err; 
+    server.close();
+    throw err;
   });
 }
 
 //returns a client when there is already a stored token
-const getClientWithToken = (url, docTypes) => {  
+const getClientWithToken = (url, docTypes) => {
   return new Promise((resolve, reject) => {
     try {
       //try to load a locally stored token and use that
@@ -72,7 +72,7 @@ const getClientWithToken = (url, docTypes) => {
         cozyURL: url,
         token: stored.token
       })
-      
+
       resolve(cozyClient)
     }
     catch (err) {
@@ -104,23 +104,26 @@ const getClient = (generateNewToken, cozyUrl, docTypes) => {
 const importData = (cozyClient, data) => {
   for (const docType in data){
     const docs = data[docType];
-    
+
     Promise.all(docs.map(doc => cozyClient.data.create(docType, doc)))
-    .then(results => {
-      console.log('Imported ' + results.length + ' ' + docType + ' document' + (results.length > 1 ? 's' : ''));
-      console.log(results.map(result => (result._id)));
-      console.log(results);
-    }, err => {
-      if (err.name == 'FetchError' && err.status == 400){
-        console.warn(err.reason.error);
-      }
-      else if (err.name == 'FetchError' && err.status == 403){
-        console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions? You can generate a new one with the "-t" option.');
-      }
-      else {
-        console.warn(err);
-      }
-    })
+      .then(results => {
+        console.log('Imported ' + results.length + ' ' + docType + ' document' + (results.length > 1 ? 's' : ''));
+        console.log(results.map(result => (result._id)));
+        // console.log(results);
+        process.exit()
+      })
+      .catch(err => {
+        if (err.name == 'FetchError' && err.status == 400){
+          console.warn(err.reason.error);
+        }
+        else if (err.name == 'FetchError' && err.status == 403){
+          console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions? You can generate a new one with the "-t" option.');
+        }
+        else {
+          console.warn(err);
+        }
+        process.exit()
+      })
   }
 }
 
@@ -157,26 +160,31 @@ program
 .option('-u --url', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".');
 
 //impor command
-program.command('import [file]')
-.description('The file containing the JSON data to import. Defaults to "example-data.json".')
-.action(file => {
-  if (!file) file = 'example-data.json';
-  
+program.command('import [dataFile] [helpersFile]')
+.description('The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).')
+.action((dataFile, helpersFile) => {
+  if (!dataFile) dataFile = 'example-data.json';
+  // dummy helpers
+  let helpers = null
+  if (helpersFile) helpers = require(`./${helpersFile}`).helpers
+
   const dummyjson = require('dummy-json')
-  
+
   //get the url of the cozy
   const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080';
-  
+
   //collect the doctypes that we're going to import
   let docTypes = [];
-  let template = fs.readFileSync(file, {encoding: 'utf8'});
-  
-  let data = JSON.parse(dummyjson.parse(template));
-  
+  let template = fs.readFileSync(dataFile, {encoding: 'utf8'});
+
+  let data = helpersFile
+    ? JSON.parse(dummyjson.parse(template, {helpers: helpers}))
+    : JSON.parse(dummyjson.parse(template))
+
   for (let docType in data) {
     docTypes.push(docType);
   }
-  
+
   //get a client
   getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
@@ -194,15 +202,15 @@ program.command('drop <doctypes...>')
     input: process.stdin,
     output: process.stdout
   });
-  
+
   rl.question('Are you sure? EVERY document of type ' + docTypes.join(', ') + ' will be removed. Type yes to confirm.\n', (answer) => {
     rl.close();
-    
+
     if (answer === 'yes'){
       console.log('Okay, hang tight.');
       //get the url of the cozy
       const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080';
-      
+
       getClient(!!program.token, cozyUrl, docTypes)
       .then(client => {
         dropCollections(client, docTypes);
