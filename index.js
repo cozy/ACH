@@ -106,7 +106,7 @@ const importData = (cozyClient, data) => {
     let docs = data[docType];
     let first = docs.shift();
     let results = [];
-    
+
     //we insert the first document separetely, and then all the other ones in parallel.
     //this i because if it's a new doctype,, the stack needs some time to create the collection and can't handle the other incoming requests
     cozyClient.data.create(docType, first)
@@ -175,7 +175,7 @@ program.command('import [dataFile] [helpersFile]')
   if (!dataFile) dataFile = 'example-data.json';
   // dummy helpers
   let helpers = null
-  if (helpersFile) helpers = require(`./${helpersFile}`).helpers
+  if (helpersFile) helpers = require(`./${helpersFile}`)
 
   const dummyjson = require('dummy-json')
 
@@ -187,7 +187,7 @@ program.command('import [dataFile] [helpersFile]')
   let template = fs.readFileSync(dataFile, {encoding: 'utf8'});
 
   let data = helpersFile
-    ? JSON.parse(dummyjson.parse(template, {helpers: helpers}))
+    ? JSON.parse(dummyjson.parse(template, helpers))
     : JSON.parse(dummyjson.parse(template))
 
   for (let docType in data) {
