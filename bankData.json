@@ -1,0 +1,21 @@
+{
+  "io.cozy.bank_operations": [
+    {{#repeat 5}}
+      {{> randomRegularOperation}}
+    {{/repeat}},
+
+    {{> debit name="Restaurant des frères Sushis" type="meals"}},
+    {{> debit name="Restaurant des frères Sushis" type="meals"}},
+    {{> debit name="Restaurant des frères Sushis" type="meals"}},
+    {{> debit name="Facture Téléphone" type="telecom"}},
+    {{> debit name="Carburant Station Paris 14" type="fuel"}},
+    {{> healthOperation}},
+    {{> healthOperation}},
+
+    {{> bigDebit name="Impôt sur revenue 2015" type="income_tax"}},
+    {{> bigDebit name="Loyer" type="rent"}},
+
+    {{> credit name="Remboursement Santé" type="health_refunds"}},
+    {{> salaryOperation mois="mars"}}
+  ]
+}
