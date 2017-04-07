@@ -154,7 +154,7 @@ let program = require('commander');
 program
 .version(package.version)
 .option('-t --token', 'Generate a new token.')
-.option('-u --url', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".');
+.option('-u --url <url>', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".');
 
 //impor command
 program.command('import [file]')
