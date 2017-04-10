@@ -57,12 +57,23 @@ module.exports.partials = {
     "currency": "€"
   }`,
 
+  smallDebit: `{
+    "bankAccount": "{{bankCompany}}",
+    "name": "{{{name}}}",
+    "operationType": "{{{type}}}",
+    "date": "${FORMATED_DATE}",
+    "amount": {{float -50 -5 round=0.01}},
+    "raw": "{{{name}}}",
+    "dateImport": "${FORMATED_DATE}",
+    "currency": "€"
+  }`,
+
   debit: `{
     "bankAccount": "{{bankCompany}}",
     "name": "{{{name}}}",
     "operationType": "{{{type}}}",
     "date": "${FORMATED_DATE}",
-    "amount": {{float -150 -3 round=0.01}},
+    "amount": {{float -150 -5 round=0.01}},
     "raw": "{{{name}}}",
     "dateImport": "${FORMATED_DATE}",
     "currency": "€"
@@ -87,7 +98,11 @@ module.exports.partials = {
     "amount": {{float -450 -70 round=0.01}},
     "raw": "Consultation Docteur {{lastName}}",
     "dateImport": "${FORMATED_DATE}",
-    "currency": "€"
+    "currency": "€",
+    "action": {
+      "type": "refund",
+      "url": "https://recette-sante.cozy.works/#/remboursements"
+    }
   }`,
 
   credit: `{
