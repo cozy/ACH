@@ -1,11 +1,11 @@
-const fs = require('fs');
-const cozy = require('cozy-client-js');
+const fs = require('fs')
+const cozy = require('cozy-client-js')
 
-const package = require('./package.json');
+const appPackage = require('./package.json')
 
 const TOKEN_FILE = 'token.json'
-const CLIENT_NAME = package.name.toUpperCase();
-const SOFTWARE_ID = CLIENT_NAME + '-' + package.version;
+const CLIENT_NAME = appPackage.name.toUpperCase()
+const SOFTWARE_ID = CLIENT_NAME + '-' + appPackage.version
 
 const getClientWithoutToken = (url, docTypes = []) => {
   let permissions = docTypes.map(docType => (docType.toString() + ':ALL'))
@@ -20,21 +20,21 @@ const getClientWithoutToken = (url, docTypes = []) => {
         clientName: CLIENT_NAME,
         scopes: permissions
       },
-      onRegistered: onRegistered,
+      onRegistered: onRegistered
     }
   })
 
   return cozyClient.authorize().then((creds) => {
-    let token = creds.token.accessToken;
-    fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8');
-    return cozyClient;
+    let token = creds.token.accessToken
+    fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8')
+    return cozyClient
   })
 }
 
-//handle the redirect url in the oauth flow
+// handle the redirect url in the oauth flow
 const onRegistered = (client, url) => {
-  const http = require('http');
-  const opn = require('opn');
+  const http = require('http')
+  const opn = require('opn')
 
   let server
 
@@ -47,24 +47,24 @@ const onRegistered = (client, url) => {
     })
 
     server.listen(3333, () => {
-      opn(url, {wait: false});
+      opn(url, {wait: false})
     })
   })
   .then(url => {
-    server.close();
-    return url;
+    server.close()
+    return url
   }, err => {
-    server.close();
-    throw err;
-  });
+    server.close()
+    throw err
+  })
 }
 
-//returns a client when there is already a stored token
+// returns a client when there is already a stored token
 const getClientWithToken = (url, docTypes) => {
   return new Promise((resolve, reject) => {
     try {
-      //try to load a locally stored token and use that
-      let stored = require('./' + TOKEN_FILE);
+      // try to load a locally stored token and use that
+      let stored = require('./' + TOKEN_FILE)
 
       let cozyClient = new cozy.Client()
 
@@ -74,165 +74,162 @@ const getClientWithToken = (url, docTypes) => {
       })
 
       resolve(cozyClient)
-    }
-    catch (err) {
+    } catch (err) {
       reject(err)
     }
   })
 }
 
-//convenience wrapper around the 2 client getters
+// convenience wrapper around the 2 client getters
 const getClient = (generateNewToken, cozyUrl, docTypes) => {
-  //now get a client
-  const getClientFn = generateNewToken ? getClientWithoutToken : getClientWithToken;
+  // now get a client
+  const getClientFn = generateNewToken ? getClientWithoutToken : getClientWithToken
 
   return getClientFn(cozyUrl, docTypes)
   .then(client => {
-    return client;
+    return client
   })
   .catch(err => {
-    if (err.message === "ENOENT: no such file or directory, open '"+TOKEN_FILE+"'")
-      console.warn('No stored token found, are you sure you generated one? Use option "-t" if you want to generate one next time.');
-    else
-      console.warn(err);
+    if (err.message === "ENOENT: no such file or directory, open '" + TOKEN_FILE + "'") {
+      console.warn('No stored token found, are you sure you generated one? Use option "-t" if you want to generate one next time.')
+    } else {
+      console.warn(err)
+    }
 
-    return err;
-  });
+    return err
+  })
 }
 
-//imports a set of data. Data must be a map, with keys being a doctype, and the value an array of attributes maps.
+// imports a set of data. Data must be a map, with keys being a doctype, and the value an array of attributes maps.
 const importData = (cozyClient, data) => {
-  for (const docType in data){
-    let docs = data[docType];
-    let first = docs.shift();
-    let results = [];
+  for (const docType in data) {
+    let docs = data[docType]
+    let first = docs.shift()
+    let results = []
 
-    //we insert the first document separetely, and then all the other ones in parallel.
-    //this i because if it's a new doctype,, the stack needs some time to create the collection and can't handle the other incoming requests
+    // we insert the first document separetely, and then all the other ones in parallel.
+    // this i because if it's a new doctype,, the stack needs some time to create the collection and can't handle the other incoming requests
     cozyClient.data.create(docType, first)
       .then(result => {
-        results.push(result);
-        return Promise.all(docs.map(doc => cozyClient.data.create(docType, doc)));
+        results.push(result)
+        return Promise.all(docs.map(doc => cozyClient.data.create(docType, doc)))
       })
       .then(nextResults => {
-        results = results.concat(nextResults);
-        console.log('Imported ' + results.length + ' ' + docType + ' document' + (results.length > 1 ? 's' : ''));
-        console.log(results.map(result => (result._id)));
+        results = results.concat(nextResults)
+        console.log('Imported ' + results.length + ' ' + docType + ' document' + (results.length > 1 ? 's' : ''))
+        console.log(results.map(result => (result._id)))
         // console.log(results);
-        process.exit();
+        process.exit()
       })
       .catch(err => {
-        if (err.name == 'FetchError' && err.status == 400){
-          console.warn(err.reason.error);
+        if (err.name === 'FetchError' && err.status === 400) {
+          console.warn(err.reason.error)
+        } else if (err.name === 'FetchError' && err.status === 403) {
+          console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions? You can generate a new one with the "-t" option.')
+        } else {
+          console.warn(err)
         }
-        else if (err.name == 'FetchError' && err.status == 403){
-          console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions? You can generate a new one with the "-t" option.');
-        }
-        else {
-          console.warn(err);
-        }
-        process.exit();
-      });
+        process.exit()
+      })
   }
 }
 
-//drop all documents of the given doctype
+// drop all documents of the given doctype
 const dropCollections = (client, docTypes) => {
-  for (const docType of docTypes){
-    //we're going to need all the document ids and revisions, but for that we need an index
+  for (const docType of docTypes) {
+    // we're going to need all the document ids and revisions, but for that we need an index
     client.data.defineIndex(docType, ['_id'])
     .then(index => {
-      //now let's fetch all the data
+      // now let's fetch all the data
       return client.data.query(index, {
-        selector: {'_id': {"$gt" : null}},
+        selector: {'_id': {'$gt': null}},
         fields: ['_id', '_rev']
-      });
+      })
     })
     .then(docs => {
-      //well now we drop them all...
+      // well now we drop them all...
       return Promise.all(docs.map(doc => (client.data.delete(docType, doc))))
     })
     .then(results => {
-      console.log('Deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.');
+      console.log('Deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
     })
     .catch(err => {
-      console.warn(err);
-    });
+      console.warn(err)
+    })
   }
 }
 
-//the CLI interface
-let program = require('commander');
+// the CLI interface
+let program = require('commander')
 program
-.version(package.version)
+.version(appPackage.version)
 .option('-t --token', 'Generate a new token.')
-.option('-u --url <url>', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".');
+.option('-u --url <url>', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".')
 
-//impor command
+// impor command
 program.command('import [dataFile] [helpersFile]')
 .description('The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).')
 .action((dataFile, helpersFile) => {
-  if (!dataFile) dataFile = 'example-data.json';
+  if (!dataFile) dataFile = 'example-data.json'
   // dummy helpers
   let helpers = null
   if (helpersFile) helpers = require(`./${helpersFile}`)
 
   const dummyjson = require('dummy-json')
 
-  //get the url of the cozy
-  const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080';
+  // get the url of the cozy
+  const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080'
 
-  //collect the doctypes that we're going to import
-  let docTypes = [];
-  let template = fs.readFileSync(dataFile, {encoding: 'utf8'});
+  // collect the doctypes that we're going to import
+  let docTypes = []
+  let template = fs.readFileSync(dataFile, {encoding: 'utf8'})
 
   let data = helpersFile
     ? JSON.parse(dummyjson.parse(template, helpers))
     : JSON.parse(dummyjson.parse(template))
 
   for (let docType in data) {
-    docTypes.push(docType);
+    docTypes.push(docType)
   }
 
-  //get a client
+  // get a client
   getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
-    importData(client, data);
-  });
-});
+    importData(client, data)
+  })
+})
 
-//is this a good idea?
+// is this a good idea?
 program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')
 .action(docTypes => {
-  const readline = require('readline');
+  const readline = require('readline')
 
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
-  });
+  })
 
   rl.question('Are you sure? EVERY document of type ' + docTypes.join(', ') + ' will be removed. Type yes to confirm.\n', (answer) => {
-    rl.close();
+    rl.close()
 
-    if (answer === 'yes'){
-      console.log('Okay, hang tight.');
-      //get the url of the cozy
-      const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080';
+    if (answer === 'yes') {
+      console.log('Okay, hang tight.')
+      // get the url of the cozy
+      const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080'
 
       getClient(!!program.token, cozyUrl, docTypes)
       .then(client => {
-        dropCollections(client, docTypes);
-      });
+        dropCollections(client, docTypes)
+      })
+    } else {
+      console.log('Thought so.')
     }
-    else {
-      console.log('Thought so.');
-    }
-  });
+  })
 })
 
-program.parse(process.argv);
+program.parse(process.argv)
 
 if (!process.argv.slice(2).length) {
-  program.help();
+  program.help()
 }
