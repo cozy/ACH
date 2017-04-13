@@ -43,6 +43,27 @@ program.command('import [dataFile] [helpersFile]')
   })
 })
 
+// import directories command
+// All the root folder content is imported, not the root folder itself (DirectoriesToInject by default)
+program.command('importDir [directoryPath]')
+.description('The path to the directory content to import. Defaults to "./DirectoriesToInject".')
+.action(directoryPath => {
+  if (!directoryPath) directoryPath = './DirectoriesToInject'
+
+  // get directories tree in JSON format
+  const dirTree = require('directory-tree')
+  const JSONtree = dirTree(directoryPath, {})
+
+  // get the url of the cozy
+  const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080'
+
+  // get a client
+  lib.getClient(!!program.token, cozyUrl, ['io.cozy.files'])
+  .then(client => {
+    lib.importFolderContent(client, JSONtree)
+  })
+})
+
 // is this a good idea?
 program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')

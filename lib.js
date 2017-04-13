@@ -158,3 +158,69 @@ module.exports.dropCollections = (client, docTypes) => {
     })
   }
 }
+
+// function to upload File (json format)
+const uploadFile = (client, FileJSON, dirID) => {
+  const readStream = fs.createReadStream(FileJSON.path)
+  // must specify  the content-type here
+  let contentType = ''
+  switch (FileJSON.extension) {
+    case '.jpg':
+    case '.jpeg':
+    case '.gif':
+    case '.png':
+    case '.tiff':
+      contentType = `image/${FileJSON.extension.substring(1)}`
+      break
+    case '.pdf':
+      contentType = `application/pdf`
+      break
+    default:
+      contentType = ''
+      break
+  }
+  return client.files.create(readStream, {
+    name: FileJSON.name,
+    contentType,
+    dirID: dirID || ''
+  })
+}
+
+// function to upload a folder content (json format)
+const uploadFolderContent = (client, FolderContentJSON, dirID) => {
+  return client.files.createDirectory({
+    name: FolderContentJSON.name,
+    dirID: dirID || ''
+  }).then(folderDoc => {
+    if (FolderContentJSON.children) {
+      return Promise.all(FolderContentJSON.children.map((child) => {
+        if (child.children) { // it's a folder, use recursivity
+          return uploadFolderContent(client, child, folderDoc._id)
+        } else { // it's a file
+          return uploadFile(client, child, folderDoc._id)
+        }
+      }))
+    }
+  })
+  .catch(err => {
+    return Promise.resolve(err)
+  })
+}
+
+// imports a tree of directories/files. This tree must be in JSON format using directory-tree module
+module.exports.importFolderContent = (client, JSONtree) => {
+  return Promise.all(JSONtree.children.map((item) => {
+    if (item.children) { // it's a folder
+      return uploadFolderContent(client, item, '')
+    } else { // it's a file
+      return uploadFile(client, item, '')
+    }
+  })).then(() => {
+    console.log(`${JSONtree.name} content imported`)
+    process.exit()
+  })
+  .catch(err => {
+    console.warn(err)
+    process.exit()
+  })
+}
