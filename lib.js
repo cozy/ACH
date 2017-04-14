@@ -102,6 +102,8 @@ module.exports.getClient = (generateNewToken, cozyUrl, docTypes) => {
 
 // imports a set of data. Data must be a map, with keys being a doctype, and the value an array of attributes maps.
 module.exports.importData = (cozyClient, data) => {
+  let allImports = [];
+  
   for (const docType in data) {
     let docs = data[docType]
     let first = docs.shift()
@@ -109,7 +111,7 @@ module.exports.importData = (cozyClient, data) => {
 
     // we insert the first document separetely, and then all the other ones in parallel.
     // this i because if it's a new doctype,, the stack needs some time to create the collection and can't handle the other incoming requests
-    cozyClient.data.create(docType, first)
+    allImports.push(cozyClient.data.create(docType, first)
       .then(result => {
         results.push(result)
         return Promise.all(docs.map(doc => cozyClient.data.create(docType, doc)))
@@ -119,7 +121,6 @@ module.exports.importData = (cozyClient, data) => {
         console.log('Imported ' + results.length + ' ' + docType + ' document' + (results.length > 1 ? 's' : ''))
         console.log(results.map(result => (result._id)))
         // console.log(results);
-        process.exit()
       })
       .catch(err => {
         if (err.name === 'FetchError' && err.status === 400) {
@@ -129,9 +130,10 @@ module.exports.importData = (cozyClient, data) => {
         } else {
           console.warn(err)
         }
-        process.exit()
-      })
+      }))
   }
+  
+  Promise.all(allImports).then(process.exit, process.exit);
 }
 
 // drop all documents of the given doctype
