@@ -1,21 +1,21 @@
 {
   "io.cozy.bank_operations": [
-    {{> smallDebit name="Restaurant des frères Sushis" type="meals"}},
-    {{> smallDebit name="Mac King" type="meals"}},
-    {{> smallDebit name="Facture SFR" type="telecom"}},
-    {{> debit name="SNCF Paris 13" type="trips_transportation"}},
-    {{> debit name="Monoprix" type="regular_shopping"}},
-    {{> debit name="Monoprix" type="regular_shopping"}},
-    {{> smallDebit name="Monoprix" type="regular_shopping"}},
-    {{> debit name="Le vêtement c'est la vie" type="clothing"}},
+    {{> smallDebit label="Restaurant des frères Sushis" type="meals"}},
+    {{> smallDebit label="Mac King" type="meals"}},
+    {{> smallDebit label="Facture SFR" type="telecom"}},
+    {{> debit label="SNCF Paris 13" type="trips_transportation"}},
+    {{> debit label="Monoprix" type="regular_shopping"}},
+    {{> debit label="Monoprix" type="regular_shopping"}},
+    {{> smallDebit label="Monoprix" type="regular_shopping"}},
+    {{> debit label="Le vêtement c'est la vie" type="clothing"}},
 
     {{> healthOperation}},
     {{> healthOperation}},
 
-    {{> bigDebit name="Impôt sur revenue 2015" type="income_tax"}},
-    {{> bigDebit name="Loyer" type="rent"}},
+    {{> bigDebit label="Impôt sur revenue 2015" type="income_tax"}},
+    {{> bigDebit label="Loyer" type="rent"}},
 
-    {{> credit name="Remboursement Santé" type="health_refunds"}},
+    {{> credit label="Remboursement Santé" type="health_refunds"}},
     {{> salaryOperation mois="mars"}}
   ]
 }

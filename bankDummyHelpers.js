@@ -48,7 +48,7 @@ const FORMATED_DATE =
 module.exports.partials = {
   randomRegularOperation: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "{{lorem 5}}",
+    "label": "{{lorem 5}}",
     "operationType": "{{regularOperationsType}}",
     "date": "${FORMATED_DATE}",
     "amount": {{float -200 -3 round=0.01}},
@@ -59,40 +59,40 @@ module.exports.partials = {
 
   smallDebit: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "{{{name}}}",
+    "label": "{{{label}}}",
     "operationType": "{{{type}}}",
     "date": "${FORMATED_DATE}",
     "amount": {{float -50 -5 round=0.01}},
-    "raw": "{{{name}}}",
+    "raw": "{{{label}}}",
     "dateImport": "${FORMATED_DATE}",
     "currency": "€"
   }`,
 
   debit: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "{{{name}}}",
+    "label": "{{{label}}}",
     "operationType": "{{{type}}}",
     "date": "${FORMATED_DATE}",
     "amount": {{float -150 -5 round=0.01}},
-    "raw": "{{{name}}}",
+    "raw": "{{{label}}}",
     "dateImport": "${FORMATED_DATE}",
     "currency": "€"
   }`,
 
   bigDebit: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "{{{name}}}",
+    "label": "{{{label}}}",
     "operationType": "{{{type}}}",
     "date": "${FORMATED_DATE}",
     "amount": {{float -1500 -500 round=0.01}},
-    "raw": "{{{name}}}",
+    "raw": "{{{label}}}",
     "dateImport": "${FORMATED_DATE}",
     "currency": "€"
   }`,
 
   healthOperation: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "Consultation Docteur {{lastName}}",
+    "label": "Consultation Docteur {{lastName}}",
     "operationType": "health_costs",
     "date": "${FORMATED_DATE}",
     "amount": {{float -450 -70 round=0.01}},
@@ -107,29 +107,29 @@ module.exports.partials = {
 
   credit: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "{{{name}}}",
+    "label": "{{{label}}}",
     "operationType": "{{{type}}}",
     "date": "${FORMATED_DATE}",
     "amount": {{float 10 150 round=0.01}},
-    "raw": "{{{name}}}",
+    "raw": "{{{label}}}",
     "dateImport": "${FORMATED_DATE}",
     "currency": "€"
   }`,
 
   bigCredit: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "{{{name}}}",
+    "label": "{{{label}}}",
     "operationType": "{{{type}}}",
     "date": "${FORMATED_DATE}",
     "amount": {{float 500 1500 round=0.01}},
-    "raw": "{{{name}}}",
+    "raw": "{{{label}}}",
     "dateImport": "${FORMATED_DATE}",
     "currency": "€"
   }`,
 
   salaryOperation: `{
     "bankAccount": "{{bankCompany}}",
-    "name": "Salaire de {{{mois}}}, de {{company}}",
+    "label": "Salaire de {{{mois}}}, de {{company}}",
     "operationType": "salary",
     "date": "${FORMATED_DATE}",
     "amount": {{float 2600 4000 round=0.01}},
