@@ -11,6 +11,7 @@
     "directory-tree": "^1.2.1",
     "dummy-json": "^2.0.0",
     "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.17.4",
     "opn": "^4.0.2",
     "pouchdb": "^6.1.2",
     "pouchdb-find": "^0.10.5",

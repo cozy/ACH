@@ -1,6 +1,6 @@
 const fs = require('fs')
 const cozy = require('cozy-client-js')
-
+const _ = require('lodash')
 const appPackage = require('./package.json')
 
 const TOKEN_FILE = 'token.json'
@@ -136,6 +136,40 @@ module.exports.importData = (cozyClient, data) => {
   Promise.all(allImports).then(process.exit, process.exit);
 }
 
+const writeFilePromise = promiscify(fs.writeFile)
+
+module.exports.exportData = (cozyClient, doctypes, filename) => {
+  console.log('Exporting data...')
+  let allImports = [];
+  
+  const allExports = doctypes.map(doctype => {
+    return cozyClient.data.defineIndex(doctype, ['_id'])
+      .then(mangoIndex => {
+        return cozyClient.data.query(mangoIndex, {
+          selector: {'_id': {'$gt': null}},
+          descending: true
+        })
+      })
+  })
+  
+  Promise.all(allExports)
+    .then(function (data) {
+      return _(doctypes)
+        .zip(_.map(data, documents => _.map(documents, stripMeta)))
+        .fromPairs()
+        .value()
+    })
+    .then(data => {
+      const json = JSON.stringify(data, null, 2)
+      return writeFilePromise(filename, json)
+    })
+    .catch(function (err) {
+      console.error(err)
+    })
+    .then(process.exit, process.exit);
+}
+
+
 // drop all documents of the given doctype
 module.exports.dropCollections = (client, docTypes) => {
   for (const docType of docTypes) {
@@ -226,3 +260,24 @@ module.exports.importFolderContent = (client, JSONtree) => {
     process.exit()
   })
 }
+
+// helpers
+function stripMeta (obj) {
+  return _.omit(obj, ['_id', '_rev'])
+}
+
+function promiscify (fn) {
+  return function () {
+    const args = Array.from(arguments)
+    const that = this
+    return new Promise((fullfill, reject) => {
+      const callback = function (err, res) {
+        if (err) reject(err)
+        else fullfill(res)
+      }
+      args.push(callback)
+      fn.apply(that, args)
+    })
+  }
+}
+
