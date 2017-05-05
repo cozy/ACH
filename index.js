@@ -3,12 +3,14 @@ const appPackage = require('./package.json')
 
 const lib = require('./lib')
 
+const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
+
 // the CLI interface
 let program = require('commander')
 program
 .version(appPackage.version)
 .option('-t --token', 'Generate a new token.')
-.option('-u --url <url>', 'URL of the cozy to use. Defaults to "http://cozy.tools:8080".')
+.option(`-u --url <url>', 'URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`)
 
 // import command
 program.command('import [dataFile] [helpersFile]')
@@ -22,7 +24,7 @@ program.command('import [dataFile] [helpersFile]')
   const dummyjson = require('dummy-json')
 
   // get the url of the cozy
-  const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080'
+  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
 
   // collect the doctypes that we're going to import
   let docTypes = []
@@ -55,7 +57,7 @@ program.command('importDir [directoryPath]')
   const JSONtree = dirTree(directoryPath, {})
 
   // get the url of the cozy
-  const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080'
+  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
 
   // get a client
   lib.getClient(!!program.token, cozyUrl, ['io.cozy.files'])
@@ -81,7 +83,7 @@ program.command('drop <doctypes...>')
     if (answer === 'yes') {
       console.log('Okay, hang tight.')
       // get the url of the cozy
-      const cozyUrl = program.url ? program.url.toString() : 'http://cozy.tools:8080'
+      const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
 
       lib.getClient(!!program.token, cozyUrl, docTypes)
       .then(client => {
