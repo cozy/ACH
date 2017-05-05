@@ -95,6 +95,19 @@ program.command('drop <doctypes...>')
   })
 })
 
+program.command('export [docTypes] [filename]')
+.description('Exports data from the doctypes (separated by commas) to filename')
+.action((docTypes, filename) => {
+  // get a client
+  docTypes = docTypes.split(',')
+  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
+  lib.getClient(!!program.token, cozyUrl, docTypes)
+  .then(client => {
+    lib.exportData(client, docTypes, filename)
+  })
+})
+
+
 program.parse(process.argv)
 
 if (!process.argv.slice(2).length) {
