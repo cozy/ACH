@@ -79,18 +79,28 @@ program.command('drop <doctypes...>')
     output: process.stdout
   })
 
-  rl.question('Are you sure? EVERY document of type ' + docTypes.join(', ') + ' will be removed. Type yes to confirm.\n', (answer) => {
+  docTypes = docTypes[0].split(' ')
+  rl.question(`This doctypes will be removed.
+
+${docTypes.map(x => `* ${x}`).join(' \n')}
+
+Type yes to confirm.
+`, (answer) => {
     rl.close()
 
     if (answer === 'yes') {
-      console.log('Okay, hang tight.')
       // get the url of the cozy
       const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-
       lib.getClient(!!program.token, cozyUrl, docTypes)
-      .then(client => {
-        lib.dropCollections(client, docTypes)
-      })
+        .catch(err => {
+          console.error('Error while getting token')
+        })
+        .then(client => {
+          return lib.dropCollections(client, docTypes)
+        })
+        .catch(err => {
+          console.error('Error while dropping collections')
+        })
     } else {
       console.log('Thought so.')
     }
