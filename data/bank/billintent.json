@@ -1,0 +1,17 @@
+{
+  "io.cozy.bank.operations": [
+    {
+      "account": "",
+      "label": "CARTE DENTISTE",
+      "date": "2017-03-09T00:00:00Z",
+      "amount": -70,  
+      "currency": "€",
+      "action": {
+        "type": "refund",
+        "url": "https://harmonie-sante.cozy.works/#/remboursements"
+      },
+      "operationType": "health_costs",
+      "bill": "io.cozy.files:f2812f0482318448040a722b50009a22"
+    }
+  ]
+}

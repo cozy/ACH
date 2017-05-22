@@ -50,7 +50,7 @@ You can also use your [dummy custom helpers](https://github.com/webroo/dummy-jso
 yarn start -- -t import example-data.json myDummyHelpers.js # the last optional argument is for dummy helpers
 ```
 
-You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/bankDummyHelpers.js).
+You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
 
 ## Import repositories with files
 
