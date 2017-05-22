@@ -200,11 +200,8 @@ module.exports.exportData = (cozyClient, doctypes, filename) => {
 }
 
 
-// drop all documents of the given doctype
-module.exports.dropCollections = (client, docTypes) => {
-  for (const docType of docTypes) {
-    // we're going to need all the document ids and revisions, but for that we need an index
-    client.data.defineIndex(docType, ['_id'])
+const dropCollection = (client, docType) => {
+  return client.data.defineIndex(docType, ['_id'])
     .then(index => {
       // now let's fetch all the data
       return queryAll(client, index, {
@@ -213,16 +210,22 @@ module.exports.dropCollections = (client, docTypes) => {
       })
     })
     .then(docs => {
-      // well now we drop them all...
-      return Promise.all(docs.map(doc => (client.data.delete(docType, doc))))
+      // well now we drop them all... 
+      return Promise.all(docs.map(doc => client.data.delete(docType, doc))
     })
     .then(results => {
       console.log('Deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
+      return results
     })
     .catch(err => {
       console.warn(err)
     })
-  }
+}
+
+// drop all documents of the given doctype
+module.exports.dropCollections = (client, docTypes) => {
+  const promises = docTypes.map(doctype => dropCollection(client, doctype)
+  return Promise.all(promises)
 }
 
 // function to upload File (json format)
