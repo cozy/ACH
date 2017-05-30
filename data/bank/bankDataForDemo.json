@@ -1,5 +1,5 @@
 {
-  "io.cozy.bank_operations": [
+  "io.cozy.bank.operations": [
     {{> smallDebit label="Restaurant des frères Sushis" type="meals"}},
     {{> smallDebit label="Mac King" type="meals"}},
     {{> smallDebit label="Facture SFR" type="telecom"}},
