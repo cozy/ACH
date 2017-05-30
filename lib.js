@@ -138,6 +138,33 @@ module.exports.importData = (cozyClient, data) => {
 
 const writeFilePromise = promiscify(fs.writeFile)
 
+const queryAll = function (cozyClient, mangoIndex, options) {
+  return new Promise((resolve, reject) => {
+    const documents = []
+    var skip = options.skip || 0
+    var fetch = function () {
+      return cozyClient.data.query(
+          mangoIndex, Object.assign({}, options, {
+            wholeResponse: true,
+            skip: skip
+          }))
+        .then(onSuccess)
+         .catch(reject)
+    }
+    var onSuccess = function (response) {
+      const docs = response.docs
+      skip = skip + docs.length
+      documents.push.apply(documents, docs)
+      if (response.next) {
+        fetch()
+      } else {
+        resolve(documents)
+      }
+    }
+    fetch()
+  })
+}
+
 module.exports.exportData = (cozyClient, doctypes, filename) => {
   console.log('Exporting data...')
   let allImports = [];
@@ -145,10 +172,13 @@ module.exports.exportData = (cozyClient, doctypes, filename) => {
   const allExports = doctypes.map(doctype => {
     return cozyClient.data.defineIndex(doctype, ['_id'])
       .then(mangoIndex => {
-        return cozyClient.data.query(mangoIndex, {
+        return queryAll(cozyClient, mangoIndex, {
           selector: {'_id': {'$gt': null}},
-          descending: true
+          descending: true,
         })
+      }).then(docs => {
+        console.log('Exported documents for ', doctype, ':', docs.length)
+        return docs
       })
   })
   
@@ -170,29 +200,32 @@ module.exports.exportData = (cozyClient, doctypes, filename) => {
 }
 
 
-// drop all documents of the given doctype
-module.exports.dropCollections = (client, docTypes) => {
-  for (const docType of docTypes) {
-    // we're going to need all the document ids and revisions, but for that we need an index
-    client.data.defineIndex(docType, ['_id'])
+const dropCollection = (client, docType) => {
+  return client.data.defineIndex(docType, ['_id'])
     .then(index => {
       // now let's fetch all the data
-      return client.data.query(index, {
+      return queryAll(client, index, {
         selector: {'_id': {'$gt': null}},
         fields: ['_id', '_rev']
       })
     })
     .then(docs => {
-      // well now we drop them all...
-      return Promise.all(docs.map(doc => (client.data.delete(docType, doc))))
+      // well now we drop them all... 
+      return Promise.all(docs.map(doc => client.data.delete(docType, doc)))
     })
     .then(results => {
       console.log('Deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
+      return results
     })
     .catch(err => {
       console.warn(err)
     })
-  }
+}
+
+// drop all documents of the given doctype
+module.exports.dropCollections = (client, docTypes) => {
+  const promises = docTypes.map(doctype => dropCollection(client, doctype))
+  return Promise.all(promises)
 }
 
 // function to upload File (json format)

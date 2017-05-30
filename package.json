@@ -23,5 +23,6 @@
     "start": "node index.js"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "bin" : { "ACH" : "./index.js" }
 }

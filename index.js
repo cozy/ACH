@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs')
 const appPackage = require('./package.json')
 
@@ -10,6 +12,7 @@ let program = require('commander')
 program
 .version(appPackage.version)
 .option('-t --token', 'Generate a new token.')
+.option('-y --yes', 'Does not ask for confirmation on sensitive operations')
 .option(`-u --url <url>', 'URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`)
 
 // import command
@@ -66,32 +69,53 @@ program.command('importDir [directoryPath]')
   })
 })
 
-// is this a good idea?
-program.command('drop <doctypes...>')
-.description('Deletes all documents of the provided doctypes. For real.')
-.action(docTypes => {
+const askConfirmation = function (question, callback, elseCallback) {
   const readline = require('readline')
-
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   })
 
-  rl.question('Are you sure? EVERY document of type ' + docTypes.join(', ') + ' will be removed. Type yes to confirm.\n', (answer) => {
+  rl.question(question, function (answer) {
     rl.close()
-
-    if (answer === 'yes') {
-      console.log('Okay, hang tight.')
-      // get the url of the cozy
-      const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-
-      lib.getClient(!!program.token, cozyUrl, docTypes)
-      .then(client => {
-        lib.dropCollections(client, docTypes)
-      })
+    if (answer == 'yes') {
+      callback()
     } else {
-      console.log('Thought so.')
+      elseCallback()
     }
+  })
+}
+
+// is this a good idea?
+program.command('drop <doctypes...>')
+.description('Deletes all documents of the provided doctypes. For real.')
+.action(docTypes => {
+
+  docTypes = docTypes[0].split(' ')
+  const question = `This doctypes will be removed.
+
+${docTypes.map(x => `* ${x}`).join(' \n')}
+
+`
+  const confirm = program.yes ? function (question, cb) { cb() } : askConfirmation
+  confirm(question, () => {
+    // get the url of the cozy
+    const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
+    lib.getClient(!!program.token, cozyUrl, docTypes)
+      .catch(err => {
+        console.error('Error while getting token')
+      })
+      .then(client => {
+        return lib.dropCollections(client, docTypes)
+      })
+      .then(res => {
+        process.exit()
+      })
+      .catch(err => {
+        console.error('Error while dropping collections', err)
+      })
+  }, () => {
+    console.log('Thought so')
   })
 })
 
