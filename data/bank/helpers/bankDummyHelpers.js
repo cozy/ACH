@@ -1,6 +1,16 @@
 const dummyjson = require('dummy-json')
 
 module.exports.helpers = {
+  accountType: function () {
+    const types = ['CEL', 'CCHQ', 'Livret A']
+    return dummyjson.utils.randomArrayItem(types)
+  },
+
+  bankInstitution: function () {
+    const institutions = ['BNP', 'CE', 'CIC']
+    return dummyjson.utils.randomArrayItem(institutions)
+  },
+
   bankCompany: function () {
     const companies = ['Bye Bank', 'Indirecting', 'Caisse Livret', 'Credit Aquacole']
     return dummyjson.utils.randomArrayItem(companies)
