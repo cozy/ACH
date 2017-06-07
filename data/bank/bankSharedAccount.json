@@ -10,10 +10,20 @@
       "_id": "ce8835a061d0ef68947afe69a0046722",
        "label": "CCHQ (Michel)",
        "institutionLabel": "BNP",
-       "number": "{{int 1000000 9999999}}"
+       "number": "{{int 1000000 9999999}}",
+       "shared": "true",
+       "recipients": [
+         {
+           "status": "pending",
+           "recipient": {
+             "id": "2a31ce0128b5f89e40fd90da3f014087",
+             "type": "io.cozy.mocks.recipients"
+           }
+         }
+       ]
     }
   ],
-  "io.cozy.sharings": [
+  "io.cozy.mocks.sharings": [
     {
       "owner": true,
       "sharing_id": "wccKeeGnAppnHgXWqBxKqSpKNpZiMeFR",
@@ -31,20 +41,22 @@
           "status": "pending",
           "recipient": {
             "id": "2a31ce0128b5f89e40fd90da3f014087",
-            "type": "io.cozy.recipients"
+            "type": "io.cozy.mocks.recipients"
           }
         }
       ]
     }
   ],
-  "io.cozy.recipients": [
+  "io.cozy.mocks.recipients": [
     {
-      "name": "Claude Causy",
-      "desctiption": "Dummy recipient to ensure doctype exists."
+      "desctiption": "Dummy recipient to ensure doctype exists.",
+      "url": "claude.cozy.works",
+      "mail": "claude@example.org"
     },
     {
       "_id": "2a31ce0128b5f89e40fd90da3f014087",
-      "name": "Alice"
+      "url": "alice.cozy.works",
+      "mail": "alice@example.org"
     }
   ]
 }
