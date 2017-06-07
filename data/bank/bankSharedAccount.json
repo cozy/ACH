@@ -7,7 +7,7 @@
       "description": "Dummy account to ensure doctype exists."
     },
     {
-      "_id": "56645zefzefzef56446ezf456efz",
+      "_id": "ce8835a061d0ef68947afe69a0046722",
        "label": "CCHQ (Michel)",
        "institutionLabel": "BNP",
        "number": "{{int 1000000 9999999}}"
@@ -16,8 +16,16 @@
   "io.cozy.sharings": [
     {
       "owner": true,
-      "sharing_id": "56645zefzefzef56446ezf456efz",
+      "sharing_id": "wccKeeGnAppnHgXWqBxKqSpKNpZiMeFR",
       "sharing_type": "master-slave",
+      "permissions": {
+        "accounts": {
+          "description": "Sharing account AV (Michel)",
+          "type": "io.cozy.bank.accounts",
+          "verbs": ["GET"],
+          "values": ["ce8835a061d0ef68947afe69a0046722"]
+        }
+      },
       "recipients": [
         {
           "status": "pending",
