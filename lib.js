@@ -123,10 +123,13 @@ module.exports.importData = (cozyClient, data) => {
         // console.log(results);
       })
       .catch(err => {
+        console.log('Oops! An error occured.')
         if (err.name === 'FetchError' && err.status === 400) {
           console.warn(err.reason.error)
         } else if (err.name === 'FetchError' && err.status === 403) {
           console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions? You can generate a new one with the "-t" option.')
+        } else if (err.name === 'FetchError' && err.status === 409) {
+          console.warn('Document update conflict: ' + err.url)
         } else {
           console.warn(err)
         }
