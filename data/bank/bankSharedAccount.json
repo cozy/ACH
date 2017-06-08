@@ -12,6 +12,7 @@
        "institutionLabel": "BNP",
        "number": "{{int 1000000 9999999}}",
        "shared": "true",
+       "owner": "true",
        "recipients": [
          {
            "status": "pending",
