@@ -91,7 +91,6 @@ program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')
 .action(docTypes => {
 
-  docTypes = docTypes[0].split(' ')
   const question = `This doctypes will be removed.
 
 ${docTypes.map(x => `* ${x}`).join(' \n')}
