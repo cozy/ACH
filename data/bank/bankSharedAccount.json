@@ -52,12 +52,14 @@
     {
       "desctiption": "Dummy recipient to ensure doctype exists.",
       "url": "claude.cozy.works",
-      "mail": "claude@example.org"
+      "mail": "claude@example.org",
+      "public_name": "Claude Causy"
     },
     {
       "_id": "2a31ce0128b5f89e40fd90da3f014087",
       "url": "alice.cozy.works",
-      "mail": "alice@example.org"
+      "mail": "alice@example.org",
+      "public_name": "Alice Cripeteau"
     }
   ]
 }
