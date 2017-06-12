@@ -100,20 +100,10 @@ module.exports.getClient = (generateNewToken, cozyUrl, docTypes) => {
   })
 }
 
-module.exports.revokeACHClients = (cozyClient) => {
-  return cozyClient.settings.getClients()
-    .then(oAuthClients => {
-      const revocations = oAuthClients
-        .filter(oAuthClient => oAuthClient.attributes.client_name === 'ACH')
-        .map(achClient => cozyClient.settings.deleteClientById(achClient._id))
-      return Promise.all(revocations)
-    })
-}
-
 // imports a set of data. Data must be a map, with keys being a doctype, and the value an array of attributes maps.
 module.exports.importData = (cozyClient, data) => {
-  let allImports = []
-
+  let allImports = [];
+  
   for (const docType in data) {
     let docs = data[docType]
     let first = docs.shift()
@@ -145,8 +135,8 @@ module.exports.importData = (cozyClient, data) => {
         }
       }))
   }
-
-  return Promise.all(allImports)
+  
+  Promise.all(allImports).then(process.exit, process.exit);
 }
 
 const writeFilePromise = promiscify(fs.writeFile)
@@ -180,21 +170,21 @@ const queryAll = function (cozyClient, mangoIndex, options) {
 
 module.exports.exportData = (cozyClient, doctypes, filename) => {
   console.log('Exporting data...')
-  let allImports = []
-
+  let allImports = [];
+  
   const allExports = doctypes.map(doctype => {
     return cozyClient.data.defineIndex(doctype, ['_id'])
       .then(mangoIndex => {
         return queryAll(cozyClient, mangoIndex, {
           selector: {'_id': {'$gt': null}},
-          descending: true
+          descending: true,
         })
       }).then(docs => {
         console.log('Exported documents for ', doctype, ':', docs.length)
         return docs
       })
   })
-
+  
   Promise.all(allExports)
     .then(function (data) {
       return _(doctypes)
@@ -209,8 +199,9 @@ module.exports.exportData = (cozyClient, doctypes, filename) => {
     .catch(function (err) {
       console.error(err)
     })
-    .then(process.exit, process.exit)
+    .then(process.exit, process.exit);
 }
+
 
 const dropCollection = (client, docType) => {
   return client.data.defineIndex(docType, ['_id'])
@@ -222,7 +213,7 @@ const dropCollection = (client, docType) => {
       })
     })
     .then(docs => {
-      // well now we drop them all...
+      // well now we drop them all... 
       return Promise.all(docs.map(doc => client.data.delete(docType, doc)))
     })
     .then(results => {
@@ -325,3 +316,4 @@ function promiscify (fn) {
     })
   }
 }
+

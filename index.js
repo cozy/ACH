@@ -41,18 +41,10 @@ program.command('import [dataFile] [helpersFile]')
     docTypes.push(docType)
   }
 
-  // Needed for ACH revocation after execution
-  docTypes.push('io.cozy.oauth.clients')
-
   // get a client
   lib.getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
-    return lib.importData(client, data)
-      .then(() => lib.revokeACHClients(client))
-      .catch(error => {
-        console.log('Cannot revoke ACH client', error)
-      })
-      .then(process.exit, process.exit)
+    lib.importData(client, data)
   })
 })
 
@@ -98,6 +90,7 @@ const askConfirmation = function (question, callback, elseCallback) {
 program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')
 .action(docTypes => {
+
   const question = `This doctypes will be removed.
 
 ${docTypes.map(x => `* ${x}`).join(' \n')}
@@ -136,6 +129,7 @@ program.command('export [docTypes] [filename]')
     lib.exportData(client, docTypes, filename)
   })
 })
+
 
 program.parse(process.argv)
 
