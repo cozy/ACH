@@ -95,6 +95,7 @@ program.command('drop <doctypes...>')
 
 ${docTypes.map(x => `* ${x}`).join(' \n')}
 
+Type "yes" if ok.
 `
   const confirm = program.yes ? function (question, cb) { cb() } : askConfirmation
   confirm(question, () => {
