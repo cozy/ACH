@@ -78,7 +78,7 @@ const askConfirmation = function (question, callback, elseCallback) {
 
   rl.question(question, function (answer) {
     rl.close()
-    if (answer == 'yes') {
+    if (answer === 'yes') {
       callback()
     } else {
       elseCallback()
@@ -90,7 +90,6 @@ const askConfirmation = function (question, callback, elseCallback) {
 program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')
 .action(docTypes => {
-
   const question = `This doctypes will be removed.
 
 ${docTypes.map(x => `* ${x}`).join(' \n')}
@@ -103,7 +102,7 @@ Type "yes" if ok.
     const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
     lib.getClient(!!program.token, cozyUrl, docTypes)
       .catch(err => {
-        console.error('Error while getting token')
+        console.error('Error while getting token:', err)
       })
       .then(client => {
         return lib.dropCollections(client, docTypes)
@@ -130,7 +129,6 @@ program.command('export [docTypes] [filename]')
     lib.exportData(client, docTypes, filename)
   })
 })
-
 
 program.parse(process.argv)
 
