@@ -257,21 +257,21 @@ const uploadFile = (client, FileJSON, dirID) => {
 
 // function to upload a folder content (json format)
 const uploadFolderContent = (client, FolderContentJSON, dirID) => {
-  var createdDirPath = {}
   return client.files.createDirectory({
     name: FolderContentJSON.name,
     dirID: dirID || ''
   }).then(folderDoc => {
-    console.log("  _id:"+ folderDoc._id, "folder.path:"+folderDoc.attributes.path);
-    createdDirPath[folderDoc._id]= folderDoc.attributes.path
+    console.log(`  _id: ${folderDoc._id}, folder.path: ${folderDoc.attributes.path}`)
     if (FolderContentJSON.children) {
       return Promise.all(FolderContentJSON.children.map((child) => {
         if (child.children) { // it's a folder, use recursivity
           return uploadFolderContent(client, child, folderDoc._id)
         } else { // it's a file
-          return uploadFile(client, child, folderDoc._id).then(fileDoc => {
-            console.log("  _id:"+ fileDoc._id, "  file.path:" + createdDirPath[fileDoc.attributes.dir_id] + "/" + fileDoc.attributes.name);
-          })
+          return uploadFile(client, child, folderDoc._id)
+            .then(fileDoc => {
+              console.log(`  _id: ${fileDoc._id},  file.path: ${folderDoc.attributes.path}/${fileDoc.attributes.name}`)
+              return fileDoc
+            })
         }
       }))
     }
@@ -283,21 +283,23 @@ const uploadFolderContent = (client, FolderContentJSON, dirID) => {
 
 // imports a tree of directories/files. This tree must be in JSON format using directory-tree module
 module.exports.importFolderContent = (client, JSONtree) => {
-  console.log("creation of :");
+  console.log('Imported :')
   return Promise.all(JSONtree.children.map((item) => {
     if (item.children) { // it's a folder
       return uploadFolderContent(client, item, '')
     } else { // it's a file
-      return uploadFile(client, item, '').then(fileDoc => {
-        console.log("  _id:"+ fileDoc._id, "  file.path:/" + fileDoc.attributes.name);
-      })
+      return uploadFile(client, item, '')
+        .then(fileDoc => {
+          console.log(`  _id: ${fileDoc._id},  file.path: /${fileDoc.attributes.name}`)
+          return fileDoc
+        })
     }
   })).then(() => {
     console.log(`content of ${JSONtree.name} imported`)
     process.exit()
   })
   .catch(err => {
-    console.log("Erreur lors de la création d'un répertoire ou fichier (sans doute déjà existant)");
+    console.log('Error when importing folder content (probably a conflict with existing data)')
     console.warn(err)
     process.exit()
   })
