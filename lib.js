@@ -100,6 +100,16 @@ module.exports.getClient = (generateNewToken, cozyUrl, docTypes) => {
   })
 }
 
+module.exports.revokeACHClients = (cozyClient) => {
+  return cozyClient.settings.getClients()
+    .then(oAuthClients => {
+      const revocations = oAuthClients
+        .filter(oAuthClient => oAuthClient.attributes.client_name === 'ACH')
+        .map(achClient => cozyClient.settings.deleteClientById(achClient._id))
+      return Promise.all(revocations)
+    })
+}
+
 // imports a set of data. Data must be a map, with keys being a doctype, and the value an array of attributes maps.
 module.exports.importData = (cozyClient, data) => {
   let allImports = []
@@ -136,7 +146,7 @@ module.exports.importData = (cozyClient, data) => {
       }))
   }
 
-  Promise.all(allImports).then(process.exit, process.exit)
+  return Promise.all(allImports)
 }
 
 const writeFilePromise = promiscify(fs.writeFile)
@@ -170,6 +180,7 @@ const queryAll = function (cozyClient, mangoIndex, options) {
 
 module.exports.exportData = (cozyClient, doctypes, filename) => {
   console.log('Exporting data...')
+
   const allExports = doctypes.map(doctype => {
     return cozyClient.data.defineIndex(doctype, ['_id'])
       .then(mangoIndex => {
