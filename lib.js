@@ -118,7 +118,10 @@ const revokeACHClients = (cozyClient, options) => {
     .then(oAuthClients => {
       const revocations = oAuthClients
         .filter(oAuthClient => oAuthClient.attributes.client_name === 'ACH' && oAuthClient._id !== exclude)
-        .map(achClient => cozyClient.settings.deleteClientById(achClient._id))
+        .map(achClient => {
+          console.log(`Revoking ACH client ${achClient._id}`)
+          return cozyClient.settings.deleteClientById(achClient._id)
+        })
       return Promise.all(revocations)
     })
 }
