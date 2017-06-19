@@ -44,7 +44,8 @@ program.command('import [dataFile] [helpersFile]')
   // get a client
   lib.getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
-    lib.importData(client, data)
+    return lib.importData(client, data)
+      .then(process.exit, process.exit)
   })
 })
 
