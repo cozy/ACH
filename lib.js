@@ -32,10 +32,7 @@ const getClientWithoutToken = (url, docTypes = []) => {
       let token = creds.token.accessToken
       fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8')
 
-      return revokeACHClients(new cozy.Client({
-        cozyURL: url,
-        token: creds.token.accessToken
-      }), {
+      return revokeACHClients(cozyClient, {
         exclude: creds.client.clientID
       }).catch(error => {
         console.error('Cannot revoke ACH clients', error)
