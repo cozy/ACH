@@ -102,8 +102,8 @@ module.exports.getClient = (generateNewToken, cozyUrl, docTypes) => {
 
 // imports a set of data. Data must be a map, with keys being a doctype, and the value an array of attributes maps.
 module.exports.importData = (cozyClient, data) => {
-  let allImports = [];
-  
+  let allImports = []
+
   for (const docType in data) {
     let docs = data[docType]
     let first = docs.shift()
@@ -135,8 +135,8 @@ module.exports.importData = (cozyClient, data) => {
         }
       }))
   }
-  
-  Promise.all(allImports).then(process.exit, process.exit);
+
+  Promise.all(allImports).then(process.exit, process.exit)
 }
 
 const writeFilePromise = promiscify(fs.writeFile)
@@ -170,21 +170,19 @@ const queryAll = function (cozyClient, mangoIndex, options) {
 
 module.exports.exportData = (cozyClient, doctypes, filename) => {
   console.log('Exporting data...')
-  let allImports = [];
-  
   const allExports = doctypes.map(doctype => {
     return cozyClient.data.defineIndex(doctype, ['_id'])
       .then(mangoIndex => {
         return queryAll(cozyClient, mangoIndex, {
           selector: {'_id': {'$gt': null}},
-          descending: true,
+          descending: true
         })
       }).then(docs => {
         console.log('Exported documents for ', doctype, ':', docs.length)
         return docs
       })
   })
-  
+
   Promise.all(allExports)
     .then(function (data) {
       return _(doctypes)
@@ -199,9 +197,8 @@ module.exports.exportData = (cozyClient, doctypes, filename) => {
     .catch(function (err) {
       console.error(err)
     })
-    .then(process.exit, process.exit);
+    .then(process.exit, process.exit)
 }
-
 
 const dropCollection = (client, docType) => {
   return client.data.defineIndex(docType, ['_id'])
@@ -213,7 +210,7 @@ const dropCollection = (client, docType) => {
       })
     })
     .then(docs => {
-      // well now we drop them all... 
+      // well now we drop them all...
       return Promise.all(docs.map(doc => client.data.delete(docType, doc)))
     })
     .then(results => {
@@ -264,12 +261,17 @@ const uploadFolderContent = (client, FolderContentJSON, dirID) => {
     name: FolderContentJSON.name,
     dirID: dirID || ''
   }).then(folderDoc => {
+    console.log(`  _id: ${folderDoc._id}, folder.path: ${folderDoc.attributes.path}`)
     if (FolderContentJSON.children) {
       return Promise.all(FolderContentJSON.children.map((child) => {
         if (child.children) { // it's a folder, use recursivity
           return uploadFolderContent(client, child, folderDoc._id)
         } else { // it's a file
           return uploadFile(client, child, folderDoc._id)
+            .then(fileDoc => {
+              console.log(`  _id: ${fileDoc._id},  file.path: ${folderDoc.attributes.path}/${fileDoc.attributes.name}`)
+              return fileDoc
+            })
         }
       }))
     }
@@ -281,17 +283,23 @@ const uploadFolderContent = (client, FolderContentJSON, dirID) => {
 
 // imports a tree of directories/files. This tree must be in JSON format using directory-tree module
 module.exports.importFolderContent = (client, JSONtree) => {
+  console.log('Imported :')
   return Promise.all(JSONtree.children.map((item) => {
     if (item.children) { // it's a folder
       return uploadFolderContent(client, item, '')
     } else { // it's a file
       return uploadFile(client, item, '')
+        .then(fileDoc => {
+          console.log(`  _id: ${fileDoc._id},  file.path: /${fileDoc.attributes.name}`)
+          return fileDoc
+        })
     }
   })).then(() => {
-    console.log(`${JSONtree.name} content imported`)
+    console.log(`content of ${JSONtree.name} imported`)
     process.exit()
   })
   .catch(err => {
+    console.log('Error when importing folder content (probably a conflict with existing data)')
     console.warn(err)
     process.exit()
   })
@@ -306,14 +314,13 @@ function promiscify (fn) {
   return function () {
     const args = Array.from(arguments)
     const that = this
-    return new Promise((fullfill, reject) => {
+    return new Promise((resolve, reject) => {
       const callback = function (err, res) {
         if (err) reject(err)
-        else fullfill(res)
+        else resolve(res)
       }
       args.push(callback)
       fn.apply(that, args)
     })
   }
 }
-
