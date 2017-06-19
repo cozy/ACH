@@ -2,6 +2,7 @@ const fs = require('fs')
 const cozy = require('cozy-client-js')
 const _ = require('lodash')
 const appPackage = require('./package.json')
+const enableDestroy = require('server-destroy');
 
 const TOKEN_FILE = 'token.json'
 const CLIENT_NAME = appPackage.name.toUpperCase()
@@ -58,12 +59,13 @@ const onRegistered = (client, url) => {
     server.listen(3333, () => {
       opn(url, {wait: false})
     })
+    enableDestroy(server)
   })
   .then(url => {
-    server.close()
+    server.destroy()
     return url
   }, err => {
-    server.close()
+    server.destroy()
     throw err
   })
 }
