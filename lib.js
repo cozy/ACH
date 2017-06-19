@@ -223,7 +223,6 @@ module.exports.exportData = (cozyClient, doctypes, filename) => {
     .catch(function (err) {
       console.error(err)
     })
-    .then(process.exit, process.exit)
 }
 
 const dropCollection = (client, docType) => {
@@ -322,12 +321,10 @@ module.exports.importFolderContent = (client, JSONtree) => {
     }
   })).then(() => {
     console.log(`content of ${JSONtree.name} imported`)
-    process.exit()
   })
   .catch(err => {
     console.log('Error when importing folder content (probably a conflict with existing data)')
     console.warn(err)
-    process.exit()
   })
 }
 
