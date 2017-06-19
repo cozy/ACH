@@ -10,6 +10,9 @@ const SOFTWARE_ID = CLIENT_NAME + '-' + appPackage.version
 const getClientWithoutToken = (url, docTypes = []) => {
   let permissions = docTypes.map(docType => (docType.toString() + ':ALL'))
 
+  // Needed for ACH revocation after execution
+  permissions.push('io.cozy.oauth.clients:ALL')
+
   let cozyClient = new cozy.Client({
     cozyURL: url,
     oauth: {
@@ -24,11 +27,20 @@ const getClientWithoutToken = (url, docTypes = []) => {
     }
   })
 
-  return cozyClient.authorize().then((creds) => {
-    let token = creds.token.accessToken
-    fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8')
-    return cozyClient
-  })
+  return cozyClient.authorize()
+    .then(creds => {
+      let token = creds.token.accessToken
+      fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8')
+
+      return revokeACHClients(new cozy.Client({
+        cozyURL: url,
+        token: creds.token.accessToken
+      }), {
+        exclude: creds.client.clientID
+      }).catch(error => {
+        console.error('Cannot revoke ACH clients', error)
+      }).then(() => cozyClient)
+    })
 }
 
 // handle the redirect url in the oauth flow
@@ -100,11 +112,12 @@ module.exports.getClient = (generateNewToken, cozyUrl, docTypes) => {
   })
 }
 
-module.exports.revokeACHClients = (cozyClient) => {
+const revokeACHClients = (cozyClient, options) => {
+  const { exclude } = options
   return cozyClient.settings.getClients()
     .then(oAuthClients => {
       const revocations = oAuthClients
-        .filter(oAuthClient => oAuthClient.attributes.client_name === 'ACH')
+        .filter(oAuthClient => oAuthClient.attributes.client_name === 'ACH' && oAuthClient._id !== exclude)
         .map(achClient => cozyClient.settings.deleteClientById(achClient._id))
       return Promise.all(revocations)
     })

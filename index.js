@@ -41,17 +41,10 @@ program.command('import [dataFile] [helpersFile]')
     docTypes.push(docType)
   }
 
-  // Needed for ACH revocation after execution
-  docTypes.push('io.cozy.oauth.clients')
-
   // get a client
   lib.getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
     return lib.importData(client, data)
-      .then(() => lib.revokeACHClients(client))
-      .catch(error => {
-        console.log('Cannot revoke ACH client', error)
-      })
       .then(process.exit, process.exit)
   })
 })
