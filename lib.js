@@ -2,6 +2,7 @@ const fs = require('fs')
 const cozy = require('cozy-client-js')
 const _ = require('lodash')
 const appPackage = require('./package.json')
+const enableDestroy = require('server-destroy');
 
 const TOKEN_FILE = 'token.json'
 const CLIENT_NAME = appPackage.name.toUpperCase()
@@ -58,12 +59,13 @@ const onRegistered = (client, url) => {
     server.listen(3333, () => {
       opn(url, {wait: false})
     })
+    enableDestroy(server)
   })
   .then(url => {
-    server.close()
+    server.destroy()
     return url
   }, err => {
-    server.close()
+    server.destroy()
     throw err
   })
 }
@@ -221,7 +223,6 @@ module.exports.exportData = (cozyClient, doctypes, filename) => {
     .catch(function (err) {
       console.error(err)
     })
-    .then(process.exit, process.exit)
 }
 
 const dropCollection = (client, docType) => {
@@ -320,12 +321,10 @@ module.exports.importFolderContent = (client, JSONtree) => {
     }
   })).then(() => {
     console.log(`content of ${JSONtree.name} imported`)
-    process.exit()
   })
   .catch(err => {
     console.log('Error when importing folder content (probably a conflict with existing data)')
     console.warn(err)
-    process.exit()
   })
 }
 

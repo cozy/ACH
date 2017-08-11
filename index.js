@@ -45,7 +45,6 @@ program.command('import [dataFile] [helpersFile]')
   lib.getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
     return lib.importData(client, data)
-      .then(process.exit, process.exit)
   })
 })
 
@@ -107,9 +106,6 @@ Type "yes" if ok.
       })
       .then(client => {
         return lib.dropCollections(client, docTypes)
-      })
-      .then(res => {
-        process.exit()
       })
       .catch(err => {
         console.error('Error while dropping collections', err)
