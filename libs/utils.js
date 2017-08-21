@@ -1,20 +1,15 @@
-const cozy = require('cozy-client-js')
-const dirTree = require('directory-tree')
 const path = require('path')
 const fs = require('fs')
 
-// function to upload File (json format)
-const uploadFile = module.exports.uploadFile = (client, FileJSON, dirID, fileID) => {
-  const readStream = fs.createReadStream(FileJSON.path)
-  // must specify  the content-type here
+const getContentTypeFromExtension = function (extension) {
   let contentType = ''
-  switch (FileJSON.extension) {
+  switch (extension) {
     case '.jpg':
     case '.jpeg':
     case '.gif':
     case '.png':
     case '.tiff':
-      contentType = `image/${FileJSON.extension.substring(1)}`
+      contentType = `image/${extension.substring(1)}`
       break
     case '.pdf':
       contentType = `application/pdf`
@@ -23,11 +18,29 @@ const uploadFile = module.exports.uploadFile = (client, FileJSON, dirID, fileID)
       contentType = ''
       break
   }
-  return client.files.create(readStream, {
-    name: FileJSON.name,
-    contentType,
-    dirID: dirID || '',
-    _id: fileID
+  return contentType
+}
+
+/**
+ * Upload a file from a fileJSON description. Keeps the same name
+ * as the fileJSON. Will overwrite existing file.
+ * 
+ * @param  {[type]} client   - Cozy client
+ * @param  {[type]} fileJSON - FileJSON describing the file
+ * @param  {String} dirID    - Where to put the file
+ * @return {[type]}          - Promise
+ */
+const uploadFile = module.exports.uploadFile = (client, fileJSON, dirID = '', force) => {
+  const data = fs.createReadStream(fileJSON.path)
+  const contentType = getContentTypeFromExtension(fileJSON.extension)
+  const dirProm = dirID === '' ? client.files.statByPath('/') : client.files.statById(dirID)
+  return dirProm.then(doc => {
+    const path = doc.attributes.path
+    return client.files.forceCreateByPath(`${path}/${fileJSON.name}`, data, {
+      name: fileJSON.name,
+      contentType,
+      dirID: dirID
+    })
   })
 }
 
