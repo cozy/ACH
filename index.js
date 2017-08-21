@@ -3,7 +3,14 @@
 const fs = require('fs')
 const appPackage = require('./package.json')
 
-const lib = require('./lib')
+
+const {
+  dropCollections, 
+  exportData, 
+  getClient, 
+  importData, 
+  importFolderContent
+} = require('./libs')
 
 const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
 
@@ -42,9 +49,9 @@ program.command('import [dataFile] [helpersFile]')
   }
 
   // get a client
-  lib.getClient(!!program.token, cozyUrl, docTypes)
+  getClient(!!program.token, cozyUrl, doctypes)
   .then(client => {
-    return lib.importData(client, data)
+    return importData(client, data, dataFile)
   })
 })
 
@@ -63,9 +70,9 @@ program.command('importDir [directoryPath]')
   const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
 
   // get a client
-  lib.getClient(!!program.token, cozyUrl, ['io.cozy.files'])
+  getClient(!!program.token, cozyUrl, ['io.cozy.files'])
   .then(client => {
-    lib.importFolderContent(client, JSONtree)
+    importFolderContent(client, JSONtree)
   })
 })
 
@@ -100,12 +107,12 @@ Type "yes" if ok.
   confirm(question, () => {
     // get the url of the cozy
     const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-    lib.getClient(!!program.token, cozyUrl, docTypes)
+    getClient(!!program.token, cozyUrl, docTypes)
       .catch(err => {
         console.error('Error while getting token:', err)
       })
       .then(client => {
-        return lib.dropCollections(client, docTypes)
+        return dropCollections(client, docTypes)
       })
       .catch(err => {
         console.error('Error while dropping collections', err)
@@ -121,9 +128,9 @@ program.command('export [docTypes] [filename]')
   // get a client
   docTypes = docTypes.split(',')
   const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-  lib.getClient(!!program.token, cozyUrl, docTypes)
+  getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
-    lib.exportData(client, docTypes, filename)
+    exportData(client, docTypes, filename)
   })
 })
 
