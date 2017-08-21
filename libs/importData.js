@@ -7,6 +7,11 @@ const { merge, once } = require('lodash')
 
 const { uploadFile } = require('./utils')
 const assert = require('./assert')
+const {
+  runSerially,
+  runParallel,
+  runParallelAfterFirst
+} = require('./promises')
 
 const FILE_DOCTYPE = 'io.cozy.files'
 const H = Handlebars.create()
@@ -59,8 +64,9 @@ const singleQuoteString = function (value) {
  * const str = Handlebars.compile("{{ metadata 'io.cozy.files' 0 '_id' }}")()
  * > str = "{{ metadata 'io.cozy.files' 0 '_id' }}"
  */
-const passthroughHelper = function (name) {
+const passthroughHelper = function (name, callback) {
   return function () {
+    callback && callback()
     return new Handlebars.SafeString(
       `{{ ${name} ${Array.from(arguments).slice(0, -1).map(singleQuoteString).join(' ')} }}`)
   }
@@ -133,26 +139,15 @@ const createDoc = function (client, doctype, data) {
   })
 }
 
-const runSerially = function (arr, createPromise) {
-  let prom
-  const results = []
-  for (let i in arr) {
-    let item = arr[i]
-    prom = !prom ? createPromise(item) : prom.then(res => {
-      return createPromise(item)
-    })
-    prom = prom.then(function (res) {
-      results.push(res)
-      return res
-    })
-  }
-  return prom.then(() => results)
-}
 
-const importData = function (cozyClient, data) {
-  return runSerially(Object.keys(data), doctype => {
+
+const importData = function (cozyClient, data, options) {
+  const runPerDoctype = options.parallel ? runParallel : runSerially
+  const runPerDocument = options.paralel ? runParallelAfterFirst : runSerially
+
+  return runPerDoctype(Object.keys(data), doctype => {
     let docs = data[doctype]
-    return runSerially(docs, doc => createDoc(cozyClient, doctype, doc))
+    return runPerDocument(docs, doc => createDoc(cozyClient, doctype, doc))
       .then(results => {
         console.log(results)
         console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
@@ -177,10 +172,16 @@ module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
   const templateDir = path.dirname(path.resolve(filepath))
 
   // dummy-json pass helpers
+  const options = { parallel: true }
+  const turnOffParallelism = once(function () {
+    console.log('Turning off parallelism since {{ metadata }} helper is used.')
+    options.parallel = false
+  })
+
   let handlebarsOptions = {
     helpers: {
       dir: passthroughHelper('dir'),
-      metadata: passthroughHelper('metadata')
+      metadata: passthroughHelper('metadata', turnOffParallelism)
     }
   }
 
@@ -194,11 +195,11 @@ module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
 
   // We register 2nd pass helpers
   H.registerHelper({
-    dir: templateDir
+    dir: templateDir,
     metadata: getMetadata,
   })
 
   return getClient(createToken, cozyUrl, doctypes).then(client => {
-    return importData(client, data)
+    return importData(client, data, options)
   })
 }

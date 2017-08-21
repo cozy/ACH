@@ -15,15 +15,11 @@
   "io.cozy.bank.operations": [
     {
       "account": "",
-      "label": "CARTE DENTISTE",
-      "date": "2017-03-09T00:00:00Z",
+      "label": "Facture téléphonique",
+      "date": "2017-08-09T00:00:00Z",
       "amount": -70,  
       "currency": "€",
-      "action": {
-        "type": "refund",
-        "url": "https://harmonie-sante.cozy.works/#/remboursements"
-      },
-      "operationType": "health_costs",
+      "operationType": "phone",
       "bills": [
         "io.cozy.bills:{{ metadata 'io.cozy.bills' 0 '_id' }}"
       ]
