@@ -142,7 +142,7 @@ const createDoc = function (client, doctype, data) {
 
 
 const importData = function (cozyClient, data, options) {
-    // Even if we are in parallel mode, inserts the first document separetely, and then all the other ones in parallel.
+    // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
     // because if it's a new doctype, the stack needs time to create the collection
     // and can't handle the other incoming requests
   const runPerDoctype = options.parallel ? runParallel : runSerially
