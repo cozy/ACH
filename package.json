@@ -5,7 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "btoa": "^1.1.2",
-    "commander": "^2.9.0",
+    "commander": "^2.11.0",
     "core-js": "^2.4.1",
     "cozy-client-js": "^0.3.4",
     "directory-tree": "^1.2.1",
@@ -25,5 +25,7 @@
   },
   "author": "",
   "license": "ISC",
-  "bin" : { "ACH" : "./index.js" }
+  "bin": {
+    "ACH": "./index.js"
+  }
 }
