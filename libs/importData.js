@@ -51,7 +51,7 @@ const singleQuoteString = function (value) {
  * 1. At load time to create dummy data
  * 2. When the data is being inserted so that we can reference data being created 
  *
- * Since we need the `metadata` helper to stay the same for the second pass, we
+ * Since we need the `reference` helper to stay the same for the second pass, we
  * create it with `passthroughHelper`.
  * 
  * @param  {string}   name     - The name of the created helper
@@ -59,10 +59,10 @@ const singleQuoteString = function (value) {
  * @return {string}            - A helper that when called will creates itself
  *
  * @example
- * const metadata = passthroughHelper('metadata')
- * Handlebars.registerHelper({ metadata })
- * const str = Handlebars.compile("{{ metadata 'io.cozy.files' 0 '_id' }}")()
- * > str = "{{ metadata 'io.cozy.files' 0 '_id' }}"
+ * const reference = passthroughHelper('reference')
+ * Handlebars.registerHelper({ reference })
+ * const str = Handlebars.compile("{{ reference 'io.cozy.files' 0 '_id' }}")()
+ * > str = "{{ reference 'io.cozy.files' 0 '_id' }}"
  */
 const passthroughHelper = function (name, callback) {
   return function () {
@@ -165,7 +165,7 @@ const importData = function (cozyClient, data, options) {
  * The JSON is processed with dummy-json so that fixtures can be created easily.
  *
  * Objects can also reference the current directory of the file with {{ dir }}
- * and reference objects created before them with {{ metadata doctype index field }}
+ * and reference objects created before them with {{ reference doctype index field }}
  *
  */
 module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
@@ -177,14 +177,14 @@ module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
   // dummy-json pass helpers
   const options = { parallel: true }
   const turnOffParallelism = once(function () {
-    console.log('Turning off parallelism since {{ metadata }} helper is used.')
+    console.log('Turning off parallelism since {{ reference }} helper is used.')
     options.parallel = false
   })
 
   let handlebarsOptions = {
     helpers: {
       dir: passthroughHelper('dir'),
-      metadata: passthroughHelper('metadata', turnOffParallelism)
+      reference: passthroughHelper('reference', turnOffParallelism)
     }
   }
 
@@ -199,7 +199,7 @@ module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
   // We register 2nd pass helpers
   H.registerHelper({
     dir: templateDir,
-    metadata: getMetadata,
+    reference: getMetadata,
   })
 
   return getClient(createToken, cozyUrl, doctypes).then(client => {
