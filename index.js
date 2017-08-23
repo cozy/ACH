@@ -1,9 +1,20 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --inspect
 
 const fs = require('fs')
 const appPackage = require('./package.json')
+const path = require('path')
 
-const lib = require('./lib')
+const { merge } = require('lodash')
+const Handlebars = require('handlebars')
+
+const {
+  dropCollections,
+  exportData,
+  getClient,
+  importData,
+  importFolderContent,
+  assert
+} = require('./libs')
 
 const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
 
@@ -15,37 +26,26 @@ program
 .option('-y --yes', 'Does not ask for confirmation on sensitive operations')
 .option(`-u --url <url>', 'URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`)
 
-// import command
-program.command('import [dataFile] [helpersFile]')
-.description('The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).')
-.action((dataFile, helpersFile) => {
-  if (!dataFile) dataFile = 'example-data.json'
-  // dummy helpers
-  let helpers = null
-  if (helpersFile) helpers = require(`./${helpersFile}`)
 
-  const dummyjson = require('dummy-json')
-
-  // get the url of the cozy
-  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-
-  // collect the doctypes that we're going to import
-  let docTypes = []
-  let template = fs.readFileSync(dataFile, {encoding: 'utf8'})
-
-  let data = helpersFile
-    ? JSON.parse(dummyjson.parse(template, helpers))
-    : JSON.parse(dummyjson.parse(template))
-
-  for (let docType in data) {
-    docTypes.push(docType)
+function fileExists (p) {
+  if (p && !fs.existsSync(path.resolve(p))) {
+    return false
+  } else {
+    return true
   }
+}
+// import command
 
-  // get a client
-  lib.getClient(!!program.token, cozyUrl, docTypes)
-  .then(client => {
-    return lib.importData(client, data)
-  })
+program.command('import [filepath] [handlebarsOptionsFile]')
+.description('The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).')
+.option('[filepath]', 'File to import')
+.option('[handlebarsOptionsFile]', 'File that exports Handlebars options')
+.action((filepath, handlebarsOptionsFile) => {
+  assert(fileExists(filepath), `${filepath} does not exist`)
+  assert(fileExists(handlebarsOptionsFile), `${handlebarsOptionsFile} does not exist`)
+  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
+  const createToken = !!program.token
+  return importData(cozyUrl, createToken, filepath, handlebarsOptionsFile)
 })
 
 // import directories command
@@ -63,9 +63,9 @@ program.command('importDir [directoryPath]')
   const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
 
   // get a client
-  lib.getClient(!!program.token, cozyUrl, ['io.cozy.files'])
+  getClient(!!program.token, cozyUrl, ['io.cozy.files'])
   .then(client => {
-    lib.importFolderContent(client, JSONtree)
+    importFolderContent(client, JSONtree)
   })
 })
 
@@ -100,12 +100,12 @@ Type "yes" if ok.
   confirm(question, () => {
     // get the url of the cozy
     const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-    lib.getClient(!!program.token, cozyUrl, docTypes)
+    getClient(!!program.token, cozyUrl, docTypes)
       .catch(err => {
         console.error('Error while getting token:', err)
       })
       .then(client => {
-        return lib.dropCollections(client, docTypes)
+        return dropCollections(client, docTypes)
       })
       .catch(err => {
         console.error('Error while dropping collections', err)
@@ -121,9 +121,9 @@ program.command('export [docTypes] [filename]')
   // get a client
   docTypes = docTypes.split(',')
   const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-  lib.getClient(!!program.token, cozyUrl, docTypes)
+  getClient(!!program.token, cozyUrl, docTypes)
   .then(client => {
-    lib.exportData(client, docTypes, filename)
+    exportData(client, docTypes, filename)
   })
 })
 
