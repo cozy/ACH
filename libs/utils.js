@@ -24,7 +24,7 @@ const getContentTypeFromExtension = function (extension) {
 /**
  * Upload a file from a fileJSON description. Keeps the same name
  * as the fileJSON. Will overwrite existing file.
- * 
+ *
  * @param  {[type]} client   - Cozy client
  * @param  {[type]} fileJSON - FileJSON describing the file
  * @param  {String} dirID    - Where to put the file

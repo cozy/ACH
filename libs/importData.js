@@ -6,7 +6,6 @@ const dirTree = require('directory-tree')
 const { merge, once } = require('lodash')
 
 const { uploadFile } = require('./utils')
-const assert = require('./assert')
 const {
   runSerially,
   runParallel,
@@ -36,24 +35,24 @@ const getMetadata = function (doctype, index, field) {
 }
 
 const singleQuoteString = function (value) {
-  if (typeof value == 'string') {
+  if (typeof value === 'string') {
     return `'${value}'`
   } else {
-    return value 
+    return value
   }
-} 
+}
 
 /**
  * Creates a helper that will stay same after being processed by Handlebars
- * 
+ *
  * There are two Handlebars passes on the data :
- * 
+ *
  * 1. At load time to create dummy data
- * 2. When the data is being inserted so that we can reference data being created 
+ * 2. When the data is being inserted so that we can reference data being created
  *
  * Since we need the `reference` helper to stay the same for the second pass, we
  * create it with `passthroughHelper`.
- * 
+ *
  * @param  {string}   name     - The name of the created helper
  * @param  {function} callback - Callback to run when the helper is executed
  * @return {string}            - A helper that when called will creates itself
@@ -115,7 +114,7 @@ const createDocumentFromDescription = function (client, doctype, data) {
  * need it to access it with the metadata helper.
  *
  * @param  {CozyClient} client  - Cozy client
- * @param  {String} doctype 
+ * @param  {String} doctype
  * @param  {Object} data    - Document to be created
  * @return {Promise}
  */
@@ -138,8 +137,6 @@ const createDoc = function (client, doctype, data) {
     throw err
   })
 }
-
-
 
 const importData = function (cozyClient, data, options) {
     // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
@@ -198,7 +195,7 @@ module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
   // We register 2nd pass helpers
   H.registerHelper({
     dir: templateDir,
-    reference: getMetadata,
+    reference: getMetadata
   })
 
   return getClient(createToken, cozyUrl, doctypes).then(client => {
