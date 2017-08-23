@@ -79,7 +79,6 @@ const applyHelpers = function (data) {
   return JSON.parse(runTemplate(JSON.stringify(data)))
 }
 
-
 /**
  * If the document is a file, will take appropriate action to have it
  * uploaded, looks at the __SRC__ and __DEST__ fields of the document
@@ -143,7 +142,7 @@ const importData = function (cozyClient, data, options) {
     // because if it's a new doctype, the stack needs time to create the collection
     // and can't handle the other incoming requests
   const runPerDoctype = options.parallel ? runParallel : runSerially
-  const runPerDocument = options.paralel ? runParallelAfterFirst : runSerially
+  const runPerDocument = options.parallel ? runParallelAfterFirst : runSerially
 
   return runPerDoctype(Object.keys(data), doctype => {
     let docs = data[doctype]

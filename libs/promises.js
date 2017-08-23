@@ -18,8 +18,12 @@ module.exports.runSerially = function (arr, createPromise) {
   return prom.then(() => results)
 }
 
-module.exports.runParallel = function (arr, createPromise) {
+const runParallel = module.exports.runParallel = function (arr, createPromise) {
   return Promise.all(arr.map(createPromise))
+}
+
+const pushAll = function (arr, otherArr) {
+  return arr.push.apply(arr, otherArr)
 }
 
 module.exports.runParallelAfterFirst = function (arr, createPromise) {
@@ -28,7 +32,7 @@ module.exports.runParallelAfterFirst = function (arr, createPromise) {
   return createPromise(arr[0]).then(res => {
     results.push(res)
     return runParallel(rest, createPromise).then(restResults => {
-      results.push.call(results, restResults)
+      pushAll(results, restResults)
       return results
     })
   })
