@@ -152,7 +152,6 @@ const importData = function (cozyClient, data, options) {
     let docs = data[doctype]
     return runPerDocument(docs, doc => createDoc(cozyClient, doctype, doc))
       .then(results => {
-        console.log(results)
         console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
         console.log(results.map(result => (result._id)))
       })
