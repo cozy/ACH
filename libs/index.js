@@ -6,5 +6,6 @@ libs.getClient = require('./getClient')
 libs.importData = require('./importData')
 libs.importFolderContent = require('./importFolderContent')
 libs.assert = require('./assert')
+libs.utils = require('./utils')
 
 module.exports = libs
