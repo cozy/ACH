@@ -89,10 +89,10 @@ const askConfirmation = function (question, callback, elseCallback) {
 // is this a good idea?
 program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')
-.action(docTypes => {
+.action(doctypes => {
   const question = `This doctypes will be removed.
 
-${docTypes.map(x => `* ${x}`).join(' \n')}
+${doctypes.map(x => `* ${x}`).join(' \n')}
 
 Type "yes" if ok.
 `
@@ -100,12 +100,12 @@ Type "yes" if ok.
   confirm(question, () => {
     // get the url of the cozy
     const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-    getClient(!!program.token, cozyUrl, docTypes)
+    getClient(token, url, doctypes)
       .catch(err => {
         console.error('Error while getting token:', err)
       })
       .then(client => {
-        return dropCollections(client, docTypes)
+        return dropCollections(client, doctypes)
       })
       .catch(err => {
         console.error('Error while dropping collections', err)
@@ -115,15 +115,15 @@ Type "yes" if ok.
   })
 })
 
-program.command('export [docTypes] [filename]')
+program.command('export [doctypes] [filename]')
 .description('Exports data from the doctypes (separated by commas) to filename')
-.action((docTypes, filename) => {
+.action((doctypes, filename) => {
   // get a client
-  docTypes = docTypes.split(',')
   const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
   getClient(!!program.token, cozyUrl, docTypes)
+  doctypes = doctypes.split(',')
   .then(client => {
-    exportData(client, docTypes, filename)
+    exportData(client, doctypes, filename)
   })
 })
 
