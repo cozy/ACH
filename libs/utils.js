@@ -70,7 +70,7 @@ const uploadFolderContent = module.exports.uploadFolderContent = (client, Folder
   })
 }
 
-module.exports.queryAll = function (cozyClient, mangoIndex, options) {
+module.exports.queryAll = function (cozyClient, mangoIndex, options = {}) {
   return new Promise((resolve, reject) => {
     const documents = []
     var skip = options.skip || 0
