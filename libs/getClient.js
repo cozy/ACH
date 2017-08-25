@@ -108,9 +108,8 @@ const getClientWithToken = tokenPath => (url, docTypes) => {
 
 // convenience wrapper around the 2 client getters
 module.exports = (tokenPath, cozyUrl, docTypes) => {
-  console.log(cozyUrl)
   tokenPath = path.resolve(tokenPath)
-  const getClientFn = tokenPath && fs.existsSync(tokenPath) ? getClientWithToken(tokenPath) : getClientWithoutToken(tokenPath)
+  const getClientFn = fs.existsSync(tokenPath) ? getClientWithToken(tokenPath) : getClientWithoutToken(tokenPath)
 
   return getClientFn(cozyUrl, docTypes)
   .then(client => {
