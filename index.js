@@ -1,4 +1,4 @@
-#!/usr/bin/env node --inspect
+#!/usr/bin/env node 
 
 const fs = require('fs')
 const appPackage = require('./package.json')
@@ -17,14 +17,15 @@ const {
 } = require('./libs')
 
 const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
+const TOKEN_FILE = './token.json'
 
 // the CLI interface
 let program = require('commander')
 program
 .version(appPackage.version)
-.option('-t --token', 'Generate a new token.')
+.option('-t --token [token]', 'Token file to use (defaults to token.json)', TOKEN_FILE)
 .option('-y --yes', 'Does not ask for confirmation on sensitive operations')
-.option(`-u --url <url>', 'URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`)
+.option('-u --url [url]', `URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`, DEFAULT_COZY_URL)
 
 
 function fileExists (p) {
@@ -43,9 +44,8 @@ program.command('import [filepath] [handlebarsOptionsFile]')
 .action((filepath, handlebarsOptionsFile) => {
   assert(fileExists(filepath), `${filepath} does not exist`)
   assert(fileExists(handlebarsOptionsFile), `${handlebarsOptionsFile} does not exist`)
-  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-  const createToken = !!program.token
-  return importData(cozyUrl, createToken, filepath, handlebarsOptionsFile)
+  const {url, token} = program
+  return importData(url, token, filepath, handlebarsOptionsFile)
 })
 
 // import directories command
@@ -59,12 +59,8 @@ program.command('importDir [directoryPath]')
   const dirTree = require('directory-tree')
   const JSONtree = dirTree(directoryPath, {})
 
-  // get the url of the cozy
-  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-
-  // get a client
-  getClient(!!program.token, cozyUrl, ['io.cozy.files'])
-  .then(client => {
+  const {url, token} = program
+  getClient(token, url, ['io.cozy.files']).then(client => {
     importFolderContent(client, JSONtree)
   })
 })
@@ -99,7 +95,7 @@ Type "yes" if ok.
   const confirm = program.yes ? function (question, cb) { cb() } : askConfirmation
   confirm(question, () => {
     // get the url of the cozy
-    const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
+    const {url,token} = program
     getClient(token, url, doctypes)
       .catch(err => {
         console.error('Error while getting token:', err)
@@ -119,9 +115,9 @@ program.command('export [doctypes] [filename]')
 .description('Exports data from the doctypes (separated by commas) to filename')
 .action((doctypes, filename) => {
   // get a client
-  const cozyUrl = program.url ? program.url.toString() : DEFAULT_COZY_URL
-  getClient(!!program.token, cozyUrl, docTypes)
   doctypes = doctypes.split(',')
+  const {url, token} = program
+  getClient(token, url, doctypes)
   .then(client => {
     exportData(client, doctypes, filename)
   })

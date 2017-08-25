@@ -1,8 +1,9 @@
 const cozy = require('cozy-client-js')
 const appPackage = require('../package.json')
 const fs = require('fs')
+const { addUtilityMethods } = require('./cozy-client-mixin')
+const path = require('path')
 
-const TOKEN_FILE = '../token.json'
 const CLIENT_NAME = appPackage.name.toUpperCase()
 const SOFTWARE_ID = CLIENT_NAME + '-' + appPackage.version
 
@@ -22,7 +23,7 @@ const revokeACHClients = (cozyClient, options) => {
     })
 }
 
-const getClientWithoutToken = (url, docTypes = []) => {
+const getClientWithoutToken = tokenPath => (url, docTypes = []) => {
   let permissions = docTypes.map(docType => (docType.toString() + ':ALL'))
 
   // Needed for ACH revocation after execution
@@ -45,7 +46,8 @@ const getClientWithoutToken = (url, docTypes = []) => {
   return cozyClient.authorize()
     .then(creds => {
       let token = creds.token.accessToken
-      fs.writeFileSync(TOKEN_FILE, JSON.stringify({token: token}), 'utf8')
+
+      fs.writeFileSync(tokenPath, JSON.stringify({token: token}), 'utf8')
 
       return revokeACHClients(cozyClient, {
         exclude: creds.client.clientID
@@ -85,12 +87,11 @@ const onRegistered = (client, url) => {
 }
 
 // returns a client when there is already a stored token
-const getClientWithToken = (url, docTypes) => {
+const getClientWithToken = tokenPath => (url, docTypes) => {
   return new Promise((resolve, reject) => {
     try {
       // try to load a locally stored token and use that
-      let stored = require('./' + TOKEN_FILE)
-
+      let stored = require(tokenPath)
       let cozyClient = new cozy.Client()
 
       cozyClient.init({
@@ -150,9 +151,10 @@ const addUtilityMethods = function (client) {
 }
 
 // convenience wrapper around the 2 client getters
-module.exports = (generateNewToken, cozyUrl, docTypes) => {
-  // now get a client
-  const getClientFn = generateNewToken ? getClientWithoutToken : getClientWithToken
+module.exports = (tokenPath, cozyUrl, docTypes) => {
+  console.log(cozyUrl)
+  tokenPath = path.resolve(tokenPath)
+  const getClientFn = tokenPath && fs.existsSync(tokenPath) ? getClientWithToken(tokenPath) : getClientWithoutToken(tokenPath)
 
   return getClientFn(cozyUrl, docTypes)
   .then(client => {
@@ -160,7 +162,7 @@ module.exports = (generateNewToken, cozyUrl, docTypes) => {
     return client
   })
   .catch(err => {
-    if (err.message === "ENOENT: no such file or directory, open '" + TOKEN_FILE + "'") {
+    if (err.message === "ENOENT: no such file or directory, open '" + tokenPath + "'") {
       console.warn('No stored token found, are you sure you generated one? Use option "-t" if you want to generate one next time.')
     } else {
       console.warn(err)
