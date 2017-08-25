@@ -50,9 +50,9 @@ module.exports = (cozyClient, doctypes, filename) => {
     .then(data => {
       const json = JSON.stringify(data, null, 2)
       if (filename === '-') {
-        return writeFilePromise(filename, json)
-      } else {
         console.log(json)
+      } else {
+        return writeFilePromise(filename, json)
       }
     })
     .catch(function (err) {
