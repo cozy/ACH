@@ -10,7 +10,7 @@ Install ACH using yarn.
 yarn global add git+ssh://git@gitlab.cozycloud.cc/labs/ACH.git
 ```
 
-Use it by running `yarn start` and let the help guide you:
+## Usage
 
 ```
 $ ACH --help
