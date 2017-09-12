@@ -7,7 +7,7 @@ Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **create and remove 
 Install ACH using yarn.
 
 ```
-yarn global add git+ssh://git@gitlab.cozycloud.cc/labs/ACH.git
+$ yarn global add git+ssh://git@gitlab.cozycloud.cc/labs/ACH.git
 ```
 
 ## Usage
@@ -42,13 +42,13 @@ Files provided to the `import` command are parsed by [dummy-json](https://github
 Here is an example of data import:
 
 ```shell
-ACH import data/edf/data/json
+$ ACH import data/edf/data.json
 ```
 
 Some JSON files use handlebars helpers, for those file, you need to specifiy where it is.
 
 ```shell
-ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js # the last optional argument is for dummy helpers
+$ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js # the last optional argument is for dummy helpers
 ```
 
 You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
@@ -58,7 +58,7 @@ You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/bl
 You can also import a full repository content into a Cozy by using the command `importDir`:
 
 ```shell
-ACH importDir myDirectoryPath # default will be ./DirectoriesToInject
+$ ACH importDir myDirectoryPath # default will be ./DirectoriesToInject
 ```
 
 All your target directory content will be imported to the root of Cozy Drive following the correct repositories tree.
