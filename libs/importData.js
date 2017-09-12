@@ -184,7 +184,7 @@ module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
   }
 
   if (handlebarsOptionsFile) {
-    handlebarsOptions = merge(handlebarsOptions, require(`./${handlebarsOptionsFile}`))
+    handlebarsOptions = merge(handlebarsOptions, require(path.resolve(`./${handlebarsOptionsFile}`)))
   }
 
   // dummy-json pass passthrough helpers
