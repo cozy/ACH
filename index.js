@@ -8,11 +8,8 @@ const { merge } = require('lodash')
 const Handlebars = require('handlebars')
 
 const {
-  dropCollections,
-  exportData,
-  getClient,
+  ACH,
   importData,
-  importFolderContent,
   assert
 } = require('./libs')
 
@@ -35,12 +32,9 @@ function fileExists (p) {
     return true
   }
 }
-// import command
 
 program.command('import [filepath] [handlebarsOptionsFile]')
 .description('The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).')
-.option('[filepath]', 'File to import')
-.option('[handlebarsOptionsFile]', 'File that exports Handlebars options')
 .action((filepath, handlebarsOptionsFile) => {
   assert(fileExists(filepath), `${filepath} does not exist`)
   assert(fileExists(handlebarsOptionsFile), `${handlebarsOptionsFile} does not exist`)
@@ -52,7 +46,7 @@ program.command('import [filepath] [handlebarsOptionsFile]')
 // All the root folder content is imported, not the root folder itself (DirectoriesToInject by default)
 program.command('importDir [directoryPath]')
 .description('The path to the directory content to import. Defaults to "./DirectoriesToInject".')
-.action(directoryPath => {
+.action(async directoryPath => {
   if (!directoryPath) directoryPath = './DirectoriesToInject'
 
   // get directories tree in JSON format
@@ -60,29 +54,11 @@ program.command('importDir [directoryPath]')
   const JSONtree = dirTree(directoryPath, {})
 
   const {url, token} = program
-  getClient(token, url, ['io.cozy.files']).then(client => {
-    importFolderContent(client, JSONtree)
-  })
+  const ach = new ACH(token, url, ['io.cozy.files'])
+  await ach.connect()
+  ach.importFolder(client, JSONtree)
 })
 
-const askConfirmation = function (question, callback, elseCallback) {
-  const readline = require('readline')
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-  })
-
-  rl.question(question, function (answer) {
-    rl.close()
-    if (answer === 'yes') {
-      callback()
-    } else {
-      elseCallback()
-    }
-  })
-}
-
-// is this a good idea?
 program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')
 .action(doctypes => {
@@ -93,34 +69,34 @@ ${doctypes.map(x => `* ${x}`).join(' \n')}
 Type "yes" if ok.
 `
   const confirm = program.yes ? function (question, cb) { cb() } : askConfirmation
-  confirm(question, () => {
+  confirm(question, async () => {
     // get the url of the cozy
     const {url,token} = program
-    getClient(token, url, doctypes)
-      .catch(err => {
-        console.error('Error while getting token:', err)
-      })
-      .then(client => {
-        return dropCollections(client, doctypes)
-      })
-      .catch(err => {
-        console.error('Error while dropping collections', err)
-      })
+    const ach = new ACH(token, url, doctypes)
+    await ach.connect()
+    ach.dropCollections(doctypes)
   }, () => {
-    console.log('Thought so')
+    console.log('Cancelled drop')
   })
 })
 
 program.command('export [doctypes] [filename]')
 .description('Exports data from the doctypes (separated by commas) to filename')
-.action((doctypes, filename) => {
-  // get a client
+.action(async (doctypes, filename) => {
   doctypes = doctypes.split(',')
   const {url, token} = program
-  getClient(token, url, doctypes)
-  .then(client => {
-    exportData(client, doctypes, filename)
-  })
+  const ach = new ACH(token, url, doctypes)
+  await ach.connect()
+  ach.export(doctypes, filename)
+})
+
+program.command('delete [doctype] <ids...>')
+.description('Delete document(s)')
+.action(async (doctype, ids) => {
+  const {url, token} = program
+  const ach = new ACH(token, url, [doctype])
+  await ach.connect()
+  ach.deleteDocuments(client, doctype, ids)
 })
 
 program.parse(process.argv)
