@@ -41,13 +41,13 @@ Files provided to the `import` command are parsed by [dummy-json](https://github
 Here is an example of data import:
 
 ```shell
-yarn start -- -t import example-data.json # -t is used to generate a new cozy-client token
+yarn start -- import example-data.json # -t is used to generate a new cozy-client token
 ```
 
 You can also use your [dummy custom helpers](https://github.com/webroo/dummy-json#writing-your-own-helpers) by following:
 
 ```shell
-yarn start -- -t import example-data.json myDummyHelpers.js # the last optional argument is for dummy helpers
+yarn start -- import example-data.json myDummyHelpers.js # the last optional argument is for dummy helpers
 ```
 
 You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
@@ -57,7 +57,7 @@ You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/bl
 You can also import a full repository content into a Cozy by using the command `importDir`:
 
 ```shell
-yarn start -- -t importDir myDirectoryPath # default will be ./DirectoriesToInject
+yarn start -- importDir myDirectoryPath # default will be ./DirectoriesToInject
 ```
 
 All your target directory content will be imported to the root of Cozy Drive following the correct repositories tree.
