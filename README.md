@@ -48,7 +48,7 @@ $ ACH import data/edf/data.json
 Some JSON files use handlebars helpers, for those file, you need to specifiy where it is.
 
 ```shell
-$ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js # the last optional argument is for dummy helpers
+$ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js
 ```
 
 You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
@@ -56,7 +56,7 @@ You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/bl
 To import some data on recette :
 
 ```shell
-$ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js --url https://recette.cozy.works # the last optional argument is for dummy helpers
+$ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js --url https://recette.cozy.works
 ```
 
 ## Import repositories with files
