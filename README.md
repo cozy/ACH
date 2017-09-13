@@ -53,6 +53,12 @@ $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js # the
 
 You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
 
+To import some data on recette :
+
+```shell
+$ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js --url https://recette.cozy.works # the last optional argument is for dummy helpers
+```
+
 ## Import repositories with files
 
 You can also import a full repository content into a Cozy by using the command `importDir`:
