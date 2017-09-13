@@ -42,8 +42,6 @@ program.command('import [filepath] [handlebarsOptionsFile]')
   return importData(url, token, filepath, handlebarsOptionsFile)
 })
 
-// import directories command
-// All the root folder content is imported, not the root folder itself (DirectoriesToInject by default)
 program.command('importDir [directoryPath]')
 .description('The path to the directory content to import. Defaults to "./DirectoriesToInject".')
 .action(async directoryPath => {
