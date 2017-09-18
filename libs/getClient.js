@@ -47,6 +47,7 @@ const getClientWithoutToken = tokenPath => (url, docTypes = []) => {
     .then(creds => {
       let token = creds.token.accessToken
 
+      console.log('Writing token file to', tokenPath)
       fs.writeFileSync(tokenPath, JSON.stringify({token: token}), 'utf8')
 
       return revokeACHClients(cozyClient, {
@@ -91,6 +92,7 @@ const getClientWithToken = tokenPath => (url, docTypes) => {
   return new Promise((resolve, reject) => {
     try {
       // try to load a locally stored token and use that
+      console.log('Using token file', tokenPath)
       let stored = require(tokenPath)
       let cozyClient = new cozy.Client()
 

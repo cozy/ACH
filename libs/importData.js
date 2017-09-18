@@ -127,7 +127,7 @@ const createDoc = function (client, doctype, data) {
     if (err.name === 'FetchError' && err.status === 400) {
       console.warn(err.reason.error)
     } else if (err.name === 'FetchError' && err.status === 403) {
-      console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions? You can generate a new one with the "-t" option.')
+      console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions?')
     } else if (err.name === 'FetchError' && err.status === 409) {
       console.warn('Document update conflict: ' + err.url)
     } else {
@@ -163,7 +163,7 @@ const importData = function (cozyClient, data, options) {
  * and reference objects created before them with {{ reference doctype index field }}
  *
  */
-module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
+module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
   if (!filepath) filepath = 'example-data.json'
   const dummyjson = require('dummy-json')
   const template = fs.readFileSync(filepath, {encoding: 'utf8'})
@@ -197,7 +197,7 @@ module.exports = (cozyUrl, createToken, filepath, handlebarsOptionsFile) => {
     reference: getMetadata
   })
 
-  return getClient(createToken, cozyUrl, doctypes).then(client => {
+  return getClient(token, cozyUrl, doctypes).then(client => {
     return importData(client, data, options)
   })
 }
