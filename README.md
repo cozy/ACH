@@ -2,12 +2,11 @@
 
 Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **create and remove documents in your Cozy**.
 
-- [ACH](#ach)
   * [Install](#install)
   * [Usage](#usage)
   * [Import data](#import-data)
   * [Import repositories with files](#import-repositories-with-files)
-  * [Using ACH with Cozy whose password we do not have](#using-ach-with-cozy-whose-password-we-do-not-have)⏎
+  * [Using ACH with Cozy whose password we do not have](#using-ach-with-cozy-whose-password-we-do-not-have)
 
 ## Install
 
