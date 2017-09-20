@@ -25,7 +25,7 @@ class ACH {
 
 const handleBadToken = promise => {
   return promise.catch(err => {
-    if (/Invalid JWT token/.test(err.reason.error)) {
+    if (err.reason && /Invalid JWT token/.test(err.reason.error)) {
       console.log('It seems your token is invalid, you may want to delete the token file and relaunch ACH.')
     } else {
       throw err
