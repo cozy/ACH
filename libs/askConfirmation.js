@@ -16,4 +16,4 @@ const askConfirmation = function (question, callback, elseCallback) {
   })
 }
 
-module.exports = readline
+module.exports = askConfirmation
