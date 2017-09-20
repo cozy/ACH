@@ -51,19 +51,20 @@ const uploadFolderContent = module.exports.uploadFolderContent = (client, Folder
     dirID: dirID || ''
   }).then(folderDoc => {
     console.log(`  _id: ${folderDoc._id}, folder.path: ${folderDoc.attributes.path}`)
-    if (FolderContentJSON.children) {
-      return Promise.all(FolderContentJSON.children.map((child) => {
-        if (child.children) { // it's a folder, use recursivity
-          return uploadFolderContent(client, child, folderDoc._id)
-        } else { // it's a file
-          return uploadFile(client, child, folderDoc._id)
-            .then(fileDoc => {
-              console.log(`  _id: ${fileDoc._id},  file.path: ${folderDoc.attributes.path}/${fileDoc.attributes.name}`)
-              return fileDoc
-            })
-        }
-      }))
+    if (!FolderContentJSON.children) {
+      return
     }
+    return Promise.all(FolderContentJSON.children.map((child) => {
+      if (child.children) { // it's a folder, use recursivity
+        return uploadFolderContent(client, child, folderDoc._id)
+      } else { // it's a file
+        return uploadFile(client, child, folderDoc._id)
+          .then(fileDoc => {
+            console.log(`  _id: ${fileDoc._id},  file.path: ${folderDoc.attributes.path}/${fileDoc.attributes.name}`)
+            return fileDoc
+          })
+      }
+    }))
   })
   .catch(err => {
     return Promise.resolve(err)
