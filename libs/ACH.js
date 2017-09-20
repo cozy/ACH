@@ -11,14 +11,15 @@ class ACH {
     this.doctypes = doctypes
   }
 
-  async connect () {
-    try {
-      console.log('Connecting to ', this.url)
-      this.client = await getClient(this.token, this.url, this.doctypes)      
-    } catch (e) {
-      console.warn('Could not connect to', this.url)
-      throw e
-    }
+  connect () {
+    console.log('Connecting to ', this.url)
+    return getClient(this.token, this.url, this.doctypes)
+      .then(client => {
+        this.client = client
+      }).catch(err => {
+        console.warn('Could not connect to', this.url)
+        throw err
+      })
   }
 }
 

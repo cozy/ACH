@@ -20,23 +20,6 @@ If you cannot execute `ACH` after this command, it may be because you do not hav
 the directory where `yarn` stores its symbolic links in your `PATH`. Edit it to append
 the result of `yarn global bin`.
 
-⚠️ ACH uses `async/await` so it needs node > = 7.10.1. If you mainly use node@6.11,
-you must configure ACH so that it is ran via nodejs@8 :
-
-1. Install nodejs@8, you can use `nvm` to have several versions of nodejs on the 
-   same computer.
-2. Get the path of ACH: `which ACH` (for me it is `/usr/local/Cellar/node/8.3.0/bin/ACH`) 
-3. Get the path of nodejs@8: `nvm use node@8 && which node` (for me it is `/usr/local/Cellar/node/8.3.0/bin/node`) 
-4. Write this file into a directory that is in your PATH:
-
-```
-#!/usr/local/Cellar/node/8.3.0/bin/node
-
-/usr/local/Cellar/node/8.3.0/bin/ACH "$@"
-```
-
-`chmod +x` this file and ACH will run automatically in nodejs@8
-
 ## Usage
 
 ```

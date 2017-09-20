@@ -45,7 +45,7 @@ program.command('import [filepath] [handlebarsOptionsFile]')
 
 program.command('importDir [directoryPath]')
 .description('The path to the directory content to import. Defaults to "./DirectoriesToInject".')
-.action(async directoryPath => {
+.action(directoryPath => {
   if (!directoryPath) directoryPath = './DirectoriesToInject'
 
   // get directories tree in JSON format
@@ -54,8 +54,9 @@ program.command('importDir [directoryPath]')
 
   const {url, token} = program
   const ach = new ACH(token, url, ['io.cozy.files'])
-  await ach.connect()
-  ach.importFolder(client, JSONtree)
+  ach.connect().then(() => {
+    return ach.importFolder(client, JSONtree)
+  })
 })
 
 program.command('drop <doctypes...>')
@@ -68,12 +69,13 @@ ${doctypes.map(x => `* ${x}`).join(' \n')}
 Type "yes" if ok.
 `
   const confirm = program.yes ? function (question, cb) { cb() } : askConfirmation
-  confirm(question, async () => {
+  confirm(question, () => {
     // get the url of the cozy
     const {url,token} = program
     const ach = new ACH(token, url, doctypes)
-    await ach.connect()
-    ach.dropCollections(doctypes)
+    ach.connect().then(() => {
+      return ach.dropCollections(doctypes)
+    })
   }, () => {
     console.log('Cancelled drop')
   })
@@ -81,21 +83,23 @@ Type "yes" if ok.
 
 program.command('export [doctypes] [filename]')
 .description('Exports data from the doctypes (separated by commas) to filename')
-.action(async (doctypes, filename) => {
+.action((doctypes, filename) => {
   doctypes = doctypes.split(',')
   const {url, token} = program
   const ach = new ACH(token, url, doctypes)
-  await ach.connect()
-  ach.export(doctypes, filename)
+  ach.connect().then(() => {
+    return ach.export(doctypes, filename)
+  })
 })
 
 program.command('delete [doctype] <ids...>')
 .description('Delete document(s)')
-.action(async (doctype, ids) => {
+.action((doctype, ids) => {
   const {url, token} = program
   const ach = new ACH(token, url, [doctype])
-  await ach.connect()
-  ach.deleteDocuments(client, doctype, ids)
+  ach.connect().then(() => {
+    return ach.deleteDocuments(client, doctype, ids)
+  })
 })
 
 program.parse(process.argv)
