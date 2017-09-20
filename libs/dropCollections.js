@@ -17,9 +17,6 @@ const dropCollection = (client, docType) => {
       console.log('Deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
       return results
     })
-    .catch(err => {
-      console.warn(err)
-    })
 }
 
 // drop all documents of the given doctype

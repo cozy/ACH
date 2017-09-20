@@ -22,6 +22,16 @@ class ACH {
   }
 }
 
+const handleBadToken = promise => {
+  return promise.catch(err => {
+    if (/Invalid JWT token/.test(err.reason.error)) {
+      console.log('It seems your token is invalid, you may want to delete the token file and relaunch ACH.')
+    } else {
+      throw err
+    }
+  })
+}
+
 const methods = {
   deleteDocuments,
   dropCollections,
@@ -36,7 +46,7 @@ Object.keys(methods).forEach(name => {
     }
     const args = [].slice.call(arguments)
     args.unshift(this.client)
-    return method.apply(this, args)
+    return handleBadToken(method.apply(this, args))
   }
 })
 
