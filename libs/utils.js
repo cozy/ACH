@@ -30,16 +30,17 @@ const getContentTypeFromExtension = function (extension) {
  * @param  {String} dirID    - Where to put the file
  * @return {[type]}          - Promise
  */
-const uploadFile = module.exports.uploadFile = (client, fileJSON, dirID = '', force) => {
+const uploadFile = module.exports.uploadFile = (client, fileJSON, dirPath = '', force) => {
   const data = fs.createReadStream(fileJSON.path)
   const contentType = getContentTypeFromExtension(fileJSON.extension)
-  const dirProm = dirID === '' ? client.files.statByPath('/') : client.files.statById(dirID)
-  return dirProm.then(doc => {
-    const path = doc.attributes.path
-    return client.files.forceCreateByPath(`${path}/${fileJSON.name}`, data, {
+  const { createDirectoryByPath, forceCreateByPath } = client.files
+  return createDirectoryByPath(dirPath).then(dir => {
+    const dirpath = dir.attributes.path
+    const abspath = `${dirpath}/${fileJSON.name}`
+    console.log('force creating by path', abspath)
+    return forceCreateByPath(abspath, data, {
       name: fileJSON.name,
-      contentType,
-      dirID: dirID
+      contentType
     })
   })
 }
@@ -95,5 +96,16 @@ module.exports.queryAll = function (cozyClient, mangoIndex, options = {}) {
       }
     }
     fetch()
+  })
+}
+
+module.exports.handleBadToken = promise => {
+  return promise.catch(err => {
+    const msg = /Invalid JWT token/
+    if (err.reason && (msg.test(err.reason) || msg.test(err.reason.error))) {
+      console.log('It seems your token is invalid, you may want to delete the token file and relaunch ACH.')
+    } else {
+      throw err
+    }
   })
 }

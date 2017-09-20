@@ -24,14 +24,34 @@ const forceCreateDoc = function (client, doctype, data) {
   }
 }
 
+const dirname = path => path.split('/').slice(0, -1).join('/')
+
+const logAndThrow = label => err => {
+  console.log(label)
+  throw err
+}
 const forceCreateFileByPath = function (client, path, data, options) {
-  return client.files.existsByPath(path).then(function (stat) {
-    if (!stat) {
-      return client.files.create(data, options)
-    } else {
-      return client.files.updateById(stat._id, data, options)
-    }
-  })
+  const files = client.files
+  let dirID
+  const dirpath = dirname(path)
+  return files.createDirectoryByPath(dirpath)
+    .then(() => files.statByPath(dirpath))
+    .then(dir => dirID = dir._id)
+    .then(() => files.existsByPath(path))
+    .then(function (stat) {
+      options = { dirID, ...options}
+      // Seems there is a bug in statByPath, this is why we need
+      // the second condition
+      if (!stat || stat.attributes.path !== path) {
+        return files.create(data, options).catch(logAndThrow('create'))
+      } else {
+        return files.updateById(stat._id, data, options).catch(logAndThrow('updateById'))
+      }
+    }).catch(err => {
+      console.log('Could not forceCreateFileByPath')
+      console.log(err.reason)
+      throw err
+    })
 }
 
 const addUtilityMethods = function (client) {

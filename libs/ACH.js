@@ -3,6 +3,7 @@ const dropCollections = require('./dropCollections')
 const importFolderContent = require('./importFolderContent')
 const exportData = require('./exportData')
 const getClient = require('./getClient')
+const { handleBadToken } = require('../libs/utils')
 
 class ACH {
   constructor (token, url, doctypes) {
@@ -21,16 +22,6 @@ class ACH {
         throw err
       })
   }
-}
-
-const handleBadToken = promise => {
-  return promise.catch(err => {
-    if (err.reason && /Invalid JWT token/.test(err.reason.error)) {
-      console.log('It seems your token is invalid, you may want to delete the token file and relaunch ACH.')
-    } else {
-      throw err
-    }
-  })
 }
 
 const methods = {

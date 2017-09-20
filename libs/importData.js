@@ -5,7 +5,7 @@ const Handlebars = require('handlebars')
 const dirTree = require('directory-tree')
 const { merge, once } = require('lodash')
 
-const { uploadFile } = require('./utils')
+const { uploadFile, handleBadToken } = require('./utils')
 const {
   runSerially,
   runParallel,
@@ -79,6 +79,8 @@ const applyHelpers = function (data) {
   return JSON.parse(runTemplate(JSON.stringify(data)))
 }
 
+const dirname = path => path.split('/').slice(0, -1).join('/')
+
 /**
  * If the document is a file, will take appropriate action to have it
  * uploaded, looks at the __SRC__ and __DEST__ fields of the document
@@ -96,7 +98,7 @@ const createDocumentFromDescription = function (client, doctype, data) {
       if (!fileJSON) {
         throw new Error('File error ' + src)
       }
-      return uploadFile(client, fileJSON, '', true)
+      return uploadFile(client, fileJSON, dirname(dest), true)
     } else {
       return client.data.forceCreate(doctype, data)
     }
@@ -144,14 +146,14 @@ const importData = function (cozyClient, data, options) {
   const runPerDoctype = options.parallel ? runParallel : runSerially
   const runPerDocument = options.parallel ? runParallelAfterFirst : runSerially
 
-  return runPerDoctype(Object.keys(data), doctype => {
+  return handleBadToken(runPerDoctype(Object.keys(data), doctype => {
     let docs = data[doctype]
     return runPerDocument(docs, doc => createDoc(cozyClient, doctype, doc))
       .then(results => {
         console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
         console.log(results.map(result => (result._id)))
       })
-  })
+  }))
 }
 
 /**
