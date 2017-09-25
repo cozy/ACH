@@ -105,8 +105,8 @@ program.command('delete [doctype] <ids...>')
 
 program.parse(process.argv)
 
-const subCmd = _.head(program.args);
-const cmds = _.map(program.commands, '_name');
+const subCmd = _.map(program.args, '_name')[0]
+const cmds = _.map(program.commands, '_name')
 
 if (!_.includes(cmds, subCmd)) {
   program.help();
