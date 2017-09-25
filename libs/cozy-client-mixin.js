@@ -42,7 +42,7 @@ const forceCreateFileByPath = function (client, path, data, options) {
       options = { dirID, ...options}
       // Seems there is a bug in statByPath, this is why we need
       // the second condition
-      if (!stat || stat.attributes.path !== path) {
+      if (!stat || stat.attributes.type != 'file') {
         return files.create(data, options).catch(logAndThrow('create'))
       } else {
         return files.updateById(stat._id, data, options).catch(logAndThrow('updateById'))
