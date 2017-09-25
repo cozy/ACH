@@ -1,6 +1,7 @@
 #!/usr/bin/env node 
 
 const fs = require('fs')
+const _ = require('lodash')
 const appPackage = require('./package.json')
 const path = require('path')
 
@@ -104,6 +105,9 @@ program.command('delete [doctype] <ids...>')
 
 program.parse(process.argv)
 
-if (!process.argv.slice(2).length) {
-  program.help()
+const subCmd = _.head(program.args);
+const cmds = _.map(program.commands, '_name');
+
+if (!_.includes(cmds, subCmd)) {
+  program.help();
 }
