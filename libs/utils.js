@@ -6,6 +6,8 @@ const getContentTypeFromExtension = function (extension) {
   switch (extension) {
     case '.jpg':
     case '.jpeg':
+      contentType = `image/jpeg`
+      break
     case '.gif':
     case '.png':
     case '.tiff':
