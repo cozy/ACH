@@ -100,7 +100,15 @@ const createDocumentFromDescription = function (client, doctype, data) {
       }
       return uploadFile(client, fileJSON, dirname(dest), true)
     } else {
-      return client.data.forceCreate(doctype, data)
+      const references = data.__REFERENCES__
+      delete data.__REFERENCES__
+      return client.data.forceCreate(doctype, data).then(doc => {
+        if (references) {
+          return client.data.addReferencedFiles(doc, references).then(() => doc)
+        } else {
+          return doc
+        }
+      })
     }
   })
 }
