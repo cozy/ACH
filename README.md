@@ -96,3 +96,11 @@ $ ssh recette.int.cozycloud.cc "cozy-stack instances token-cli recette.cozy.work
 
 You can then use ACH normally with this token
 
+## Create photo albums with ACH
+
+You can create photo albums from a folder on your disk.
+
+```
+$ python scripts/albums-from-dir.py my-photos-directory resulting-albums.json
+```
+
