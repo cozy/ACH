@@ -39,7 +39,7 @@ const forceCreateFileByPath = function (client, path, data, options) {
     .then(dir => dirID = dir._id)
     .then(() => files.existsByPath(path))
     .then(function (stat) {
-      options = { dirID, ...options}
+      options = Object.assign({ dirID: dirID }, options)
       // Seems there is a bug in statByPath, this is why we need
       // the second condition
       if (!stat || stat.attributes.type != 'file') {

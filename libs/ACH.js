@@ -30,7 +30,7 @@ const updateSettings = function (client, attrs) {
   let instance
   return this.fetch('GET', '/settings/instance').then(data => {
     instance = data
-    instance.data.attributes = { ...instance.data.attributes, ...attrs }
+    instance.data.attributes = Object.assign({}, instance.data.attributes, attrs)
     return this.fetch('PUT', '/settings/instance', instance)
   }).then(settings => {
     console.log('Updated settings\n', JSON.stringify(settings.data.attributes, null, 2))
