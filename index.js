@@ -103,5 +103,16 @@ program.command('delete [doctype] <ids...>')
   })
 })
 
+program.command('updateSettings')
+.description('Update settings')
+.action(settings => {
+  const {url, token} = program
+  settings = JSON.parse(settings)
+  const ach = new ACH(token, url, ['io.cozy.settings'])
+  ach.connect().then(() => {
+    return ach.updateSettings(settings)
+  })
+})
+
 program.parse(process.argv)
 

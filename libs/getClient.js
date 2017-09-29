@@ -3,6 +3,7 @@ const appPackage = require('../package.json')
 const fs = require('fs')
 const { addUtilityMethods } = require('./cozy-client-mixin')
 const path = require('path')
+const AppToken = cozy.auth.AppToken
 
 const CLIENT_NAME = appPackage.name.toUpperCase()
 const SOFTWARE_ID = CLIENT_NAME + '-' + appPackage.version
@@ -46,6 +47,7 @@ const getClientWithoutToken = tokenPath => (url, docTypes = []) => {
   return cozyClient.authorize()
     .then(creds => {
       let token = creds.token.accessToken
+      cozyClient._token = new AppToken({ token })
 
       console.log('Writing token file to', tokenPath)
       fs.writeFileSync(tokenPath, JSON.stringify({token: token}), 'utf8')

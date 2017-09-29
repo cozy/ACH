@@ -3,6 +3,8 @@ const dropCollections = require('./dropCollections')
 const importFolderContent = require('./importFolderContent')
 const exportData = require('./exportData')
 const getClient = require('./getClient')
+const cozyFetch = require('./cozyFetch')
+
 const { handleBadToken } = require('../libs/utils')
 
 class ACH {
@@ -24,12 +26,26 @@ class ACH {
   }
 }
 
+const updateSettings = function (client, attrs) {
+  let instance
+  return this.fetch('GET', '/settings/instance').then(data => {
+    instance = data
+    instance.data.attributes = { ...instance.data.attributes, ...attrs }
+    return this.fetch('PUT', '/settings/instance', instance)
+  }).then(settings => {
+    console.log('Updated settings\n', JSON.stringify(settings.data.attributes, null, 2))
+  })
+}
+
 const methods = {
   deleteDocuments,
   dropCollections,
   importFolder: importFolderContent,
-  export: exportData
+  export: exportData,
+  fetch: cozyFetch,
+  updateSettings: updateSettings
 }
+
 Object.keys(methods).forEach(name => {
   const method = methods[name]
   ACH.prototype[name] = function () {
