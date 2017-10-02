@@ -1,4 +1,5 @@
-const getClient = require('./getClient')
+
+const ACH = require('./ACH')
 const path = require('path')
 const fs = require('fs')
 const Handlebars = require('handlebars')
@@ -207,7 +208,8 @@ module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
     reference: getMetadata
   })
 
-  return getClient(token, cozyUrl, doctypes).then(client => {
-    return importData(client, data, options)
+  const ach = new ACH(token, cozyUrl, doctypes)
+  return ach.connect().then(() => {
+    return importData(ach.client, data, options)
   })
 }
