@@ -16,13 +16,12 @@ const {
 } = require('./libs')
 
 const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
-const TOKEN_FILE = './token.json'
 
 // the CLI interface
 let program = require('commander')
 program
 .version(appPackage.version)
-.option('-t --token [token]', 'Token file to use (defaults to token.json)', TOKEN_FILE)
+.option('-t --token [token]', 'Token file to use')
 .option('-y --yes', 'Does not ask for confirmation on sensitive operations')
 .option('-u --url [url]', `URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`, DEFAULT_COZY_URL)
 
