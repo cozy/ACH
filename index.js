@@ -34,7 +34,7 @@ function fileExists (p) {
   }
 }
 
-program.command('import [filepath] [handlebarsOptionsFile]')
+program.command('import <filepath> [handlebarsOptionsFile]')
 .description('The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).')
 .action((filepath, handlebarsOptionsFile) => {
   assert(fileExists(filepath), `${filepath} does not exist`)
@@ -43,7 +43,7 @@ program.command('import [filepath] [handlebarsOptionsFile]')
   return importData(url, token, filepath, handlebarsOptionsFile)
 })
 
-program.command('importDir [directoryPath]')
+program.command('importDir <directoryPath>')
 .description('The path to the directory content to import. Defaults to "./DirectoriesToInject".')
 .action(directoryPath => {
   if (!directoryPath) directoryPath = './DirectoriesToInject'
@@ -81,7 +81,7 @@ Type "yes" if ok.
   })
 })
 
-program.command('export [doctypes] [filename]')
+program.command('export <doctypes> <filename>')
 .description('Exports data from the doctypes (separated by commas) to filename')
 .action((doctypes, filename) => {
   doctypes = doctypes.split(',')
@@ -92,7 +92,7 @@ program.command('export [doctypes] [filename]')
   })
 })
 
-program.command('delete [doctype] <ids...>')
+program.command('delete <doctype> <ids...>')
 .description('Delete document(s)')
 .action((doctype, ids) => {
   const {url, token} = program
