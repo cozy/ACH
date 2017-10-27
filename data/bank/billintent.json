@@ -1,7 +1,6 @@
 {
   "io.cozy.files": [
     {
-      "_id": "43e10136dc3d21f0cde07f83d602050d",
       "__SRC__": "{{ dir }}/facture_freemobile_20170814.pdf",
       "__DEST__": "/facture.pdf"
     }
