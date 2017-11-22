@@ -1,10 +1,3 @@
-Use this data with cozy-bank app:
+The fixtures for Bank are in its [repository(https://gitlab.cozycloud.cc/labs/cozy-bank/tree/master/test/fixtures/demo).
 
-```
-ACH import data/bank/bankaccounts.json data/bank/bankDummyHelpers.js
-ACH import data/bank/bankdata.json data/bank/bankDummyHelpers.js
-ACH import data/bank/bankdatafordemo.json data/bank/bankDummyHelpers.js
-ACH import data/bank/bankoperations.json data/bank/bankDummyHelpers.js
-ACH import data/bank/billintent.json data/bank/bankDummyHelpers.js
-ACH import data/bank/harmonie.json data/bank/bankDummyHelpers.js
-```
+https://gitlab.cozycloud.cc/labs/cozy-bank/tree/master/test/fixtures/demo
