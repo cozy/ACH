@@ -7,15 +7,21 @@ const path = require('path')
 
 const { merge } = require('lodash')
 const Handlebars = require('handlebars')
-const askConfirmation = require('./libs/askConfirmation')
 
 const {
   ACH,
   importData,
-  assert
+  assert,
+  log,
+  askConfirmation
 } = require('./libs')
 
 const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
+
+// Add promise rejection handling
+process.on('unhandledRejection', function (err) {
+  log.error('Unhandled promise rejection.\n' + err.stack)
+}); 
 
 // the CLI interface
 let program = require('commander')
