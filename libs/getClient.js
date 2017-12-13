@@ -95,7 +95,7 @@ const getClientWithToken = tokenPath => (url, docTypes) => {
   return new Promise((resolve, reject) => {
     try {
       // try to load a locally stored token and use that
-      log.debug('Using token file', tokenPath)
+      log.debug('Using token file ' + tokenPath)
       let stored = require(tokenPath)
       let cozyClient = new cozy.Client()
 

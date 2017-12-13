@@ -23,7 +23,7 @@ module.exports = {
     console.warn(yellow(msg))
   },
 
-  error: function () {
+  error: function (msg) {
     console.warn(red(msg))
   }
 }
