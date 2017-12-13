@@ -40,7 +40,7 @@ module.exports = (cozyClient, doctypes, filename) => {
       })
   })
 
-  Promise.all(allExports)
+  return Promise.all(allExports)
     .then(function (data) {
       return _(doctypes)
         .zip(_.map(data, documents => _.map(documents, stripMeta)))
