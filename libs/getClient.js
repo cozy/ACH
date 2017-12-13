@@ -4,6 +4,7 @@ const fs = require('fs')
 const { addUtilityMethods } = require('./cozy-client-mixin')
 const path = require('path')
 const AppToken = cozy.auth.AppToken
+const log = require('./log')
 
 const CLIENT_NAME = appPackage.name.toUpperCase()
 const SOFTWARE_ID = CLIENT_NAME + '-' + appPackage.version
@@ -17,7 +18,7 @@ const revokeACHClients = (cozyClient, options) => {
       const revocations = oAuthClients
         .filter(oAuthClient => oAuthClient.attributes.client_name === 'ACH' && oAuthClient._id !== exclude)
         .map(achClient => {
-          console.log(`Revoking ACH client ${achClient._id}`)
+          log.debug(`Revoking ACH client ${achClient._id}`)
           return cozyClient.settings.deleteClientById(achClient._id)
         })
       return Promise.all(revocations)
@@ -49,13 +50,13 @@ const getClientWithoutToken = tokenPath => (url, docTypes = []) => {
       let token = creds.token.accessToken
       cozyClient._token = new AppToken({ token })
 
-      console.log('Writing token file to', tokenPath)
+      log.debug('Writing token file to', tokenPath)
       fs.writeFileSync(tokenPath, JSON.stringify({token: token}), 'utf8')
 
       return revokeACHClients(cozyClient, {
         exclude: creds.client.clientID
       }).catch(error => {
-        console.error('Cannot revoke ACH clients', error)
+        log.error('Cannot revoke ACH clients', error)
       }).then(() => cozyClient)
     })
 }
@@ -94,7 +95,7 @@ const getClientWithToken = tokenPath => (url, docTypes) => {
   return new Promise((resolve, reject) => {
     try {
       // try to load a locally stored token and use that
-      console.log('Using token file', tokenPath)
+      log.debug('Using token file', tokenPath)
       let stored = require(tokenPath)
       let cozyClient = new cozy.Client()
 

@@ -4,6 +4,7 @@ const importFolderContent = require('./importFolderContent')
 const exportData = require('./exportData')
 const getClient = require('./getClient')
 const cozyFetch = require('./cozyFetch')
+const log = require('./log')
 
 const { handleBadToken } = require('../libs/utils')
 
@@ -31,12 +32,12 @@ class ACH {
   }
 
   connect () {
-    console.log('Connecting to ', this.url)
+    log.debug('Connecting to ' + this.url)
     return getClient(this.token, this.url, this.doctypes)
       .then(client => {
         this.client = client
       }).catch(err => {
-        console.warn('Could not connect to', this.url)
+        log.warn('Could not connect to' + this.url)
         throw err
       })
   }
@@ -49,7 +50,7 @@ const updateSettings = function (client, attrs) {
     instance.data.attributes = Object.assign({}, instance.data.attributes, attrs)
     return this.fetch('PUT', '/settings/instance', instance)
   }).then(settings => {
-    console.log('Updated settings\n', JSON.stringify(settings.data.attributes, null, 2))
+    log.info('Updated settings\n', JSON.stringify(settings.data.attributes, null, 2))
   })
 }
 

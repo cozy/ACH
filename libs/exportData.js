@@ -1,6 +1,7 @@
 const _ = require('lodash')
 const fs = require('fs')
 const { queryAll } = require('./utils')
+const log = require('./log')
 
 // helpers
 const stripMeta = function (obj) {
@@ -22,6 +23,7 @@ const promiscify = function (fn) {
   }
 }
 
+
 const writeFilePromise = promiscify(fs.writeFile)
 
 module.exports = (cozyClient, doctypes, filename) => {
@@ -35,7 +37,7 @@ module.exports = (cozyClient, doctypes, filename) => {
           descending: true
         })
       }).then(docs => {
-        console.log('Exported documents for ', doctype, ':', docs.length)
+        log.success('Exported documents for ' + doctype + ' : ' + docs.length)
         return docs
       })
   })
@@ -56,6 +58,6 @@ module.exports = (cozyClient, doctypes, filename) => {
       }
     })
     .catch(function (err) {
-      console.error(err)
+      log.error(err)
     })
 }
