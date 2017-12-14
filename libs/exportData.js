@@ -5,7 +5,10 @@ const log = require('./log')
 
 // helpers
 const stripMeta = function (obj) {
-  return _.omit(obj, ['_id', '_rev'])
+  const omitted = []
+  if (!process.env.ACH_KEEP_ID) { omitted.push('_id') }
+  if (!process.env.ACH_KEEP_REV) { omitted.push('_rev') }
+  return _.omit(obj, omitted)
 }
 
 const promiscify = function (fn) {
