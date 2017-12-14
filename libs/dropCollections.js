@@ -1,7 +1,7 @@
 const { queryAll } = require('./utils')
 
-const dropCollection = (client, docType) => {
-  return client.data.defineIndex(docType, ['_id'])
+const dropCollection = (client, doctype) => {
+  return client.data.defineIndex(doctype, ['_id'])
     .then(index => {
       // now let's fetch all the data
       return queryAll(client, index, {
@@ -11,7 +11,7 @@ const dropCollection = (client, docType) => {
     })
     .then(docs => {
       // well now we drop them all...
-      return Promise.all(docs.map(doc => client.data.delete(docType, doc)))
+      return Promise.all(docs.map(doc => client.data.delete(doctype, doc)))
     })
     .then(results => {
       console.log('Deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
@@ -20,7 +20,7 @@ const dropCollection = (client, docType) => {
 }
 
 // drop all documents of the given doctype
-module.exports = (client, docTypes) => {
-  const promises = docTypes.map(doctype => dropCollection(client, doctype))
+module.exports = (client, doctypes) => {
+  const promises = doctypes.map(doctype => dropCollection(client, doctype))
   return Promise.all(promises)
 }
