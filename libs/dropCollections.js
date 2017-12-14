@@ -1,4 +1,5 @@
 const { queryAll } = require('./utils')
+const log = require('./log')
 
 const dropCollection = (client, doctype) => {
   return client.data.defineIndex(doctype, ['_id'])
@@ -14,7 +15,7 @@ const dropCollection = (client, doctype) => {
       return Promise.all(docs.map(doc => client.data.delete(doctype, doc)))
     })
     .then(results => {
-      console.log('Deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
+      log.success(doctype + ': deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
       return results
     })
 }
