@@ -1,11 +1,10 @@
-
-const ACH = require('./ACH')
 const path = require('path')
 const fs = require('fs')
 const Handlebars = require('handlebars')
 const dirTree = require('directory-tree')
 const { merge, once } = require('lodash')
-
+const ACH = require('./ACH')
+const log = require('./log')
 const { uploadFile, handleBadToken } = require('./utils')
 const {
   runSerially,
@@ -134,15 +133,15 @@ const createDoc = function (client, doctype, data) {
     saveMetadata(doctype, result)
     return result
   }).catch(err => {
-    console.log('Oops! An error occured.')
+    log.error('Oops! An error occured.')
     if (err.name === 'FetchError' && err.status === 400) {
-      console.warn(err.reason.error)
+      log.error(err.reason.error)
     } else if (err.name === 'FetchError' && err.status === 403) {
-      console.warn('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions?')
+      logs.info('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions?')
     } else if (err.name === 'FetchError' && err.status === 409) {
-      console.warn('Document update conflict: ' + err.url)
+      log.error('Document update conflict: ' + err.url)
     } else {
-      console.warn(err)
+      log.error(err)
     }
     throw err
   })
@@ -183,7 +182,7 @@ module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
   // dummy-json pass helpers
   const options = { parallel: true }
   const turnOffParallelism = once(function () {
-    console.log('Turning off parallelism since {{ reference }} helper is used.')
+    log.debug('Turning off parallelism since {{ reference }} helper is used.')
     options.parallel = false
   })
 
