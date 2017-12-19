@@ -1,5 +1,6 @@
 const path = require('path')
 const fs = require('fs')
+const log = require('./log')
 
 const getContentTypeFromExtension = function (extension) {
   let contentType = ''
@@ -39,7 +40,7 @@ const uploadFile = module.exports.uploadFile = (client, fileJSON, dirPath = '', 
   return createDirectoryByPath(dirPath).then(dir => {
     const dirpath = dir.attributes.path
     const abspath = `${dirpath}/${fileJSON.name}`
-    console.log('force creating by path', abspath)
+    log.info('Force creating by path', abspath)
     return forceCreateByPath(abspath, data, {
       name: fileJSON.name,
       contentType
@@ -105,7 +106,7 @@ module.exports.handleBadToken = promise => {
   return promise.catch(err => {
     const msg = /Invalid JWT token/
     if (err.reason && (msg.test(err.reason) || msg.test(err.reason.error))) {
-      console.log('It seems your token is invalid, you may want to delete the token file and relaunch ACH.')
+      log.warn('It seems your token is invalid or has expired, you may want to delete the token file and relaunch ACH.')
     } else {
       throw err
     }
