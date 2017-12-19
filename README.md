@@ -118,6 +118,8 @@ environment variable `ACH_KEEP_ID` to do so :
 env ACH_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.rocks /tmp/bills.json
 ```
 
+`ACH_KEEP_REV` does the same to keep the `_rev` field.
+
 ## How to export all data from a konnector
 
 Say you have imported data from a konnector and you want to move this data to recette.
@@ -131,4 +133,3 @@ $ # Export all data
 $ node --inspect index.js export -t $PERMISSIONS data.json
 ```
 
-`ACH_KEEP_REV` does the same to keep the `_rev` field.
