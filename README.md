@@ -2,11 +2,16 @@
 
 Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **create and remove documents in your Cozy**.
 
-  * [Install](#install)
-  * [Usage](#usage)
-  * [Import data](#import-data)
-  * [Import repositories with files](#import-repositories-with-files)
-  * [Using ACH with Cozy whose password we do not have](#using-ach-with-cozy-whose-password-we-do-not-have)
++ [Install](#install)
++ [Usage](#usage)
++ [Import data](#import-data)
++ [Import repositories with files](#import-repositories-with-files)
++ [Using ACH with Cozy whose password we do not have](#using-ach-with-cozy-whose-password-we-do-not-have)
++ [Create photo albums with ACH](#create-photo-albums-with-ach)
++ [Export data keeping the ids](#export-data-keeping-the-ids)
++ [How to export all data from a konnector](#how-to-export-all-data-from-a-konnector)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 ## Install
 
@@ -104,3 +109,26 @@ You can create photo albums from a folder on your disk.
 $ python scripts/albums-from-dir.py my-photos-directory resulting-albums.json
 ```
 
+## Export data keeping the ids
+
+By default, `_id` and `_rev` are stripped from the exported data. Sometimes, you want to keep the ids/rev of the documents you export. Set the
+environment variable `ACH_KEEP_ID` to do so :
+
+```bash
+env ACH_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.rocks /tmp/bills.json
+```
+
+## How to export all data from a konnector
+
+Say you have imported data from a konnector and you want to move this data to recette.
+
+```bash
+$ # First lets get all the doctypes from the konnector
+$ PERMISSIONS=$(cat manifest.konnectors | jq -r '.permissions | .[] | .type' | python -c 'import sys; print ",".join(sys.stdin.read().split("\n"))[:-1]')
+$ echo $PERMISSIONS
+io.cozy.bills,io.cozy.files,org.fing.mesinfos.client,org.fing.mesinfos.contract,org.fing.mesinfos.paymentterms,org.fing.mesinfos.home,org.fing.mesinfos.consumptionstatement,org.fing.mesinfos.energybreakdown
+$ # Export all data
+$ node --inspect index.js export -t $PERMISSIONS data.json
+```
+
+`ACH_KEEP_REV` does the same to keep the `_rev` field.
