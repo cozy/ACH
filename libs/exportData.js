@@ -26,11 +26,10 @@ const promiscify = function (fn) {
   }
 }
 
-
 const writeFilePromise = promiscify(fs.writeFile)
 
 module.exports = (cozyClient, doctypes, filename) => {
-  console.log('Exporting data...')
+  log.debug('Exporting data...')
 
   const allExports = doctypes.map(doctype => {
     return cozyClient.data.defineIndex(doctype, ['_id'])

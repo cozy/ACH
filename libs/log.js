@@ -6,24 +6,28 @@ const gray = colors.gray
 const yellow = colors.yellow
 const red = colors.red
 
+const writeLnErr = msg => {
+  process.stderr.write(msg + '\n')
+}
+
 module.exports = {
   success: function (msg) {
-    console.log(green(msg))
+    writeLnErr(green(msg))
   },
 
   info: function (msg) {
-    console.log(blue(msg))
+    writeLnErr(blue(msg))
   },
 
   debug: function (msg) {
-    console.log(gray(msg))
+    writeLnErr(gray(msg))
   },
 
   warn: function (msg) {
-    console.warn(yellow(msg))
+    writeLnErr(yellow(msg))
   },
 
   error: function (msg) {
-    console.warn(red(msg))
+    writeLnErr(red(msg))
   }
 }
