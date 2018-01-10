@@ -50,7 +50,7 @@ const getClientWithoutToken = tokenPath => (url, docTypes = []) => {
       let token = creds.token.accessToken
       cozyClient._token = new AppToken({ token })
 
-      log.debug('Writing token file to', tokenPath)
+      log.debug('Writing token file to ' + tokenPath)
       fs.writeFileSync(tokenPath, JSON.stringify({token: token}), 'utf8')
 
       return revokeACHClients(cozyClient, {
