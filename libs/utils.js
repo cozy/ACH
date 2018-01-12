@@ -40,7 +40,7 @@ const uploadFile = module.exports.uploadFile = (client, fileJSON, dirPath = '', 
   return createDirectoryByPath(dirPath).then(dir => {
     const dirpath = dir.attributes.path
     const abspath = `${dirpath}/${fileJSON.name}`
-    log.info('Force creating by path', abspath)
+    log.info('Force creating by path' + abspath)
     return forceCreateByPath(abspath, data, {
       name: fileJSON.name,
       contentType
