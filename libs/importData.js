@@ -164,6 +164,10 @@ const importData = function (cozyClient, data, options) {
   }))
 }
 
+const parseBool = function (boolString, defaultVal) {
+  return boolString === undefined ? defaultVal : boolString === 'true'
+}
+
 /**
  * Imports data from a JSON file
  *
@@ -180,7 +184,7 @@ module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
   const templateDir = path.dirname(path.resolve(filepath))
 
   // dummy-json pass helpers
-  const options = { parallel: true }
+  const options = { parallel: parseBool(process.env.ACH_PARALLEL, true) }
   const turnOffParallelism = once(function () {
     log.debug('Turning off parallelism since {{ reference }} helper is used.')
     options.parallel = false
