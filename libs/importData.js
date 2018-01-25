@@ -137,7 +137,7 @@ const createDoc = function (client, doctype, data) {
     if (err.name === 'FetchError' && err.status === 400) {
       log.error(err.reason.error)
     } else if (err.name === 'FetchError' && err.status === 403) {
-      logs.info('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions?')
+      log.info('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions?')
     } else if (err.name === 'FetchError' && err.status === 409) {
       log.error('Document update conflict: ' + err.url)
     } else {
