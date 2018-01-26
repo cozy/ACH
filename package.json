@@ -11,6 +11,7 @@
     "cozy-client-js": "^0.3.4",
     "directory-tree": "^1.2.1",
     "dummy-json": "^2.0.0",
+    "es6-promise-pool": "^2.5.0",
     "isomorphic-fetch": "2.2.1",
     "lodash": "^4.17.4",
     "opn": "^5.1.0",

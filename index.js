@@ -119,5 +119,26 @@ program.command('updateSettings')
   })
 })
 
+program.command('script')
+.description('Launch script')
+.action(scriptName => {
+  const dir = path.join(__dirname, 'scripts')
+  let script
+  try {
+    script = require(path.join(dir, scriptName))
+  } catch (e) {
+    console.log(e)
+    console.error(`${scriptName} does not exist in ${dir}`)
+    process.exit(1)
+  }
+  const {url, token} = program
+  const { getDoctypes, run } = script
+  const doctypes = getDoctypes()
+  const ach = new ACH(token, url, doctypes)
+  ach.connect().then(() => {
+    return run(ach)
+  })
+})
+
 program.parse(process.argv)
 
