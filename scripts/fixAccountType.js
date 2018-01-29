@@ -70,22 +70,23 @@ const fixAccountsWithoutAccountType = async (client, dryRun = true) => {
   const triggers = (await findTriggers(client)).filter(x => x.worker === 'konnector')
 
   for (let account of accounts) {
+    const accountId = account._id
+    console.log('Account : ' + accountId)
     if (account.account_type) {
-      console.log('Already has account_type, continue...')
-      continue
-    }
-    const konnectorSlug = findKonnectorSlug(triggers, account)
-    if (konnectorSlug) {
-      account.account_type = konnectorSlug
-      console.log('Found matching konnector for account ' + account._id + ' : ' + konnectorSlug)
-      if (!dryRun) {
-        client.data.update(DOCTYPE_COZY_ACCOUNTS, account, account)
-      } else {
-        console.info('✅  Would update ' + account._id + ' with account_type ' + konnectorSlug)
-      }
+      console.log('✅  Already has account_type ' + account.account_type)
     } else {
-      console.log('❌  Could not find matching konnector for account ' + account._id)
-      console.log(account)
+      const konnectorSlug = findKonnectorSlug(triggers, account)
+      if (konnectorSlug) {
+        account.account_type = konnectorSlug
+        console.log('Found matching konnector : ' + konnectorSlug)
+        if (!dryRun) {
+          client.data.update(DOCTYPE_COZY_ACCOUNTS, account, account)
+        } else {
+          console.info('👌  Would update ' + accountId + ' with account_type ' + konnectorSlug)
+        }
+      } else {
+        console.log('❌  Could not find matching konnector for account ' + accountId)
+      }
     }
     console.log()
   }
