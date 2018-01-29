@@ -60,7 +60,7 @@ const dropDocuments = (doctype, documents, batchSize = 10) => {
   return  pool.start()
 }
 
-const deleteDemoDocuments = async function (doctype) {
+const deleteDemoDocuments = async function (doctype, dryRun) {
   const index = await client.data.defineIndex(doctype, ['_id'])
   const documents = await queryAll(client, index, {
     selector: {'_id': {$gt: null}},
@@ -74,7 +74,10 @@ const deleteDemoDocuments = async function (doctype) {
   if (realDocuments.length) {
     console.log(`Found ${realDocuments.length} real ${doctype} documents.`)
   }
-  return dropDocuments(doctype, demoDocuments)
+
+  if (!dryRun) {
+    return dropDocuments(doctype, demoDocuments)
+  }
 }
 
 module.exports = {
@@ -87,12 +90,12 @@ module.exports = {
       DOCTYPE_ALBUMS
     ]
   },
-  run: async function (ach) {
+  run: async function (ach, dryRun) {
     client = ach.client
-    await deleteDemoDocuments(DOCTYPE_BANK_ACCOUNTS)
-    await deleteDemoDocuments(DOCTYPE_BANK_TRANSACTIONS)
-    await deleteDemoDocuments(DOCTYPE_BILLS)
-    await deleteDemoDocuments(DOCTYPE_FILES)
-    await deleteDemoDocuments(DOCTYPE_ALBUMS)
+    await deleteDemoDocuments(DOCTYPE_BANK_ACCOUNTS, dryRun)
+    await deleteDemoDocuments(DOCTYPE_BANK_TRANSACTIONS, dryRun)
+    await deleteDemoDocuments(DOCTYPE_BILLS, dryRun)
+    await deleteDemoDocuments(DOCTYPE_FILES, dryRun)
+    await deleteDemoDocuments(DOCTYPE_ALBUMS, dryRun)
   }
 }
