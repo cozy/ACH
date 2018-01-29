@@ -4,7 +4,6 @@ const fs = require('fs')
 const _ = require('lodash')
 const appPackage = require('./package.json')
 const path = require('path')
-
 const { merge } = require('lodash')
 const Handlebars = require('handlebars')
 
@@ -119,7 +118,8 @@ program.command('updateSettings')
   })
 })
 
-program.command('script')
+program.command('script <scriptName>')
+.option('-x, --execute', 'Execute the script (disable dry run)')
 .description('Launch script')
 .action(scriptName => {
   const dir = path.join(__dirname, 'scripts')
@@ -135,8 +135,11 @@ program.command('script')
   const { getDoctypes, run } = script
   const doctypes = getDoctypes()
   const ach = new ACH(token, url, doctypes)
+  const dryRun = !program.execute
+  log.info(`Launching script ${scriptName}...`)
+  log.info(`Dry run : ${dryRun}`)
   ach.connect().then(() => {
-    return run(ach)
+    return run(ach, dryRun)
   })
 })
 
