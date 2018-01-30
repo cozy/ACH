@@ -72,7 +72,9 @@ const fixAccountsWithoutAccountType = async (client, dryRun = true) => {
   for (let account of accounts) {
     const accountId = account._id
     console.log('Account : ' + accountId)
-    if (account.account_type) {
+    if (account.account_type
+        && account.account_type !== 'linxo'
+        && account.account_type !== 'dev_account') {
       console.log('✅  Already has account_type ' + account.account_type)
     } else {
       const konnectorSlug = findKonnectorSlug(triggers, account)
