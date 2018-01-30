@@ -82,7 +82,7 @@ const fixAccountsWithoutAccountType = async (client, dryRun = true) => {
         account.account_type = konnectorSlug
         console.log('Found matching konnector : ' + konnectorSlug)
         if (!dryRun) {
-          client.data.update(DOCTYPE_COZY_ACCOUNTS, account, account)
+          await client.data.update(DOCTYPE_COZY_ACCOUNTS, account, account)
         } else {
           console.info('👌  Would update ' + accountId + ' with account_type ' + konnectorSlug)
         }
