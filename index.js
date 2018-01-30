@@ -121,7 +121,7 @@ program.command('updateSettings')
 program.command('script <scriptName>')
 .option('-x, --execute', 'Execute the script (disable dry run)')
 .description('Launch script')
-.action(scriptName => {
+.action(function (scriptName, action) {
   const dir = path.join(__dirname, 'scripts')
   let script
   try {
@@ -135,7 +135,7 @@ program.command('script <scriptName>')
   const { getDoctypes, run } = script
   const doctypes = getDoctypes()
   const ach = new ACH(token, url, doctypes)
-  const dryRun = !program.execute
+  const dryRun = !action.execute
   log.info(`Launching script ${scriptName}...`)
   log.info(`Dry run : ${dryRun}`)
   ach.connect().then(() => {
