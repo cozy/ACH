@@ -13,7 +13,6 @@
     "dummy-json": "^2.0.0",
     "es6-promise-pool": "^2.5.0",
     "isomorphic-fetch": "2.2.1",
-    "jwt-decode": "^2.2.0",
     "lodash": "^4.17.4",
     "opn": "^5.1.0",
     "regenerator-runtime": "0.11.0",

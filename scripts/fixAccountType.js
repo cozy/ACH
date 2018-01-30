@@ -7,18 +7,16 @@
 
 const { queryAll } = require('../libs/utils')
 const PromisePool = require('es6-promise-pool')
-const jwtDecode = require('jwt-decode')
 
 const DOCTYPE_COZY_ACCOUNTS = 'io.cozy.accounts'
 const DOCTYPE_COZY_TRIGGERS = 'io.cozy.triggers'
 
 let client
 
-const decode = (val) => {
+const decodeBase64JSON = (val) => {
   try {
-    return jwtDecode(val, { header: true })
+    return JSON.parse(Buffer.from(val, 'base64').toString())
   } catch (err) {
-    // console.warn('Cannot decode ' + val)
     return
   }
 }
@@ -41,7 +39,7 @@ const triggerHasData = trigger => {
  */
 const decodeTriggerDataIfNecessary = trigger => {
   if (trigger.message.Data) {
-    return decode(trigger.message.Data)
+    return decodeBase64JSON(trigger.message.Data)
   } else {
     return trigger.message
   }
