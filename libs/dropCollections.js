@@ -11,7 +11,6 @@ const dropCollection = (client, doctype) => {
       `/data/${doctype}/_bulk_docs`, { docs: docs.map(flagForDeletion) }
     ))
     .then(results => {
-      console.log(results)
       log.success(doctype + ': deleted ' + results.filter(result => result.ok).length + '/' + results.length + ' documents.')
       return results
     })

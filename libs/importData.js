@@ -166,13 +166,11 @@ const importData = function (cozyClient, data, options) {
   const runPerDocument = options.parallel ? runInPoolAfterFirst(CONCURRENCY) : runSerially
   return handleBadToken(runPerDoctype(Object.keys(data), doctype => {
     let docs = data[doctype]
-    console.log('per doctype')
-
     const logProgress = (() => {
       let i = 0
       return tee(() => {
         if (i % 50 == 0) {
-          console.log(doctype + ':' + (i / docs.length * 100).toFixed(2) + '%')
+          console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
         }
         i = i + 1
       })
