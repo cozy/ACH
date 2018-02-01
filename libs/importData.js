@@ -169,10 +169,10 @@ const importData = function (cozyClient, data, options) {
     const logProgress = (() => {
       let i = 0
       return tee(() => {
-        if (i % 50 == 0) {
+        i = i + 1
+        if (i % 50 == 0 || i === docs.length) {
           console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
         }
-        i = i + 1
       })
     })()
 
