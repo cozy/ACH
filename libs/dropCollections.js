@@ -1,21 +1,18 @@
 const { queryAll } = require('./utils')
 const log = require('./log')
+const { runInPool } = require('./promises')
 
+const flagForDeletion = doc => ({ ...doc, _deleted: true })
 const dropCollection = (client, doctype) => {
-  return client.data.defineIndex(doctype, ['_id'])
-    .then(index => {
-      // now let's fetch all the data
-      return queryAll(client, index, {
-        selector: {'_id': {'$gt': null}},
-        fields: ['_id', '_rev']
-      })
-    })
-    .then(docs => {
-      // well now we drop them all...
-      return Promise.all(docs.map(doc => client.data.delete(doctype, doc)))
-    })
+  return client.fetchJSON('GET', `/data/${doctype}/_all_docs?include_docs=true`)
+    .then(result => result.rows.map(r => r.doc))
+    .then(docs => client.fetchJSON(
+      'POST',
+      `/data/${doctype}/_bulk_docs`, { docs: docs.map(flagForDeletion) }
+    ))
     .then(results => {
-      log.success(doctype + ': deleted ' + results.filter(result => (result.deleted)).length + '/' + results.length + ' documents.')
+      console.log(results)
+      log.success(doctype + ': deleted ' + results.filter(result => result.ok).length + '/' + results.length + ' documents.')
       return results
     })
 }
