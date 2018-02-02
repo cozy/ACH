@@ -2,18 +2,24 @@ const path = require('path')
 const fs = require('fs')
 const Handlebars = require('handlebars')
 const dirTree = require('directory-tree')
-const { merge, once } = require('lodash')
+const { merge, once, flatten } = require('lodash')
 const ACH = require('./ACH')
 const log = require('./log')
 const { uploadFile, handleBadToken } = require('./utils')
 const {
   runSerially,
-  runParallel,
-  runParallelAfterFirst
+  runInPool,
+  runInPoolAfterFirst,
+  tee
 } = require('./promises')
 
 const FILE_DOCTYPE = 'io.cozy.files'
 const H = Handlebars.create()
+
+
+const assert = function (cond, msg) {
+  if (!cond) { throw new Error(msg) }
+}
 
 // We save results from cozy imports here
 // to be able to retrieve it inside the template
@@ -128,6 +134,8 @@ const createDocumentFromDescription = function (client, doctype, data) {
  * @return {Promise}
  */
 const createDoc = function (client, doctype, data) {
+  assert(doctype, 'Must pass a doctype, you passed ' + doctype)
+  assert(data, 'Must pass data, you passed ' + data)
   data = applyHelpers(data)
   return createDocumentFromDescription(client, doctype, data, true).then(function (result) {
     saveMetadata(doctype, result)
@@ -147,16 +155,33 @@ const createDoc = function (client, doctype, data) {
   })
 }
 
-const importData = function (cozyClient, data, options) {
-    // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
-    // because if it's a new doctype, the stack needs time to create the collection
-    // and can't handle the other incoming requests
-  const runPerDoctype = options.parallel ? runParallel : runSerially
-  const runPerDocument = options.parallel ? runParallelAfterFirst : runSerially
 
+
+const importData = function (cozyClient, data, options) {
+  // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
+  // because if it's a new doctype, the stack needs time to create the collection
+  // and can't handle the other incoming requests
+  const CONCURRENCY = 75
+  const runPerDoctype = options.parallel ? runInPool(CONCURRENCY) : runSerially
+  const runPerDocument = options.parallel ? runInPoolAfterFirst(CONCURRENCY) : runSerially
   return handleBadToken(runPerDoctype(Object.keys(data), doctype => {
     let docs = data[doctype]
-    return runPerDocument(docs, doc => createDoc(cozyClient, doctype, doc))
+    const logProgress = (() => {
+      let i = 0
+      return tee(() => {
+        i = i + 1
+        if (i % 50 == 0 || i === docs.length) {
+          console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
+        }
+      })
+    })()
+
+    assert(docs, 'No documents for doctype ' + doctype)
+
+    const createWithProgress = doc =>
+      createDoc(cozyClient, doctype, doc)
+        .then(logProgress)
+    return runPerDocument(docs, createWithProgress)
       .then(results => {
         console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
         console.log(results.map(result => (result._id)))
