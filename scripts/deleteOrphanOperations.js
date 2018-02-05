@@ -6,8 +6,17 @@ let client
 
 const api = {
   fetchAll: async (doctype, queryOptions = '') => {
-    const result = await client.fetchJSON('GET', `/data/${doctype}/_all_docs?${queryOptions}`)
-    return result.rows
+    try {
+      const result = await client.fetchJSON('GET', `/data/${doctype}/_all_docs?${queryOptions}`)
+      return result.rows
+    } catch (e) {
+      if (e && e.response && e.response.status && e.response.status === 404) {
+        return []
+      } else {
+        console.log(e)
+        return []
+      }
+    }
   },
 
   deleteAll: async (doctype, docs) => {
@@ -17,7 +26,6 @@ const api = {
     )
   }
 }
-
 
 const flagForDeletion = doc => {
   return {...doc, _deleted: true}
