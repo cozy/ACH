@@ -1,4 +1,4 @@
-#!/usr/bin/env node 
+#!/usr/bin/env node
 
 const fs = require('fs')
 const _ = require('lodash')
@@ -20,7 +20,7 @@ const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
 // Add promise rejection handling
 process.on('unhandledRejection', function (err) {
   log.error('Unhandled promise rejection.\n' + err.stack)
-}); 
+});
 
 // the CLI interface
 let program = require('commander')
@@ -60,7 +60,7 @@ program.command('importDir <directoryPath>')
   const {url, token} = program
   const ach = new ACH(token, url, ['io.cozy.files'])
   ach.connect().then(() => {
-    return ach.importFolder(client, JSONtree)
+    return ach.importFolder(JSONtree)
   })
 })
 
@@ -103,7 +103,7 @@ program.command('delete <doctype> <ids...>')
   const {url, token} = program
   const ach = new ACH(token, url, [doctype])
   ach.connect().then(() => {
-    return ach.deleteDocuments(client, doctype, ids)
+    return ach.deleteDocuments(doctype, ids)
   })
 })
 
@@ -149,4 +149,3 @@ program.command('script <scriptName>')
 })
 
 program.parse(process.argv)
-
