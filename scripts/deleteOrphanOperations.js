@@ -43,7 +43,9 @@ const deleteOrphanBankOperations = async dryRun => {
     console.log('Dry run, not deleting')
   } else {
     console.log(`Deleting ${orphanOperations.length} orphan operations...`)
-    return api.deleteAll('io.cozy.bank.operations', orphanOperations)
+    if (orphanOperations.length > 0) {
+      return api.deleteAll('io.cozy.bank.operations', orphanOperations)
+    }
   }
 }
 
