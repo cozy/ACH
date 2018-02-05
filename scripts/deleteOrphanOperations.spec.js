@@ -1,4 +1,5 @@
-const { run, api } = require('./deleteOrphanOperations')
+const api = require('./api')
+const { run } = require('./deleteOrphanOperations')
 
 const makeDoc = (id, doc) => ({ id, doc: {_id: id, ...doc}})
 

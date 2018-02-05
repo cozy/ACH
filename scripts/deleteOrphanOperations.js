@@ -1,13 +1,8 @@
 const keyBy = require('lodash/keyBy')
-
 const DOCTYPE_BANK_OPERATIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 
 let client
-
-const flagForDeletion = doc => {
-  return {...doc, _deleted: true}
-}
 
 const api = {
   fetchAll: async (doctype, queryOptions = '') => {
@@ -21,6 +16,11 @@ const api = {
       { docs: docs.map(flagForDeletion) }
     )
   }
+}
+
+
+const flagForDeletion = doc => {
+  return {...doc, _deleted: true}
 }
 
 const deleteOrphanBankOperations = async dryRun => {
