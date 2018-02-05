@@ -63,7 +63,7 @@ module.exports = {
     try {
       await deleteOrphanBankOperations(dryRun)
     } catch (err) {
-      console.log(err)
+      console.log(ach.url, err)
     }
   }
 }
