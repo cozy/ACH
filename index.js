@@ -120,6 +120,7 @@ program.command('updateSettings')
 
 program.command('script <scriptName>')
 .option('-x, --execute', 'Execute the script (disable dry run)')
+.option('-d, --doctypes', 'Print necessary doctypes (useful for automation)')
 .description('Launch script')
 .action(function (scriptName, action) {
   const dir = path.join(__dirname, 'scripts')
@@ -134,13 +135,17 @@ program.command('script <scriptName>')
   const {url, token} = program
   const { getDoctypes, run } = script
   const doctypes = getDoctypes()
-  const ach = new ACH(token, url, doctypes)
-  const dryRun = !action.execute
-  log.info(`Launching script ${scriptName}...`)
-  log.info(`Dry run : ${dryRun}`)
-  ach.connect().then(() => {
-    return run(ach, dryRun)
-  })
+  if (action.doctypes) {
+    console.log(doctypes.join(' '))
+  } else {
+    const ach = new ACH(token, url, doctypes)
+    const dryRun = !action.execute
+    log.info(`Launching script ${scriptName}...`)
+    log.info(`Dry run : ${dryRun}`)
+    ach.connect().then(() => {
+      return run(ach, dryRun)
+    })
+  }
 })
 
 program.parse(process.argv)
