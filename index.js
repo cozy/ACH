@@ -148,4 +148,15 @@ program.command('script <scriptName>')
   }
 })
 
+program.command('ls-scripts')
+.description('Lists all scripts, useful for autocompletion')
+.action(function (scriptName, action) {
+  const dir = path.join(__dirname, 'scripts')
+  const scripts = fs.readdirSync(dir)
+    .filter(x => /\.js$/.exec(x))
+    .filter(x => !/\.spec\.js$/.exec(x))
+    .map(x => x.replace(/\.js$/, ''))
+  console.log(scripts.join('\n'))
+})
+
 program.parse(process.argv)
