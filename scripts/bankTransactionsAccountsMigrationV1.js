@@ -8,7 +8,13 @@ const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_SETTINGS = 'io.cozy.bank.settings'
 
-let client, api
+let client, api, log
+
+const logWithInstance = function () {
+  const args = [].slice.call(arguments)
+  args.splice(0, 0, client._url.replace('https://', ''))
+  console.log.apply(console, args)
+}
 
 const parisTime = date => {
   if (!date) { return }
@@ -51,19 +57,20 @@ const doMigrations = async dryRun => {
   const utransactions = migrateTransactionsV1(transactions)
   const usettings = migrateSettingsV1(settings)
 
-  console.log('Would update', accounts.length, DOCTYPE_BANK_ACCOUNTS)
-  console.log('Would update', transactions.length, DOCTYPE_BANK_TRANSACTIONS)
-  console.log('Would update', settings.length, DOCTYPE_BANK_SETTINGS)
- 
-  if (!dryRun) {
+
+   if (!dryRun) {
     await api.updateAll(DOCTYPE_BANK_ACCOUNTS, uaccounts)
     await api.updateAll(DOCTYPE_BANK_TRANSACTIONS, utransactions)
     await api.updateAll(DOCTYPE_BANK_SETTINGS, usettings)
   } else {
-    console.log('Dry run: first updated account', diff(uaccounts[0], accounts[0]))
-    console.log('Dry run: first updated transaction', diff(utransactions[0], transactions[0]))
-    console.log('Dry run: first updated settings', diff(usettings[0], settings[0]))
+    logWithInstance('Dry run: first updated account', diff(uaccounts[0], accounts[0]))
+    logWithInstance('Dry run: first updated transaction', diff(utransactions[0], transactions[0]))
+    logWithInstance('Dry run: first updated settings', diff(usettings[0], settings[0]))
   }
+
+  logWithInstance(dryRun ? 'Would update' : 'Has updated', accounts.length, DOCTYPE_BANK_ACCOUNTS)
+  logWithInstance(dryRun ? 'Would update' : 'Has updated', transactions.length, DOCTYPE_BANK_TRANSACTIONS)
+  logWithInstance(dryRun ? 'Would update' : 'Has updated', settings.length, DOCTYPE_BANK_SETTINGS)
 }
 
 module.exports = {
