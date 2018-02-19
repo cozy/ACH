@@ -19,7 +19,7 @@ const logWithInstance = function () {
 const parisTime = date => {
   if (!date) { return }
   const epoch = tz(date)
-  return eu(epoch, 'Europe/Paris', '%F %T%^z')
+  return eu(epoch, 'Europe/Paris', '%FT%T%^z')
 }
 
 const migrateTransactionV1 = transaction => {
