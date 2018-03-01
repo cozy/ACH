@@ -6,7 +6,7 @@ const log = require('./log')
 // helpers
 const stripMeta = function (obj) {
   const omitted = []
-  if (!process.env.ACH_KEEP_ID) { omitted.push('_id') }
+  if (process.env.ACH_NO_KEEP_ID) { omitted.push('_id') }
   if (!process.env.ACH_KEEP_REV) { omitted.push('_rev') }
   return _.omit(obj, omitted)
 }
