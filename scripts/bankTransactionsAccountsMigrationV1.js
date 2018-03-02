@@ -1,7 +1,7 @@
 const keyBy = require('lodash/keyBy')
 const tz = require('timezone')
 const eu = tz(require('timezone/Europe'))
-const diff = require('jest-diff')
+const jdiff = require('jest-diff')
 const mkAPI = require('./api')
 
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
@@ -9,6 +9,12 @@ const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_SETTINGS = 'io.cozy.bank.settings'
 
 let client, api, log
+
+const diff = (current, updated) => {
+    return jdiff(current, updated)
+        .replace('Received', 'Updated')
+        .replace('Expected', 'Current')
+}
 
 const logWithInstance = function () {
   const args = [].slice.call(arguments)
@@ -63,9 +69,9 @@ const doMigrations = async dryRun => {
     await api.updateAll(DOCTYPE_BANK_TRANSACTIONS, utransactions)
     await api.updateAll(DOCTYPE_BANK_SETTINGS, usettings)
   } else {
-    logWithInstance('Dry run: first updated account', diff(uaccounts[0], accounts[0]))
-    logWithInstance('Dry run: first updated transaction', diff(utransactions[0], transactions[0]))
-    logWithInstance('Dry run: first updated settings', diff(usettings[0], settings[0]))
+    logWithInstance('Dry run: first updated account', diff(accounts[0], uaccounts[0]))
+    logWithInstance('Dry run: first updated transaction', diff(transactions[0], utransactions[0]))
+    logWithInstance('Dry run: first updated settings', diff(settings[0], usettings[0]))
   }
 
   logWithInstance(dryRun ? 'Would update' : 'Has updated', accounts.length, DOCTYPE_BANK_ACCOUNTS)
