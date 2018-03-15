@@ -54,7 +54,7 @@ const runStrategyAfterFirst = strategy => {
     return createPromise(arr[0]).then(res => {
       results.push(res)
       return strategy(rest, createPromise).then(pushAllToResults)
-    })
+    }).then(() => results)
   }
 }
 
