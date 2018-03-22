@@ -3,8 +3,8 @@ const mkAPI = client => {
   const api = {
     fetchAll: async (doctype, queryOptions = '') => {
       try {
-        const result = await client.fetchJSON('GET', `/data/${doctype}/_all_docs?${queryOptions}`)
-        return result.rows.filter(x => x.id.indexOf('_design') !== 0)
+        const result = await client.fetchJSON('GET', `/data/${doctype}/_all_docs?include_docs=true`)
+        return result.rows.filter(x => x.id.indexOf('_design') !== 0).map(x => x.doc)
       } catch (e) {
         if (e.reason.reason == 'Database does not exist.') {
           return []

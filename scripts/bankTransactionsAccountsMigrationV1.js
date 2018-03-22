@@ -55,9 +55,9 @@ const migrateAccountsV1 = docs => docs.map(migrateAccountV1)
 const migrateSettingsV1 = docs => docs.map(migrateSettingV1)
 
 const doMigrations = async dryRun => {
-  const accounts = (await api.fetchAll(DOCTYPE_BANK_ACCOUNTS, 'include_docs=true')).map(x => x.doc)
-  const transactions = (await api.fetchAll(DOCTYPE_BANK_TRANSACTIONS, 'include_docs=true')).map(x => x.doc)
-  const settings = (await api.fetchAll(DOCTYPE_BANK_SETTINGS, 'include_docs=true')).map(x => x.doc)
+  const accounts = await api.fetchAll(DOCTYPE_BANK_ACCOUNTS)
+  const transactions = await api.fetchAll(DOCTYPE_BANK_TRANSACTIONS)
+  const settings = await api.fetchAll(DOCTYPE_BANK_SETTINGS)
 
   const uaccounts = migrateAccountsV1(accounts)
   const utransactions = migrateTransactionsV1(transactions)
