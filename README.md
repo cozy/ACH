@@ -18,7 +18,7 @@ Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **create and remove 
 Install ACH using yarn.
 
 ```
-$ yarn global add git+ssh://git@gitlab.cozycloud.cc/labs/ACH.git
+$ yarn global add git@github.com:cozy/ACH.git
 ```
 
 If you cannot execute `ACH` after this command, it may be because you do not have
