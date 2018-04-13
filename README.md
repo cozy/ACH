@@ -4,13 +4,12 @@ Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **create and remove 
 
 + [Install](#install)
 + [Usage](#usage)
-+ [Import data](#import-data)
-+ [Import repositories with files](#import-repositories-with-files)
-+ [Create photo albums with ACH](#create-photo-albums-with-ach)
-+ [Export data keeping the ids](#export-data-keeping-the-ids)
-+ [How to export all data from a konnector](#how-to-export-all-data-from-a-konnector)
-
-<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
++ [Examples](#examples)
+  + [Import data](#import-data)
+  + [Import repositories with files](#import-repositories-with-files)
+  + [Create photo albums with ACH](#create-photo-albums-with-ach)
+  + [Export data keeping the ids](#export-data-keeping-the-ids)
+  + [How to export all data from a konnector](#how-to-export-all-data-from-a-konnector)
 
 ## Install
 
@@ -49,7 +48,9 @@ $ ACH --help
     export [doctypes] [filename]                         Exports data from the doctypes (separated by commas) to filename
 ```
 
-## Import data
+## Examples
+
+### Import data
 
 Files provided to the `import` command are parsed by [dummy-json](https://github.com/webroo/dummy-json), so you can pass a template file instead of a straight up JSON if you like.
 
@@ -73,7 +74,7 @@ To import some data on recette :
 $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js --url https://recette.cozy.works
 ```
 
-## Import repositories with files
+### Import repositories with files
 
 You can also import a full repository content into a Cozy by using the command `importDir`:
 
@@ -83,7 +84,7 @@ $ ACH importDir myDirectoryPath # default will be ./DirectoriesToInject
 
 All your target directory content will be imported to the root of Cozy Drive following the correct repositories tree.
 
-## Create photo albums with ACH
+### Create photo albums with ACH
 
 You can create photo albums from a folder on your disk.
 
@@ -91,7 +92,7 @@ You can create photo albums from a folder on your disk.
 $ python scripts/albums-from-dir.py my-photos-directory resulting-albums.json
 ```
 
-## Export data keeping the ids
+### Export data keeping the ids
 
 By default, `_id` and `_rev` are stripped from the exported data. Sometimes, you want to keep the ids/rev of the documents you export. Set the
 environment variable `ACH_KEEP_ID` to do so :
