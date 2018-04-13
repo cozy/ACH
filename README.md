@@ -6,7 +6,6 @@ Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **create and remove 
 + [Usage](#usage)
 + [Import data](#import-data)
 + [Import repositories with files](#import-repositories-with-files)
-+ [Using ACH with Cozy whose password we do not have](#using-ach-with-cozy-whose-password-we-do-not-have)
 + [Create photo albums with ACH](#create-photo-albums-with-ach)
 + [Export data keeping the ids](#export-data-keeping-the-ids)
 + [How to export all data from a konnector](#how-to-export-all-data-from-a-konnector)
