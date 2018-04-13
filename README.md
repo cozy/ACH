@@ -52,15 +52,118 @@ $ ACH --help
 
 ### Import data
 
-Files provided to the `import` command are parsed by [dummy-json](https://github.com/webroo/dummy-json), so you can pass a template file instead of a straight up JSON if you like.
-
-Here is an example of data import:
 
 ```shell
-$ ACH import data/edf/data.json
+$ cat data.json
+{
+  "io.cozy.bills": [
+    {
+      "_id": "eba16106554ca9e23012f83f9c7937c0",
+      "amount": 0.71,
+      "beneficiary": "Thyrion Lannister",
+      "date": "1455-05-08T22:00:00.000Z",
+      "filename": "20170508_528117465_R17125200206528395_malakoff_mederic.pdf",
+      "fileurl": "https://extranet.braavos-bank.com/espaceClient/sante/tbs/tbsGenererPDF.do?remb=34",
+      "groupAmount": 3.58,
+      "idPrestation": "528117465_R17125200206528395_412877436",
+      "idReimbursement": "528117465_R17125200206528395",
+      "invoice": "io.cozy.files:ff5864e01f2d20c472f2b0f6531860b7",
+      "isRefund": true,
+      "isThirdPartyPayer": true,
+      "originalAmount": 2.04,
+      "originalDate": "2017-04-28T22:00:00.000Z",
+      "socialSecurityRefund": 1.33,
+      "subtype": "Liver transplant",
+      "type": "health_costs",
+      "vendor": "Iron Bank of Braavos"
+    },
+    {
+      "_id": "eba16106554ca9e23012f83f9c793761",
+      "amount": 50,
+      "beneficiary": "Jamie LANNISTER",
+      "date": "1455-05-17T22:00:00.000Z",
+      "filename": "20170517_528117465_R17137202332136169_malakoff_mederic.pdf",
+      "fileurl": "https://extranet.braavos-bank.com/espaceClient/sante/tbs/tbsGenererPDF.do?remb=33",
+      "groupAmount": 175,
+      "idPrestation": "528117465_R17137202332136169_415641280",
+      "idReimbursement": "528117465_R17137202332136169",
+      "invoice": "io.cozy.files:c9a4b2104b4a10de543bd574ac9ff9b1",
+      "isRefund": true,
+      "isThirdPartyPayer": true,
+      "originalAmount": 108,
+      "originalDate": "1455-05-09T22:00:00.000Z",
+      "socialSecurityRefund": 7.22,
+      "subtype": "Golden hand",
+      "type": "health_costs",
+      "vendor": "Iron Bank of Braavos"
+    },
+    {
+      "_id": "eba16106554ca9e23012f83f9c7936fa",
+      "amount": 7.5,
+      "beneficiary": "Jamie LANNISTER",
+      "date": "1455-05-21T22:00:00.000Z",
+      "filename": "20170521_528117465_R171401014733001_malakoff_mederic.pdf",
+      "fileurl": "https://extranet.braavos-bank.com/espaceClient/sante/tbs/tbsGenererPDF.do?remb=32",
+      "groupAmount": 7.5,
+      "idPrestation": "528117465_R171401014733001_416477228",
+      "idReimbursement": "528117465_R171401014733001",
+      "invoice": "io.cozy.files:c9a4b2104b4a10de543bd574ac9fed3a",
+      "isRefund": true,
+      "isThirdPartyPayer": false,
+      "originalAmount": 25,
+      "originalDate": "1455-05-15T22:00:00.000Z",
+      "socialSecurityRefund": 17.5,
+      "subtype": "Chiropractor",
+      "type": "health_costs",
+      "vendor": "Iron Bank of Braavos"
+    },
+    {
+      "_id": "eba16106554ca9e23012f83f9c7936dd",
+      "amount": 0.89,
+      "beneficiary": "Jamie LANNISTER",
+      "date": "2017-07-30T22:00:00.000Z",
+      "filename": "20170730_528117465_R17209200405325685_malakoff_mederic.pdf",
+      "fileurl": "https://extranet.braavos-bank.com/espaceClient/sante/tbs/tbsGenererPDF.do?remb=30",
+      "groupAmount": 5.21,
+      "idPrestation": "528117465_R17209200405325685_432873233",
+      "idReimbursement": "528117465_R17209200405325685",
+      "invoice": "io.cozy.files:ff5864e01f2d20c472f2b0f6531853ef",
+      "isRefund": true,
+      "isThirdPartyPayer": true,
+      "originalAmount": 2.54,
+      "originalDate": "2017-07-24T22:00:00.000Z",
+      "socialSecurityRefund": 1.65,
+      "subtype": "Chemist",
+      "type": "health_costs",
+      "vendor": "Iron Bank of Braavos"
+    },
+    {
+      "_id": "eba16106554ca9e23012f83f9c79311a",
+      "amount": 0.36,
+      "beneficiary": "Jamie LANNISTER",
+      "date": "2017-08-06T22:00:00.000Z",
+      "filename": "20170806_528117465_R17216201307522910_malakoff_mederic.pdf",
+      "fileurl": "https://extranet.braavos-bank.com/espaceClient/sante/tbs/tbsGenererPDF.do?remb=29",
+      "groupAmount": 7.709999999999999,
+      "idPrestation": "528117465_R17216201307522910_434482904",
+      "idReimbursement": "528117465_R17216201307522910",
+      "invoice": "io.cozy.files:ff5864e01f2d20c472f2b0f653185344",
+      "isRefund": true,
+      "isThirdPartyPayer": true,
+      "originalAmount": 1.02,
+      "originalDate": "2017-08-01T22:00:00.000Z",
+      "socialSecurityRefund": 0.66,
+      "subtype": "Sour ",
+      "type": "health_costs",
+      "vendor": "Iron Bank of Braavos"
+    }
+  ]
+}
+
+$ ACH import data.json
 ```
 
-Some JSON files use handlebars helpers, for those file, you need to specifiy where it is.
+Some JSON files use handlebars helpers, for those file, you need to specify the file where the helpers are defined.
 
 ```shell
 $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js
@@ -68,7 +171,7 @@ $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js
 
 You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
 
-To import some data on recette :
+You can import to a remote Cozy with the `--url` option :
 
 ```shell
 $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js --url https://recette.cozy.works
