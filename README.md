@@ -84,23 +84,6 @@ $ ACH importDir myDirectoryPath # default will be ./DirectoriesToInject
 
 All your target directory content will be imported to the root of Cozy Drive following the correct repositories tree.
 
-## Using ACH with Cozy whose password we do not have
-
-You can generate a token with `cozy-stack`.
-
-```
-$ ssh recette.int.cozycloud.cc "cozy-stack instances token-cli recette.cozy.works io.cozy.accounts"
-eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9......_FPOvwNsN7TU15GXFrLsgIZETokkT6r_4GlAYu_CdepfoGfw
-```
-
-Format the result in a JSON
-
-```
-$ ssh recette.int.cozycloud.cc "cozy-stack instances token-cli recette.cozy.works io.cozy.accounts" | tr -d '\n' | xargs -0 printf '{"token": "%s"}' > token.json
-```
-
-You can then use ACH normally with this token
-
 ## Create photo albums with ACH
 
 You can create photo albums from a folder on your disk.
