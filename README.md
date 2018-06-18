@@ -44,6 +44,7 @@ $ ACH --help
 
     import [options] [filepath] [handlebarsOptionsFile]  The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).
     importDir [directoryPath]                            The path to the directory content to import. Defaults to "./DirectoriesToInject".
+    generateFiles [path] [filesCount]                    Create any number of small files on the Cozy.
     drop <doctypes...>                                   Deletes all documents of the provided doctypes. For real.
     export [doctypes] [filename]                         Exports data from the doctypes (separated by commas) to filename
 ```

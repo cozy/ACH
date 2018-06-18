@@ -64,6 +64,16 @@ program.command('importDir <directoryPath>')
   })
 })
 
+program.command('generateFiles [path] [filesCount]')
+.description('Generates a given number of small files.')
+.action((path = '/', filesCount = 10) => {
+  const {url, token} = program
+  const ach = new ACH(token, url, ['io.cozy.files'])
+  ach.connect().then(() => {
+    return ach.createFiles(path, parseInt(filesCount))
+  })
+})
+
 program.command('drop <doctypes...>')
 .description('Deletes all documents of the provided doctypes. For real.')
 .action(doctypes => {
