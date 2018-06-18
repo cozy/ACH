@@ -16,6 +16,8 @@
     "jest-diff": "^22.1.0",
     "lodash": "^4.17.4",
     "opn": "^5.1.0",
+    "progress": "^2.0.0",
+    "random-words": "^1.1.0",
     "regenerator-runtime": "0.11.0",
     "server-destroy": "^1.0.1",
     "timezone": "^1.0.13"

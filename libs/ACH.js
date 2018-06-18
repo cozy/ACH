@@ -1,6 +1,7 @@
 const deleteDocuments = require('./deleteDocuments')
 const dropCollections = require('./dropCollections')
 const importFolderContent = require('./importFolderContent')
+const createFiles = require('./createFiles')
 const exportData = require('./exportData')
 const getClient = require('./getClient')
 const cozyFetch = require('./cozyFetch')
@@ -58,6 +59,7 @@ const methods = {
   deleteDocuments,
   dropCollections,
   importFolder: importFolderContent,
+  createFiles,
   export: exportData,
   fetch: cozyFetch,
   updateSettings: updateSettings
