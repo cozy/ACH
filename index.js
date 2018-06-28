@@ -6,6 +6,7 @@ const appPackage = require('./package.json')
 const path = require('path')
 const { merge, keyBy, sortBy } = require('lodash')
 const Handlebars = require('handlebars')
+const spawnSync = require('child_process').spawnSync
 
 const {
   ACH,
@@ -86,11 +87,34 @@ Type "yes" if ok.
   })
 })
 
+const isCommandAvailable = command => {
+  try {
+    return spawnSync('which', [command], {
+      stdio: 'pipe'
+    })
+  } catch (err) {
+    return false
+  }
+}
+
+const makeToken = (url, doctypes) => {
+  const args= [url.replace(/https?:\/\//, ''), ...doctypes]
+  return spawnSync('make-token', args, {
+    stdio: 'pipe',
+    encoding: 'utf-8'
+  }).stdout.split('\n')[0]
+}
+
 program.command('export <doctypes> <filename>')
 .description('Exports data from the doctypes (separated by commas) to filename')
 .action((doctypes, filename) => {
   doctypes = doctypes.split(',')
-  const {url, token} = program
+  const url = program.url
+  let token = program.token
+  if (!token && isCommandAvailable('make-token')) {
+    token = makeToken(url, doctypes)
+    log.info('Made token automatically: ' + token)
+  }
   const ach = new ACH(token, url, doctypes)
   ach.connect().then(() => {
     return ach.export(doctypes, filename)
