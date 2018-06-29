@@ -121,7 +121,7 @@ program.command('export <doctypes> <filename>')
   doctypes = doctypes.split(',')
   const url = program.url
   let token = program.token
-  if (!token && isCommandAvailable('make-token')) {
+  if (!token && isCommandAvailable('make-token') && url.indexOf('cozy.tools') === -1) {
     token = makeToken(url, doctypes)
     log.info('Made token automatically: ' + token)
   }
