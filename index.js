@@ -109,10 +109,21 @@ const isCommandAvailable = command => {
 
 const makeToken = (url, doctypes) => {
   const args= [url.replace(/https?:\/\//, ''), ...doctypes]
-  return spawnSync('make-token', args, {
+  const spawned = spawnSync('make-token', args, {
     stdio: 'pipe',
     encoding: 'utf-8'
-  }).stdout.split('\n')[0]
+  })
+  let token = null
+  if (spawned.stdout) {
+    token = spawned.stdout.split('\n')[0]
+  }
+  if (token) {
+    log.info('Made token automatically: ' + token)
+  } else {
+    log.info('Could not automatically create token')
+    log.debug(spawned.stderr)
+  }
+  return token
 }
 
 program.command('export <doctypes> <filename>')
@@ -123,7 +134,6 @@ program.command('export <doctypes> <filename>')
   let token = program.token
   if (!token && isCommandAvailable('make-token') && url.indexOf('cozy.tools') === -1) {
     token = makeToken(url, doctypes)
-    log.info('Made token automatically: ' + token)
   }
   const ach = new ACH(token, url, doctypes)
   ach.connect().then(() => {
