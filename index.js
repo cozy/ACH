@@ -99,9 +99,10 @@ Type "yes" if ok.
 
 const isCommandAvailable = command => {
   try {
-    return spawnSync('which', [command], {
+    const spawned = spawnSync('which', [command], {
       stdio: 'pipe'
     })
+    return spawned.stdout.length > 0
   } catch (err) {
     return false
   }
