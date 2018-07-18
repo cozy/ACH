@@ -145,6 +145,18 @@ program.command('export <doctypes> <filename>')
   })
 })
 
+program.command('downloadFile <fileid>')
+.description('Download the file')
+.action(fileid => {
+  const doctypes = ['io.cozy.files']
+  const url = program.url
+  const token = program.token || autotoken(url, doctypes)
+  const ach = new ACH(token, url, doctypes)
+  ach.connect().then(() => {
+    return ach.downloadFile(fileid)
+  })
+})
+
 program.command('delete <doctype> <ids...>')
 .description('Delete document(s)')
 .action((doctype, ids) => {
