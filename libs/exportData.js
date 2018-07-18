@@ -26,21 +26,30 @@ const promiscify = function (fn) {
   }
 }
 
+const fetchAll = async (cozyClient, doctype) => {
+  try {
+    const result = await cozyClient.fetchJSON('GET', `/data/${doctype}/_all_docs?include_docs=true`)
+    return result.rows.filter(x => x.id.indexOf('_design') !== 0).map(x => x.doc)
+  } catch (e) {
+    console.error(e)
+    if (e.reason.reason == 'Database does not exist.') {
+      return []
+    }
+    throw e
+  }
+}
+
 const writeFilePromise = promiscify(fs.writeFile)
 
 module.exports = (cozyClient, doctypes, filename) => {
   log.debug('Exporting data...')
 
   const allExports = doctypes.map(doctype => {
-    return cozyClient.data.defineIndex(doctype, ['_id'])
-      .then(mangoIndex => {
-        return queryAll(cozyClient, mangoIndex, {
-          selector: {'_id': {'$gt': null}},
-          descending: true
-        })
-      }).then(docs => {
+    return fetchAll(cozyClient, doctype).then(docs => {
         log.success('Exported documents for ' + doctype + ' : ' + docs.length)
         return docs
+      }).catch(err => {
+        console.error(err)
       })
   })
 
