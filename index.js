@@ -127,18 +127,33 @@ const makeToken = (url, doctypes) => {
   return token
 }
 
+const autotoken = (url, doctypes) => {
+  if (isCommandAvailable('make-token') && url.indexOf('cozy.tools') === -1) {
+    return makeToken(url, doctypes)
+  }
+}
+
 program.command('export <doctypes> <filename>')
 .description('Exports data from the doctypes (separated by commas) to filename')
 .action((doctypes, filename) => {
   doctypes = doctypes.split(',')
   const url = program.url
-  let token = program.token
-  if (!token && isCommandAvailable('make-token') && url.indexOf('cozy.tools') === -1) {
-    token = makeToken(url, doctypes)
-  }
+  const token = program.token || autotoken(url, doctypes)
   const ach = new ACH(token, url, doctypes)
   ach.connect().then(() => {
     return ach.export(doctypes, filename)
+  })
+})
+
+program.command('downloadFile <fileid>')
+.description('Download the file')
+.action(fileid => {
+  const doctypes = ['io.cozy.files']
+  const url = program.url
+  const token = program.token || autotoken(url, doctypes)
+  const ach = new ACH(token, url, doctypes)
+  ach.connect().then(() => {
+    return ach.downloadFile(fileid)
   })
 })
 

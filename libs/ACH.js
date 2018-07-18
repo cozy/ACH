@@ -6,6 +6,8 @@ const exportData = require('./exportData')
 const getClient = require('./getClient')
 const cozyFetch = require('./cozyFetch')
 const log = require('./log')
+const request = require('request')
+const fs = require('fs')
 
 const { handleBadToken } = require('../libs/utils')
 
@@ -41,6 +43,23 @@ class ACH {
         log.warn('Could not connect to' + this.url)
         throw err
       })
+  }
+
+  async downloadFile (id) {
+    log.debug('Making download link for ' + id)
+    const downloadLink = await this.client.files.getDownloadLinkById(id)
+    const fileUrl = this.url + downloadLink
+    log.debug('Download link is ' + fileUrl)
+    const filename = fileUrl.split('/').slice(-1)[0]
+    const stream = fs.createWriteStream(filename)
+    await new Promise((resolve, reject) => {
+      log.debug('Downloading...')
+      request(fileUrl)
+        .pipe(stream)
+        .on('finish', resolve)
+        .on('error', reject)
+    })
+    log.info(`Downloaded ${filename} successfully`)
   }
 }
 
