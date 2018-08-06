@@ -1,31 +1,9 @@
 const keyBy = require('lodash/keyBy')
 const DOCTYPE_BANK_OPERATIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
+const api = require('./api')
 
 let client
-
-const api = {
-  fetchAll: async (doctype, queryOptions = '') => {
-    try {
-      const result = await client.fetchJSON('GET', `/data/${doctype}/_all_docs?${queryOptions}`)
-      return result.rows
-    } catch (e) {
-      if (e && e.response && e.response.status && e.response.status === 404) {
-        return []
-      } else {
-        console.log(e)
-        return []
-      }
-    }
-  },
-
-  deleteAll: async (doctype, docs) => {
-    return client.fetchJSON(
-      'POST', `/data/${doctype}/_bulk_docs`,
-      { docs: docs.map(flagForDeletion) }
-    )
-  }
-}
 
 const flagForDeletion = doc => {
   return {...doc, _deleted: true}
