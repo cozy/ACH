@@ -1,15 +1,21 @@
 language: node_js
 cache:
   directories:
-    - ~/.npm
+  - "~/.npm"
 notifications:
   email: false
 node_js:
-  - '8'
+- '8'
 script:
-  - npm test
+- npm test
 after_success:
-  - npm run travis-deploy-once "npm run semantic-release"
+- npm run travis-deploy-once "npm run semantic-release"
 branches:
   except:
-    - /^v\d+\.\d+\.\d+$/
+  - "/^v\\d+\\.\\d+\\.\\d+$/"
+env:
+  global:
+    # NPM_TOKEN environment variable
+    # $ npm token create
+    # $travis encrypt NPM_TOKEN={token received above}
+    secure: LQYGwjgoMgI/3R17es8or3eqTJXT1iyveKzS5/Zh9RAxGox+4e1VKWwqm514Iso8CBQoy5sg3u91dT8A8a4W4BOWrX3VzqKGpbu1O9lyqTl3+DuIPv9K9k6EN8BjgL/g48ahmajAkd3mSWBye/vTT3oZWmbFyrNYMuj3jHFA3VIloex4VRtvZ0lYVG9yM9OUvyZ7gVKkkHap8BhwNrJ+IjD/Q1/QIcqcAPL5FdENXEK8WZ1uhkPyfJ19ZW4nbsVziHVO5sOQ7tynTNvAYhthb3nZZ7L8rHLcPQSZU2oH8mJOgco9WfhLguEk6DxGmocKgLZhKzIqtQjFOd08gRG6/CpeLPvqsO885ues7Up7schd9HP7Yul9T1+ZQgiWWaXHtMLOrwj/S1n6CwdZ7wqWabBDbPy8yfR03xhDBiD0oDClaI0qoU0DcvAm2iGuhb2uD3kKFq9u7aicN/KGuXpCXwjnPeNX/DsM86W5ddKzvz48NDx9tasl9k07yOOp+IQck36bTT+U00gkEnr6YBed8rLoXgb76e777YJ55smBYsrv8KdAdxxBTLBFhVC9jFUGJho2vjpIIkqSA0rTuQbvIqN3jlyy1X8PFrzWjjEadLKxfsWM5d4uOp5U9WpccZing+fvMpdj8dY5vh3kDAr5jTU/FW8U0W6Kuo+w9lUr+38=
