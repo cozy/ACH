@@ -174,10 +174,9 @@ const importData = async function (cozyClient, data, options) {
   // because if it's a new doctype, the stack needs time to create the collection
   // and can't handle the other incoming requests
   const CONCURRENCY = 75
-  const runPerDoctype = options.parallel ? runInPool(CONCURRENCY) : runSerially
   const runPerDocument = options.parallel ? runInPoolAfterFirst(CONCURRENCY) : runSerially
 
-  return runPerDoctype(Object.keys(data), doctype => {
+  for (let doctype of Object.keys(data)) {
     let docs = data[doctype]
     assert(docs, 'No documents for doctype ' + doctype)
     const report = progressReport({
@@ -192,7 +191,7 @@ const importData = async function (cozyClient, data, options) {
     console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
     console.log(results.map(result => (result._id)))
     return results
-  })
+  }
 }
 
 const parseBool = function (boolString, defaultVal) {
