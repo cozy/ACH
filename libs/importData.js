@@ -176,7 +176,7 @@ const importData = function (cozyClient, data, options) {
   const CONCURRENCY = 75
   const runPerDoctype = options.parallel ? runInPool(CONCURRENCY) : runSerially
   const runPerDocument = options.parallel ? runInPoolAfterFirst(CONCURRENCY) : runSerially
-  return handleBadToken(runPerDoctype(Object.keys(data), doctype => {
+  return runPerDoctype(Object.keys(data), doctype => {
     let docs = data[doctype]
     assert(docs, 'No documents for doctype ' + doctype)
     const report = progressReport({
@@ -192,7 +192,7 @@ const importData = function (cozyClient, data, options) {
         console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
         console.log(results.map(result => (result._id)))
       })
-  }))
+  })
 }
 
 const parseBool = function (boolString, defaultVal) {
@@ -244,6 +244,6 @@ module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
 
   const ach = new ACH(token, cozyUrl, doctypes)
   return ach.connect().then(() => {
-    return importData(ach.client, data, options)
+    return handleBadToken(importData(ach.client, data, options))
   })
 }
