@@ -154,6 +154,21 @@ const createDoc = async function (client, doctype, data) {
 
 
 
+
+/**
+ * @return {function} - Progress logger when importing documents
+ */
+const progressReport = options => {
+  let i = 0
+  const { docs, doctype, every } = options
+  return tee(() => {
+    i++
+    if (i % options.every == 0 || i === docs.length) {
+      console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
+    }
+  })
+}
+
 const importData = function (cozyClient, data, options) {
   // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
   // because if it's a new doctype, the stack needs time to create the collection
@@ -163,21 +178,15 @@ const importData = function (cozyClient, data, options) {
   const runPerDocument = options.parallel ? runInPoolAfterFirst(CONCURRENCY) : runSerially
   return handleBadToken(runPerDoctype(Object.keys(data), doctype => {
     let docs = data[doctype]
-    const logProgress = (() => {
-      let i = 0
-      return tee(() => {
-        i = i + 1
-        if (i % 50 == 0 || i === docs.length) {
-          console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
-        }
-      })
-    })()
-
     assert(docs, 'No documents for doctype ' + doctype)
-
+    const report = progressReport({
+      doctype,
+      docs,
+      every: 50
+    })
     const createWithProgress = doc =>
       createDoc(cozyClient, doctype, doc)
-        .then(logProgress)
+        .then(report)
     return runPerDocument(docs, createWithProgress)
       .then(results => {
         console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
