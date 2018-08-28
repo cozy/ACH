@@ -92,31 +92,27 @@ const dirname = path => path.split('/').slice(0, -1).join('/')
  * uploaded, looks at the __SRC__ and __DEST__ fields of the document
  * to know where is the file and where to put it.
  */
-const createDocumentFromDescription = function (client, doctype, data) {
-  return Promise.resolve().then(() => {
-    if (doctype === FILE_DOCTYPE) {
-      const src = data.__SRC__
-      const dest = data.__DEST__
-      if (!src || !dest) {
-        throw new Error('No src/dest')
-      }
-      const fileJSON = dirTree(src)
-      if (!fileJSON) {
-        throw new Error('File error ' + src)
-      }
-      return uploadFile(client, fileJSON, dirname(dest), true)
-    } else {
-      const references = data.__REFERENCES__
-      delete data.__REFERENCES__
-      return client.data.forceCreate(doctype, data).then(doc => {
-        if (references) {
-          return client.data.addReferencedFiles(doc, references).then(() => doc)
-        } else {
-          return doc
-        }
-      })
+const createDocumentFromDescription = async function (client, doctype, data) {
+  if (doctype === FILE_DOCTYPE) {
+    const src = data.__SRC__
+    const dest = data.__DEST__
+    if (!src || !dest) {
+      throw new Error('No src/dest')
     }
-  })
+    const fileJSON = dirTree(src)
+    if (!fileJSON) {
+      throw new Error('File error ' + src)
+    }
+    return uploadFile(client, fileJSON, dirname(dest), true)
+  } else {
+    const references = data.__REFERENCES__
+    delete data.__REFERENCES__
+    const doc = await client.data.forceCreate(doctype, data)
+    if (references) {
+      await client.data.addReferencedFiles(doc, references)
+    }
+    return doc
+  }
 }
 
 /**
@@ -133,14 +129,15 @@ const createDocumentFromDescription = function (client, doctype, data) {
  * @param  {Object} data    - Document to be created
  * @return {Promise}
  */
-const createDoc = function (client, doctype, data) {
+const createDoc = async function (client, doctype, data) {
   assert(doctype, 'Must pass a doctype, you passed ' + doctype)
   assert(data, 'Must pass data, you passed ' + data)
   data = applyHelpers(data)
-  return createDocumentFromDescription(client, doctype, data, true).then(function (result) {
+  try {
+    const result = await createDocumentFromDescription(client, doctype, data, true)
     saveMetadata(doctype, result)
     return result
-  }).catch(err => {
+  } catch (err) {
     log.error('Oops! An error occured.')
     if (err.name === 'FetchError' && err.status === 400) {
       log.error(err.reason.error)
@@ -152,41 +149,49 @@ const createDoc = function (client, doctype, data) {
       log.error(err)
     }
     throw err
-  })
+  }
 }
 
 
 
-const importData = function (cozyClient, data, options) {
+
+/**
+ * @return {function} - Progress logger when importing documents
+ */
+const progressReport = options => {
+  let i = 0
+  const { docs, doctype, every } = options
+  return tee(() => {
+    i++
+    if (i % options.every == 0 || i === docs.length) {
+      console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
+    }
+  })
+}
+
+const importData = async function (cozyClient, data, options) {
   // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
   // because if it's a new doctype, the stack needs time to create the collection
   // and can't handle the other incoming requests
   const CONCURRENCY = 75
-  const runPerDoctype = options.parallel ? runInPool(CONCURRENCY) : runSerially
   const runPerDocument = options.parallel ? runInPoolAfterFirst(CONCURRENCY) : runSerially
-  return handleBadToken(runPerDoctype(Object.keys(data), doctype => {
+
+  for (let doctype of Object.keys(data)) {
     let docs = data[doctype]
-    const logProgress = (() => {
-      let i = 0
-      return tee(() => {
-        i = i + 1
-        if (i % 50 == 0 || i === docs.length) {
-          console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
-        }
-      })
-    })()
-
     assert(docs, 'No documents for doctype ' + doctype)
-
+    const report = progressReport({
+      doctype,
+      docs,
+      every: 50
+    })
     const createWithProgress = doc =>
       createDoc(cozyClient, doctype, doc)
-        .then(logProgress)
-    return runPerDocument(docs, createWithProgress)
-      .then(results => {
-        console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
-        console.log(results.map(result => (result._id)))
-      })
-  }))
+        .then(report)
+    const results = await runPerDocument(docs, createWithProgress)
+    console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
+    console.log(results.map(result => (result._id)))
+    return results
+  }
 }
 
 const parseBool = function (boolString, defaultVal) {
@@ -238,6 +243,6 @@ module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
 
   const ach = new ACH(token, cozyUrl, doctypes)
   return ach.connect().then(() => {
-    return importData(ach.client, data, options)
+    return handleBadToken(importData(ach.client, data, options))
   })
 }
