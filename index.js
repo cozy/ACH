@@ -255,7 +255,7 @@ program
       console.log(doctypes.join(' '))
     } else {
       const ach = new ACH(token, url, doctypes)
-      const dryRun = !action.execute
+      const dryRun = process.argv.findIndex(arg => arg === '-x') === -1
       log.info(`Launching script ${scriptName}...`)
       log.info(`Dry run : ${dryRun}`)
       ach

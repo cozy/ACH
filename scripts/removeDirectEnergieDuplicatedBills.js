@@ -1,71 +1,68 @@
 const mkAPI = require('./api')
-const fs = require('fs-extra')
-const path = require('path')
 const groupBy = require('lodash/groupBy')
 const partition = require('lodash/partition')
 
 const DOCTYPE_BILLS = 'io.cozy.bills'
 const DOCTYPE_FILES = 'io.cozy.files'
-
-// this source file comes from the execution of findDeduplicationOperations.js script in
-// scrapers/conn-pool repo
-// const DATASOURCE = path.join(__dirname, './data/int-instances.json')
-// const DATASOURCE = path.join(__dirname, './data/stg-instances.json')
-const DATASOURCE = path.join(__dirname, './data/prod-instances.json')
+const DOCTYPE_ACCOUNTS = 'io.cozy.accounts'
 
 let client
 
 module.exports = {
   getDoctypes: function() {
-    return [DOCTYPE_BILLS, DOCTYPE_FILES]
+    return [DOCTYPE_BILLS, DOCTYPE_FILES, DOCTYPE_ACCOUNTS]
   },
-  run: async function(ach, dryRun) {
+  run: async function(ach, dryRun, argv) {
+    // arguments: slug, filename termination
+    const [slug, fileEnd] = argv
+    if ((slug == null) | (fileEnd == null)) {
+      console.log(`wrong arguments : ${argv}`)
+      process.exit()
+    }
+
     const instance = ach.url.replace('https://', '')
 
     console.log('Instance ' + instance + '...')
 
     client = ach.client
+    const api = mkAPI(client)
 
-    const { toKeep, toRemove } = await fetchBillsToUpdate(instance, client)
+    // fetch the list of accounts with correct vendor
+    const accounts = (await api.fetchAll(DOCTYPE_ACCOUNTS)).filter(
+      account => account.account_type === slug
+    )
 
-    console.log(`Will update ${toKeep.length} bills`)
-    console.log(`Will delete ${toRemove.length} bills`)
-
-    if (!dryRun) {
-      client = ach.client
-      const api = mkAPI(client)
-
-      console.log('before update' + new Date())
-      await api.updateAll(DOCTYPE_BILLS, toKeep)
-      console.log('after update' + new Date())
-
-      console.log('before delete' + new Date())
-      await api.deleteAll(DOCTYPE_BILLS, toRemove)
-      console.log('after delete' + new Date())
+    // get the list of file ids for all accounts
+    const fileIds = []
+    for (const account of accounts) {
+      if (account && account.auth && account.auth.folderPath) {
+        try {
+          const files = await client.files.statByPath(account.auth.folderPath)
+          fileIds.push.apply(
+            fileIds,
+            files.relationships.contents.data.map(doc => doc.id)
+          )
+        } catch (err) {
+          console.log(`${account.auth.folderPath} does not exist`)
+        }
+      }
     }
-  }
-}
 
-async function fetchBillsToUpdate(instance) {
-  const instances = fs.readJsonSync(DATASOURCE)
-  const account = instances.find(doc => doc.instance === instance)
+    // get the list of bills and filter them by filename and vendor null
+    const bills = (await api.fetchAll(DOCTYPE_BILLS)).filter(
+      bill =>
+        bill.filename &&
+        bill.filename
+          .split('_')
+          .pop()
+          .match(`${fileEnd}$`)
+    )
 
-  // get the list of files in the account
-  let toKeep, toRemove
-  if (
-    account &&
-    account.accountDoc &&
-    account.accountDoc.auth &&
-    account.accountDoc.auth.folderPath
-  ) {
+    // find duplicates
+    let toKeep, toRemove
     try {
-      const files = await client.files.statByPath(
-        account.accountDoc.auth.folderPath
-      )
-      const fileIds = files.relationships.contents.data.map(doc => doc.id)
-
       const result = partition(
-        account.bills,
+        bills,
         bill =>
           bill &&
           bill.invoice &&
@@ -75,33 +72,45 @@ async function fetchBillsToUpdate(instance) {
       toRemove = result[1]
     } catch (err) {
       console.log(err.message, 'keeping all bills')
-      toKeep = account.bills
+      toKeep = bills
       toRemove = []
     }
-  } else {
-    toKeep = account.bills
-    toRemove = []
-  }
 
-  console.log(`Found ${toRemove.length} bills with files which do not exist`)
+    console.log(`Found ${toRemove.length} bills with files which do not exist`)
+    console.log(`Now finding duplicates...`)
+    const todo = findDuplicates(toKeep, {
+      keys: ['date', 'amount']
+    })
 
-  console.log(`Now finding duplicates...`)
-  const operations = findDuplicates(toKeep, {
-    keys: ['date', 'amount']
-  })
+    todo.toKeep = todo.toKeep.map(doc => ({
+      ...doc,
+      vendor: 'Direct Energie',
+      meta: {
+        dateImport: new Date(),
+        version: 2
+      }
+    }))
 
-  operations.toKeep = operations.toKeep.map(doc => ({
-    ...doc,
-    vendor: 'Direct Energie',
-    meta: {
-      dateImport: new Date(),
-      version: 2
+    todo.toRemove.push.apply(todo.toRemove, toRemove)
+
+    // update and delete if not dryRun
+    console.log(`Will update ${todo.toKeep.length} bills`)
+    console.log(`Will delete ${todo.toRemove.length} bills`)
+
+    if (!dryRun) {
+      if (todo.toKeep.length) {
+        console.log('before update ' + new Date())
+        await api.updateAll(DOCTYPE_BILLS, todo.toKeep)
+        console.log('after update ' + new Date())
+      }
+
+      if (todo.toRemove.length) {
+        console.log('before delete ' + new Date())
+        await api.deleteAll(DOCTYPE_BILLS, todo.toRemove)
+        console.log('after delete ' + new Date())
+      }
     }
-  }))
-
-  operations.toRemove.push.apply(operations.toRemove, toRemove)
-
-  return operations
+  }
 }
 
 function findDuplicates(documents, options) {
