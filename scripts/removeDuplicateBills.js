@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* eslint no-console: off */
 
 const mkAPI = require('./api')
