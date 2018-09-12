@@ -14,8 +14,8 @@ module.exports = {
   },
   run: async function(ach, dryRun, argv) {
     // arguments: slug, filename termination
-    const [slug, fileEnd] = argv
-    if ((slug == null) | (fileEnd == null)) {
+    const [slug, fileEnd, vendor] = argv
+    if (slug == null || fileEnd == null || vendor == null) {
       console.log(`wrong arguments : ${argv}`)
       process.exit()
     }
@@ -84,7 +84,7 @@ module.exports = {
 
     todo.toKeep = todo.toKeep.map(doc => ({
       ...doc,
-      vendor: 'Direct Energie',
+      vendor,
       meta: {
         dateImport: new Date(),
         version: 2
