@@ -290,17 +290,3 @@ const findCommand = program => {
     return program.args[0]
   }
 }
-
-// Check for unknown commands
-const commands = keyBy(program.commands, '_name')
-const command = findCommand(program)
-if (!commands[command]) {
-  if (command) {
-    console.log(`Unknown command "${command}"`)
-  } else {
-    console.log('You must pass a command to ACH')
-  }
-  const availableCommands = sortBy(Object.keys(commands)).join(', ')
-  console.log(`Available commands: ${availableCommands}`)
-  console.log('Use `ACH --help` to have more help.')
-}
