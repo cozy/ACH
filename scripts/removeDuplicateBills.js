@@ -250,7 +250,11 @@ async function removeBillsFromOperations(bills, operations, dryRun, instance) {
     }
   }
 
-  log(`Will update ${batchTodo.length} operations on ${instance}`)
+  log(
+    `Will update ${batchTodo.length} operations / ${
+      operations.length
+    } on ${instance}`
+  )
 }
 
 function cloneObj(obj) {
