@@ -36,10 +36,9 @@ module.exports = {
 
     const fileIds = (await api.fetchAll(DOCTYPE_FILES)).map(doc => doc._id)
 
-    // get the list of bills and filter them by vendor
-    const bills = (await api.fetchAll(DOCTYPE_BILLS)).filter(
-      bill => bill.vendor === vendor
-    )
+    let bills = await api.fetchAll(DOCTYPE_BILLS)
+    if (vendor) bills = bills.filter(bill => bill.vendor === vendor)
+
     const operations = await api.fetchAll(DOCTYPE_OPERATIONS)
 
     // find bills related to not existing files
@@ -70,8 +69,7 @@ module.exports = {
     console.log(`Found ${toRemove.length} bills with files which do not exist`)
     console.log(`Now finding duplicates...`)
     const todo = await findDuplicates(toKeep, operations, {
-      keys: ['date', 'amount', 'vendor'],
-      vendor
+      keys: ['date', 'amount', 'vendor']
     })
 
     todo.toRemove.push.apply(todo.toRemove, toRemove)
