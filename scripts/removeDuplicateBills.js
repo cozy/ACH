@@ -85,9 +85,8 @@ module.exports = {
 
     if (!dryRun) {
       if (todo.toRemove.length) {
-        console.log('before ' + new Date())
+        log('Removing duplicates')
         await api.deleteAll(DOCTYPE_BILLS, todo.toRemove)
-        console.log('after ' + new Date())
       }
     }
   }
@@ -207,7 +206,7 @@ async function removeBillsFromOperations(bills, operations, dryRun, instance) {
     if (needUpdate) {
       // favor bills in reimbursements over bills in bills attribute
       if (billsAttribute && billsAttribute.length) {
-        log(`before: ${JSON.stringify(op.bills, null, 2)}`, true)
+        log(`before: ${JSON.stringify(billsAttribute, null, 2)}`, true)
         const reimbBillIds = reimbAttribute
           ? reimbAttribute.map(doc => doc.billId)
           : []
@@ -237,11 +236,6 @@ async function removeBillsFromOperations(bills, operations, dryRun, instance) {
         )}`,
         true
       )
-      // if (!dryRun) {
-      //   await this.updateAttributes(DOCTYPE_OPERATIONS, op, {
-      //     bills: billsAttribute
-      //   })
-      // }
       batchTodo.push({
         ...op,
         bills: billsAttribute,
@@ -255,6 +249,11 @@ async function removeBillsFromOperations(bills, operations, dryRun, instance) {
       operations.length
     } on ${instance}`
   )
+
+  if (!dryRun) {
+    log('Updating operations')
+    await api.updateAll(DOCTYPE_OPERATIONS, batchTodo)
+  }
 }
 
 function cloneObj(obj) {
