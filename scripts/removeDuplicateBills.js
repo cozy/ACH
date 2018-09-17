@@ -34,7 +34,9 @@ module.exports = {
     client = ach.client
     api = mkAPI(client)
 
-    const fileIds = (await api.fetchAll(DOCTYPE_FILES)).map(doc => doc._id)
+    const fileIds = (await api.fetchAll(DOCTYPE_FILES))
+      .filter(doc => doc.dir_id !== 'io.cozy.files.trash-dir')
+      .map(doc => doc._id)
 
     let bills = await api.fetchAll(DOCTYPE_BILLS)
     if (vendor) bills = bills.filter(bill => bill.vendor === vendor)
