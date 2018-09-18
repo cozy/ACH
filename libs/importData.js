@@ -187,11 +187,15 @@ const importData = async function (cozyClient, data, options) {
     const createWithProgress = doc =>
       createDoc(cozyClient, doctype, doc)
         .then(report)
-    const results = await runPerDocument(docs, createWithProgress)
-    console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
-    console.log(results.map(result => (result._id)))
-    return results
+    try {
+      const results = await runPerDocument(docs, createWithProgress)
+      console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
+      console.log(results.map(result => (result._id)))
+    } catch (error){
+      throw new Error(error)
+    }
   }
+  return true;
 }
 
 const parseBool = function (boolString, defaultVal) {
