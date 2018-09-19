@@ -46,30 +46,23 @@ module.exports = {
     // find bills related to not existing files
     let toKeep, toRemove
 
-    if (fileIds.length === 0) {
-      console.log('no account with directory: keeping all bills')
+    try {
+      const result = partition(
+        bills,
+        bill =>
+          bill &&
+          bill.invoice &&
+          fileIds.includes(bill.invoice.split(':').pop())
+      )
+      toKeep = result[0]
+      toRemove = result[1]
+    } catch (err) {
+      console.log(err.message, 'keeping all bills')
       toKeep = bills
       toRemove = []
-    } else {
-      try {
-        const result = partition(
-          bills,
-          bill =>
-            bill &&
-            bill.invoice &&
-            fileIds.includes(bill.invoice.split(':').pop())
-        )
-        toKeep = result[0]
-        toRemove = result[1]
-      } catch (err) {
-        console.log(err.message, 'keeping all bills')
-        toKeep = bills
-        toRemove = []
-      }
     }
 
     console.log(`Found ${toRemove.length} bills with files which do not exist`)
-    console.log(`Now finding duplicates...`)
     const todo = await findDuplicates(toKeep, operations, {
       keys: ['date', 'amount', 'vendor']
     })
@@ -143,9 +136,6 @@ const sortBillsByLinkedOperationNumber = (bills, operations) => {
           const bill = billsIndex[billId]
           if (bill) bill.opNb++
         })
-      else {
-        console.log(op.bills, 'not an array op.bills')
-      }
     })
   const sorted = sortBy(Object.values(billsIndex), 'opNb').reverse()
   return sorted
@@ -163,7 +153,7 @@ async function removeBillsFromOperations(bills, operations, dryRun, instance) {
     for (let bill of bills) {
       const billLongId = `io.cozy.bills:${bill._id}`
       // if bill id found in op bills, do something
-      if (billsAttribute.indexOf(billLongId) >= 0) {
+      if (Array.isArray(billsAttribute) && billsAttribute.indexOf(billLongId) >= 0) {
         log(`  found bill to remove: ${bill._id}`, true)
         needUpdate = true
         billsAttribute = billsAttribute.filter(
