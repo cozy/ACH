@@ -78,7 +78,7 @@ module.exports = {
 
     // update and delete if not dryRun
     console.log(
-      `Will delete ${todo.toRemove.length} bills / ${bills.length} total`
+      `Will delete ${todo.toRemove.length} bills / ${bills.length} total on ${instance}`
     )
 
     removeBillsFromOperations(todo.toRemove, operations, dryRun, instance)
