@@ -138,11 +138,14 @@ const sortBillsByLinkedOperationNumber = (bills, operations) => {
   const billsIndex = keyBy(bills, '_id')
   if (operations)
     operations.forEach(op => {
-      if (op.bills)
+      if (op.bills && Array.isArray(op.bills))
         op.bills.forEach(billId => {
           const bill = billsIndex[billId]
           if (bill) bill.opNb++
         })
+      else {
+        console.log(op.bills, 'not an array op.bills')
+      }
     })
   const sorted = sortBy(Object.values(billsIndex), 'opNb').reverse()
   return sorted
