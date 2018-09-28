@@ -1,3 +1,3 @@
-The fixtures for Bank are in its [repository](https://gitlab.cozycloud.cc/labs/cozy-bank/tree/master/test/fixtures/demo).
+The fixtures for Banks are in its [repository](https://github.com/cozy/cozy-banks/tree/master/test/fixtures).
 
-https://gitlab.cozycloud.cc/labs/cozy-bank/tree/master/test/fixtures/demo
+https://github.com/cozy/cozy-banks/tree/master/test/fixtures
