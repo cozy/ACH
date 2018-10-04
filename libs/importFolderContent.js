@@ -21,6 +21,6 @@ module.exports = (client, JSONtree) => {
   })
   .catch(err => {
     console.log('Error when importing folder content (probably a conflict with existing data)')
-    console.warn(err)
+    throw err
   })
 }

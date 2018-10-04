@@ -40,13 +40,18 @@ function fileExists (p) {
   }
 }
 
+const logAndExit = e => {
+  console.error(e)
+  process.exit(1)
+}
+
 program.command('import <filepath> [handlebarsOptionsFile]')
 .description('The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).')
 .action((filepath, handlebarsOptionsFile) => {
   assert(fileExists(filepath), `${filepath} does not exist`)
   assert(fileExists(handlebarsOptionsFile), `${handlebarsOptionsFile} does not exist`)
   const {url, token} = program
-  return importData(url, token, filepath, handlebarsOptionsFile)
+  return importData(url, token, filepath, handlebarsOptionsFile).catch(logAndExit)
 })
 
 program.command('importDir <directoryPath>')
@@ -62,7 +67,7 @@ program.command('importDir <directoryPath>')
   const ach = new ACH(token, url, ['io.cozy.files'])
   ach.connect().then(() => {
     return ach.importFolder(JSONtree)
-  })
+  }).catch(logAndExit)
 })
 
 program.command('generateFiles [path] [filesCount]')
@@ -72,7 +77,7 @@ program.command('generateFiles [path] [filesCount]')
   const ach = new ACH(token, url, ['io.cozy.files'])
   ach.connect().then(() => {
     return ach.createFiles(path, parseInt(filesCount))
-  })
+  }).catch(logAndExit)
 })
 
 program.command('drop <doctypes...>')
@@ -91,7 +96,7 @@ Type "yes" if ok.
     const ach = new ACH(token, url, doctypes)
     ach.connect().then(() => {
       return ach.dropCollections(doctypes)
-    })
+    }).catch(logAndExit)
   }, () => {
     console.log('Cancelled drop')
   })
@@ -142,7 +147,7 @@ program.command('export <doctypes> <filename>')
   const ach = new ACH(token, url, doctypes)
   ach.connect().then(() => {
     return ach.export(doctypes, filename)
-  })
+  }).catch(logAndExit)
 })
 
 program.command('downloadFile <fileid>')
@@ -154,7 +159,7 @@ program.command('downloadFile <fileid>')
   const ach = new ACH(token, url, doctypes)
   ach.connect().then(() => {
     return ach.downloadFile(fileid)
-  })
+  }).catch(logAndExit)
 })
 
 program.command('delete <doctype> <ids...>')
@@ -164,7 +169,7 @@ program.command('delete <doctype> <ids...>')
   const ach = new ACH(token, url, [doctype])
   ach.connect().then(() => {
     return ach.deleteDocuments(doctype, ids)
-  })
+  }).catch(logAndExit)
 })
 
 program.command('updateSettings')
@@ -175,7 +180,7 @@ program.command('updateSettings')
   const ach = new ACH(token, url, ['io.cozy.settings'])
   ach.connect().then(() => {
     return ach.updateSettings(settings)
-  })
+  }).catch(logAndExit)
 })
 
 program.command('script <scriptName>')
@@ -204,7 +209,7 @@ program.command('script <scriptName>')
     log.info(`Dry run : ${dryRun}`)
     ach.connect().then(() => {
       return run(ach, dryRun)
-    })
+    }).catch(logAndExit)
   }
 })
 

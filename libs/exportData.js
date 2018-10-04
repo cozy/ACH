@@ -68,7 +68,4 @@ module.exports = (cozyClient, doctypes, filename) => {
         return writeFilePromise(filename, json)
       }
     })
-    .catch(function (err) {
-      log.error(err)
-    })
 }
