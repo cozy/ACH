@@ -5,6 +5,7 @@ const groupBy = require('lodash/groupBy')
 const partition = require('lodash/partition')
 const keyBy = require('lodash/keyBy')
 const sortBy = require('lodash/sortBy')
+const chunk = require('lodash/chunk')
 
 const DOCTYPE_BILLS = 'io.cozy.bills'
 const DOCTYPE_FILES = 'io.cozy.files'
@@ -42,6 +43,7 @@ module.exports = {
     if (vendor) bills = bills.filter(bill => bill.vendor === vendor)
 
     const operations = await api.fetchAll(DOCTYPE_OPERATIONS)
+    console.log(`Found ${operations.length} operations`)
 
     // find bills related to not existing files
     let toKeep, toRemove
@@ -67,7 +69,10 @@ module.exports = {
       keys: ['date', 'amount', 'vendor']
     })
 
-    todo.toRemove.push.apply(todo.toRemove, toRemove)
+    const chunks = chunk(toRemove, 10000)
+    for (let i=0;i<chunks.length;i++) {
+      todo.toRemove.push.apply(todo.toRemove, chunks[i])
+    }
 
     // update and delete if not dryRun
     console.log(
@@ -79,7 +84,13 @@ module.exports = {
     if (!dryRun) {
       if (todo.toRemove.length) {
         log('Removing duplicates')
-        await api.deleteAll(DOCTYPE_BILLS, todo.toRemove)
+	const parts = chunk(todo.toRemove, 10000)
+	let i = 0	
+	for (const part of parts) {
+	  i++
+          console.log(`chunk ${i} / ${parts.length}`)
+          await api.deleteAll(DOCTYPE_BILLS, part)
+	}
       }
     }
   }
@@ -243,7 +254,7 @@ async function removeBillsFromOperations(bills, operations, dryRun, instance) {
     } on ${instance}`
   )
 
-  if (!dryRun) {
+  if (!dryRun && batchTodo.length) {
     log('Updating operations')
     await api.updateAll(DOCTYPE_OPERATIONS, batchTodo)
   }
