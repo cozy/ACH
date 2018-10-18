@@ -4,8 +4,28 @@
  */
 
 const DOCTYPE_COZY_ACCOUNTS = 'io.cozy.accounts'
+const DOCTYPE_COZY_FILES = 'io.cozy.files'
+const DOCTYPE_COZY_TRIGGERS = 'io.cozy.triggers'
 
-let client
+const findTriggerByAccount = async (client, accountId) => {
+  const index = await client.data.defineIndex(DOCTYPE_COZY_TRIGGERS, [
+    'message.account'
+  ])
+  const results = await client.data.query(index, {
+    selector: {
+      message: {
+        account: {
+          $eq: accountId
+        }
+      }
+    }
+  })
+  return results[0]
+}
+
+const findFolder = async (client, folderId) => {
+  return await client.files.statById(folderId)
+}
 
 const fixAccount = async (client, account, dryRun = true) => {
   const accountId = account._id
@@ -110,12 +130,49 @@ const fixAccount = async (client, account, dryRun = true) => {
       }
     }
 
-    const segments = folderPath.split('/')
+    let actualFolderPath = folderPath
+
+    if (!actualFolderPath) {
+      console.log(
+        `❌  Account ${accountId} does not contain \`auth.folderPath\` attribute`
+      )
+      // Get related trigger
+      const trigger = await findTriggerByAccount(client, accountId)
+      if (trigger) {
+        // Get related folder
+        const folder = await findFolder(client, trigger.message.folder_to_save)
+        // folderPath
+        if (folder) {
+          actualFolderPath = folder.attributes.path
+          if (dryRun) {
+            console.info(
+              `👌  Would update \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
+            )
+          } else {
+            console.info(
+              `👌  Updating \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
+            )
+            sanitizedAccount.auth.folderPath = actualFolderPath
+            needUpdate = true
+          }
+        } else {
+          console.log(
+            `❌  Account ${accountId} is not related to any existing folder`
+          )
+          return
+        }
+      } else {
+        console.log(`❌  Account ${accountId} is not related to any trigger`)
+        return
+      }
+    }
+
+    const segments = actualFolderPath.split('/')
     if (segments[segments.length - 1] === sanitizedNamePath) {
       console.log('✅  `auth.folderPath` is consistent with `namePath`')
     } else {
-      const sanitizedFolderPath = `${folderPath}${
-        folderPath[folderPath.length - 1] === '/' ? '' : '/'
+      const sanitizedFolderPath = `${actualFolderPath}${
+        actualFolderPath[actualFolderPath.length - 1] === '/' ? '' : '/'
       }${sanitizedNamePath}`
       if (dryRun) {
         console.info(
@@ -156,9 +213,10 @@ const fixAccounts = async (client, dryRun = true) => {
   }
 }
 
+let client
 module.exports = {
   getDoctypes: function() {
-    return [DOCTYPE_COZY_ACCOUNTS]
+    return [DOCTYPE_COZY_ACCOUNTS, DOCTYPE_COZY_TRIGGERS, DOCTYPE_COZY_FILES]
   },
   run: async function(ach, dryRun = true) {
     client = ach.client

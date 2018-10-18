@@ -4,6 +4,18 @@ describe('fixAccount', async () => {
   let client,
     capturedLoggers = {}
 
+  const mockedFolder = {
+    attributes: {
+      path: '/Administrative/Test/claude_cozycloud_cc'
+    }
+  }
+
+  const mockedTrigger = {
+    message: {
+      folder_to_save: 'c018ad350813c21f85137726a008224f'
+    }
+  }
+
   beforeEach(() => {
     ;['log', 'info'].forEach(logger => {
       capturedLoggers[logger] = console[logger]
@@ -11,7 +23,12 @@ describe('fixAccount', async () => {
     })
     client = {
       data: {
-        update: jest.fn().mockResolvedValue({})
+        defineIndex: jest.fn().mockResolvedValue({}),
+        update: jest.fn().mockResolvedValue({}),
+        query: jest.fn().mockResolvedValue([mockedTrigger])
+      },
+      files: {
+        statById: jest.fn().mockResolvedValue(mockedFolder)
       }
     }
   })
@@ -208,5 +225,20 @@ describe('fixAccount', async () => {
         )
       })
     }
+  })
+
+  describe('with related trigger', async () => {
+    it('restores `auth.folderPath` from related trigger', async () => {
+      const unexpectedAccount = {
+        ...expectedAccount,
+        auth: { ...expectedAccount.auth }
+      }
+      delete unexpectedAccount.auth.folderPath
+
+      await fixAccount(client, unexpectedAccount, false)
+
+      expect(client.data.update.mock.calls.length).toBe(1)
+      expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
+    })
   })
 })
