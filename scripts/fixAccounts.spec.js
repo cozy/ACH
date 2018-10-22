@@ -227,6 +227,23 @@ describe('fixAccount', async () => {
     }
   })
 
+  it('does not create namePath when folderPath is expected to be missing', async () => {
+    const expectedAccountWithoutNamePath = {
+      ...expectedAccount,
+      auth: {
+        ...expectedAccount.auth
+      }
+    }
+
+    // The trigger does not contain any `message.folder_to_save`
+    client.data.query.mockResolvedValue([{ message: {} }])
+
+    delete expectedAccountWithoutNamePath.auth.folderPath
+    delete expectedAccountWithoutNamePath.auth.namePath
+    await fixAccount(client, expectedAccountWithoutNamePath, false)
+    expect(client.data.update.mock.calls.length).toBe(0)
+  })
+
   describe('with related trigger', async () => {
     it('restores `auth.folderPath` from related trigger', async () => {
       const unexpectedAccount = {

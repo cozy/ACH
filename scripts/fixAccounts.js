@@ -107,6 +107,58 @@ const fixAccount = async (client, account, dryRun = true) => {
       namePath
     } = account.auth
 
+    let actualFolderPath = folderPath
+
+    if (!actualFolderPath) {
+      // Get related trigger
+      const trigger = await findTriggerByAccount(client, accountId)
+      if (trigger) {
+        if (trigger.message && trigger.message.folder_to_save) {
+          // Get related folder
+          const folder = await findFolder(
+            client,
+            trigger.message.folder_to_save
+          )
+          // folderPath
+          if (folder) {
+            console.log(
+              `❌  Account ${accountId} does not contain \`auth.folderPath\` attribute`
+            )
+
+            actualFolderPath = folder.attributes.path
+            if (dryRun) {
+              console.info(
+                `👌  Would update \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
+              )
+            } else {
+              console.info(
+                `👌  Updating \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
+              )
+              sanitizedAccount.auth.folderPath = actualFolderPath
+              needUpdate = true
+            }
+          } else {
+            console.log(
+              `❌  Account ${accountId}'s trigger is not related to any existing folder\n\r`
+            )
+            return
+          }
+        } else {
+          console.log(
+            `✅  No attribute \`folderPath\` in account ${accountId} but related trigger ${
+              trigger._id
+            } does not contain \`message.folder_to_save\`\n\r`
+          )
+          return
+        }
+      } else {
+        console.log(
+          `❌  Account ${accountId} is not related to any trigger\n\r`
+        )
+        return
+      }
+    }
+
     let sanitizedNamePath = namePath
 
     if (!sanitizedNamePath) {
@@ -127,43 +179,6 @@ const fixAccount = async (client, account, dryRun = true) => {
         )
         sanitizedAccount.auth.namePath = sanitizedNamePath
         needUpdate = true
-      }
-    }
-
-    let actualFolderPath = folderPath
-
-    if (!actualFolderPath) {
-      console.log(
-        `❌  Account ${accountId} does not contain \`auth.folderPath\` attribute`
-      )
-      // Get related trigger
-      const trigger = await findTriggerByAccount(client, accountId)
-      if (trigger) {
-        // Get related folder
-        const folder = await findFolder(client, trigger.message.folder_to_save)
-        // folderPath
-        if (folder) {
-          actualFolderPath = folder.attributes.path
-          if (dryRun) {
-            console.info(
-              `👌  Would update \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
-            )
-          } else {
-            console.info(
-              `👌  Updating \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
-            )
-            sanitizedAccount.auth.folderPath = actualFolderPath
-            needUpdate = true
-          }
-        } else {
-          console.log(
-            `❌  Account ${accountId} is not related to any existing folder`
-          )
-          return
-        }
-      } else {
-        console.log(`❌  Account ${accountId} is not related to any trigger`)
-        return
       }
     }
 
