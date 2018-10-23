@@ -243,9 +243,11 @@ program
       console.error(`${scriptName} does not exist in ${dir}`)
       process.exit(1)
     }
-    const { url, token } = program
+
     const { getDoctypes, run } = script
+    const url = program.url
     const doctypes = getDoctypes()
+    const token = program.token || autotoken(url, doctypes)
     if (action.doctypes) {
       console.log(doctypes.join(' '))
     } else {
