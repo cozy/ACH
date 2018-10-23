@@ -12,10 +12,10 @@ const resetBankLinks = operation => {
 }
 
 module.exports = {
-  getDoctypes: function () {
+  getDoctypes: function() {
     return [DOCTYPE_BILLS, DOCTYPE_OPERATIONS]
   },
-  run: async function (ach, dryRun) {
+  run: async function(ach, dryRun) {
     client = ach.client
     api = mkAPI(client)
     const operations = await api.fetchAll(DOCTYPE_OPERATIONS)

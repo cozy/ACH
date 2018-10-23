@@ -1,7 +1,8 @@
 const { queryAll } = require('./utils')
 
 const deleteDocument = (client, doctype, id) => {
-  return client.data.find(doctype, id)
+  return client.data
+    .find(doctype, id)
     .then(doc => {
       // well now we drop them all...
       return client.data.delete(doctype, doc)

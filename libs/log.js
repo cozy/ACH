@@ -11,23 +11,23 @@ const writeLnErr = msg => {
 }
 
 module.exports = {
-  success: function (msg) {
+  success: function(msg) {
     writeLnErr(green(msg))
   },
 
-  info: function (msg) {
+  info: function(msg) {
     writeLnErr(blue(msg))
   },
 
-  debug: function (msg) {
+  debug: function(msg) {
     writeLnErr(gray(msg))
   },
 
-  warn: function (msg) {
+  warn: function(msg) {
     writeLnErr(yellow(msg))
   },
 
-  error: function (msg) {
+  error: function(msg) {
     writeLnErr(red(msg))
   }
 }

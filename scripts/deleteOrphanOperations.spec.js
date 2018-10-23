@@ -1,7 +1,7 @@
 const api = require('./api')
 const { run } = require('./deleteOrphanOperations')
 
-const makeDoc = (id, doc) => ({ id, doc: {_id: id, ...doc}})
+const makeDoc = (id, doc) => ({ id, doc: { _id: id, ...doc } })
 
 const operations = [
   makeDoc('o1', { account: 'a1' }),
@@ -17,11 +17,7 @@ const operations = [
   makeDoc('o10', { account: 'a5' })
 ]
 
-const accounts = [
-  makeDoc('a1'),
-  makeDoc('a2'),
-  makeDoc('a4')
-]
+const accounts = [makeDoc('a1'), makeDoc('a2'), makeDoc('a4')]
 
 describe('delete orphan operations', () => {
   let client
@@ -42,14 +38,12 @@ describe('delete orphan operations', () => {
 
   it('should delete operations whose account does not exist', async () => {
     await run({ client }, false)
-    expect(api.deleteAll).toHaveBeenCalledWith('io.cozy.bank.operations',
-      [
-        {"_id": "o3", "account": "a3"},
-        {"_id": "o4", "account": "a3"},
-        {"_id": "o6", "account": "a3"},
-        {"_id": "o9", "account": "a5"},
-        {"_id": "o10", "account": "a5"}
-      ]
-    )
+    expect(api.deleteAll).toHaveBeenCalledWith('io.cozy.bank.operations', [
+      { _id: 'o3', account: 'a3' },
+      { _id: 'o4', account: 'a3' },
+      { _id: 'o6', account: 'a3' },
+      { _id: 'o9', account: 'a5' },
+      { _id: 'o10', account: 'a5' }
+    ])
   })
 })

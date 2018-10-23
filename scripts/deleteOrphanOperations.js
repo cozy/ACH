@@ -6,12 +6,15 @@ const api = require('./api')
 let client
 
 const flagForDeletion = doc => {
-  return {...doc, _deleted: true}
+  return { ...doc, _deleted: true }
 }
 
 const deleteOrphanBankOperations = async dryRun => {
   const accounts = keyBy(await api.fetchAll(DOCTYPE_BANK_ACCOUNTS), 'id')
-  const operations = (await api.fetchAll(DOCTYPE_BANK_OPERATIONS, 'include_docs=true'))
+  const operations = (await api.fetchAll(
+    DOCTYPE_BANK_OPERATIONS,
+    'include_docs=true'
+  ))
     .map(x => x.doc)
     .filter(x => x._id.indexOf('_design') !== 0)
   const orphanOperations = operations.filter(x => !accounts[x.account])
@@ -29,14 +32,11 @@ const deleteOrphanBankOperations = async dryRun => {
 
 module.exports = {
   api: api,
-  getDoctypes: function () {
-    return [
-      DOCTYPE_BANK_OPERATIONS,
-      DOCTYPE_BANK_ACCOUNTS
-    ]
+  getDoctypes: function() {
+    return [DOCTYPE_BANK_OPERATIONS, DOCTYPE_BANK_ACCOUNTS]
   },
 
-  run: async function (ach, dryRun=true) {
+  run: async function(ach, dryRun = true) {
     client = ach.client
     try {
       await deleteOrphanBankOperations(dryRun)

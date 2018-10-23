@@ -28,14 +28,17 @@ $ node # in ACH directory
 > .load scripts/get-file-ids
 */
 
-
 const fs = require('fs')
 
-const paths = fs.readFileSync('/tmp/paths').toString().split('\n').filter(x => x.length > 0)
+const paths = fs
+  .readFileSync('/tmp/paths')
+  .toString()
+  .split('\n')
+  .filter(x => x.length > 0)
 
 const result = {}
-Promise.all(paths.map(path => files.statByPath(path).then(x => result[path] = x._id)))
-  .then(() => {
-    console.log(result)
-  })
-
+Promise.all(
+  paths.map(path => files.statByPath(path).then(x => (result[path] = x._id)))
+).then(() => {
+  console.log(result)
+})

@@ -13,7 +13,7 @@ const DOCTYPE_COZY_TRIGGERS = 'io.cozy.triggers'
 
 let client
 
-const decodeBase64JSON = (val) => {
+const decodeBase64JSON = val => {
   try {
     return JSON.parse(Buffer.from(val, 'base64').toString())
   } catch (err) {
@@ -21,9 +21,9 @@ const decodeBase64JSON = (val) => {
   }
 }
 
-const findTriggers = async (client) => {
+const findTriggers = async client => {
   const index = await client.data.defineIndex(DOCTYPE_COZY_TRIGGERS, ['_id'])
-  return client.data.query(index, { selector: { _id: { $gt: null }}})
+  return client.data.query(index, { selector: { _id: { $gt: null } } })
 }
 
 /**
@@ -64,15 +64,21 @@ const findKonnectorSlug = (triggers, account) => {
 
 const fixAccountsWithoutAccountType = async (client, dryRun = true) => {
   const index = await client.data.defineIndex(DOCTYPE_COZY_ACCOUNTS, ['_id'])
-  const accounts = await client.data.query(index, { selector: { _id: { $gt: null } }})
-  const triggers = (await findTriggers(client)).filter(x => x.worker === 'konnector')
+  const accounts = await client.data.query(index, {
+    selector: { _id: { $gt: null } }
+  })
+  const triggers = (await findTriggers(client)).filter(
+    x => x.worker === 'konnector'
+  )
 
   for (let account of accounts) {
     const accountId = account._id
     console.log('Account : ' + accountId)
-    if (account.account_type
-        && account.account_type !== 'linxo'
-        && account.account_type !== 'dev_account') {
+    if (
+      account.account_type &&
+      account.account_type !== 'linxo' &&
+      account.account_type !== 'dev_account'
+    ) {
       console.log('✅  Already has account_type ' + account.account_type)
     } else {
       const konnectorSlug = findKonnectorSlug(triggers, account)
@@ -80,13 +86,22 @@ const fixAccountsWithoutAccountType = async (client, dryRun = true) => {
         account.account_type = konnectorSlug
         console.log('Found matching konnector : ' + konnectorSlug)
         if (!dryRun) {
-          console.info('👌  Updating ' + accountId + ' with account_type ' + konnectorSlug)
+          console.info(
+            '👌  Updating ' + accountId + ' with account_type ' + konnectorSlug
+          )
           await client.data.update(DOCTYPE_COZY_ACCOUNTS, account, account)
         } else {
-          console.info('👌  Would update ' + accountId + ' with account_type ' + konnectorSlug)
+          console.info(
+            '👌  Would update ' +
+              accountId +
+              ' with account_type ' +
+              konnectorSlug
+          )
         }
       } else {
-        console.log('❌  Could not find matching konnector for account ' + accountId)
+        console.log(
+          '❌  Could not find matching konnector for account ' + accountId
+        )
       }
     }
     console.log()
@@ -94,21 +109,16 @@ const fixAccountsWithoutAccountType = async (client, dryRun = true) => {
 }
 
 module.exports = {
-  getDoctypes: function () {
-    return [
-      DOCTYPE_COZY_ACCOUNTS,
-      DOCTYPE_COZY_TRIGGERS
-    ]
+  getDoctypes: function() {
+    return [DOCTYPE_COZY_ACCOUNTS, DOCTYPE_COZY_TRIGGERS]
   },
 
-  run: async function (ach, dryRun=true) {
+  run: async function(ach, dryRun = true) {
     client = ach.client
 
-    await (fixAccountsWithoutAccountType(client, dryRun)
-      .catch(x => {
-        console.log(x)
-      })
-    )
+    await fixAccountsWithoutAccountType(client, dryRun).catch(x => {
+      console.log(x)
+    })
   },
   findTriggers,
   findKonnectorSlug,
