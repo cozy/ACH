@@ -1,8 +1,7 @@
-const path = require('path')
 const fs = require('fs')
 const log = require('./log')
 
-const getContentTypeFromExtension = function (extension) {
+const getContentTypeFromExtension = function(extension) {
   let contentType = ''
   switch (extension) {
     case '.jpg':
@@ -33,7 +32,11 @@ const getContentTypeFromExtension = function (extension) {
  * @param  {String} dirID    - Where to put the file
  * @return {[type]}          - Promise
  */
-const uploadFile = module.exports.uploadFile = (client, fileJSON, dirPath = '', force) => {
+const uploadFile = (module.exports.uploadFile = (
+  client,
+  fileJSON,
+  dirPath = ''
+) => {
   const data = fs.createReadStream(fileJSON.path)
   const contentType = getContentTypeFromExtension(fileJSON.extension)
   const { createDirectoryByPath, forceCreateByPath } = client.files
@@ -46,49 +49,67 @@ const uploadFile = module.exports.uploadFile = (client, fileJSON, dirPath = '', 
       contentType
     })
   })
-}
+})
 
 // function to upload a folder content (json format)
-const uploadFolderContent = module.exports.uploadFolderContent = (client, FolderContentJSON, dirID) => {
-  return client.files.createDirectory({
-    name: FolderContentJSON.name,
-    dirID: dirID || ''
-  }).then(folderDoc => {
-    console.log(`  _id: ${folderDoc._id}, folder.path: ${folderDoc.attributes.path}`)
-    if (!FolderContentJSON.children) {
-      return
-    }
-    return Promise.all(FolderContentJSON.children.map((child) => {
-      if (child.children) { // it's a folder, use recursivity
-        return uploadFolderContent(client, child, folderDoc._id)
-      } else { // it's a file
-        return uploadFile(client, child, folderDoc._id)
-          .then(fileDoc => {
-            console.log(`  _id: ${fileDoc._id},  file.path: ${folderDoc.attributes.path}/${fileDoc.attributes.name}`)
-            return fileDoc
-          })
+const uploadFolderContent = (module.exports.uploadFolderContent = (
+  client,
+  FolderContentJSON,
+  dirID
+) => {
+  return client.files
+    .createDirectory({
+      name: FolderContentJSON.name,
+      dirID: dirID || ''
+    })
+    .then(folderDoc => {
+      console.log(
+        `  _id: ${folderDoc._id}, folder.path: ${folderDoc.attributes.path}`
+      )
+      if (!FolderContentJSON.children) {
+        return
       }
-    }))
-  })
-  .catch(err => {
-    return Promise.resolve(err)
-  })
-}
+      return Promise.all(
+        FolderContentJSON.children.map(child => {
+          if (child.children) {
+            // it's a folder, use recursivity
+            return uploadFolderContent(client, child, folderDoc._id)
+          } else {
+            // it's a file
+            return uploadFile(client, child, folderDoc._id).then(fileDoc => {
+              console.log(
+                `  _id: ${fileDoc._id},  file.path: ${
+                  folderDoc.attributes.path
+                }/${fileDoc.attributes.name}`
+              )
+              return fileDoc
+            })
+          }
+        })
+      )
+    })
+    .catch(err => {
+      return Promise.resolve(err)
+    })
+})
 
-module.exports.queryAll = function (cozyClient, mangoIndex, options = {}) {
+module.exports.queryAll = function(cozyClient, mangoIndex, options = {}) {
   return new Promise((resolve, reject) => {
     const documents = []
     var skip = options.skip || 0
-    var fetch = function () {
-      return cozyClient.data.query(
-          mangoIndex, Object.assign({}, options, {
+    var fetch = function() {
+      return cozyClient.data
+        .query(
+          mangoIndex,
+          Object.assign({}, options, {
             wholeResponse: true,
             skip: skip
-          }))
+          })
+        )
         .then(onSuccess)
-         .catch(reject)
+        .catch(reject)
     }
-    var onSuccess = function (response) {
+    var onSuccess = function(response) {
       const docs = response.docs
       skip = skip + docs.length
       documents.push.apply(documents, docs)
@@ -106,7 +127,9 @@ module.exports.handleBadToken = promise => {
   return promise.catch(err => {
     const msg = /Invalid JWT token/
     if (err.reason && (msg.test(err.reason) || msg.test(err.reason.error))) {
-      log.warn('It seems your token is invalid or has expired, you may want to delete the token file and relaunch ACH.')
+      log.warn(
+        'It seems your token is invalid or has expired, you may want to delete the token file and relaunch ACH.'
+      )
     } else {
       throw err
     }

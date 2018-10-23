@@ -1,4 +1,3 @@
-const keyBy = require('lodash/keyBy')
 const tz = require('timezone')
 const eu = tz(require('timezone/Europe'))
 const jdiff = require('jest-diff')
@@ -8,28 +7,30 @@ const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_SETTINGS = 'io.cozy.bank.settings'
 
-let client, api, log
+let client, api
 
 const diff = (current, updated) => {
-    return jdiff(current, updated)
-        .replace('Received', 'Updated')
-        .replace('Expected', 'Current')
+  return jdiff(current, updated)
+    .replace('Received', 'Updated')
+    .replace('Expected', 'Current')
 }
 
-const logWithInstance = function () {
+const logWithInstance = function() {
   const args = [].slice.call(arguments)
   args.splice(0, 0, client._url.replace('https://', ''))
   console.log.apply(console, args)
 }
 
 const parisTime = date => {
-  if (!date) { return }
+  if (!date) {
+    return
+  }
   const epoch = tz(date)
   return eu(epoch, 'Europe/Paris', '%FT%T%^z')
 }
 
 const migrateTransactionV1 = transaction => {
-  const utransaction = {...transaction}
+  const utransaction = { ...transaction }
   utransaction.date = parisTime(transaction.date)
   if (transaction.dateOperation) {
     utransaction.dateOperation = parisTime(transaction.dateOperation)
@@ -39,13 +40,13 @@ const migrateTransactionV1 = transaction => {
 }
 
 const migrateAccountV1 = account => {
-  const uaccount = {...account}
+  const uaccount = { ...account }
   uaccount.metadata = { version: 1 }
   return uaccount
 }
 
 const migrateSettingV1 = setting => {
-  const usetting = {...setting}
+  const usetting = { ...setting }
   usetting.metadata = { version: 1 }
   return usetting
 }
@@ -63,25 +64,45 @@ const doMigrations = async dryRun => {
   const utransactions = migrateTransactionsV1(transactions)
   const usettings = migrateSettingsV1(settings)
 
-
-   if (!dryRun) {
+  if (!dryRun) {
     await api.updateAll(DOCTYPE_BANK_ACCOUNTS, uaccounts)
     await api.updateAll(DOCTYPE_BANK_TRANSACTIONS, utransactions)
     await api.updateAll(DOCTYPE_BANK_SETTINGS, usettings)
   } else {
-    logWithInstance('Dry run: first updated account', diff(accounts[0], uaccounts[0]))
-    logWithInstance('Dry run: first updated transaction', diff(transactions[0], utransactions[0]))
-    logWithInstance('Dry run: first updated settings', diff(settings[0], usettings[0]))
+    logWithInstance(
+      'Dry run: first updated account',
+      diff(accounts[0], uaccounts[0])
+    )
+    logWithInstance(
+      'Dry run: first updated transaction',
+      diff(transactions[0], utransactions[0])
+    )
+    logWithInstance(
+      'Dry run: first updated settings',
+      diff(settings[0], usettings[0])
+    )
   }
 
-  logWithInstance(dryRun ? 'Would update' : 'Has updated', accounts.length, DOCTYPE_BANK_ACCOUNTS)
-  logWithInstance(dryRun ? 'Would update' : 'Has updated', transactions.length, DOCTYPE_BANK_TRANSACTIONS)
-  logWithInstance(dryRun ? 'Would update' : 'Has updated', settings.length, DOCTYPE_BANK_SETTINGS)
+  logWithInstance(
+    dryRun ? 'Would update' : 'Has updated',
+    accounts.length,
+    DOCTYPE_BANK_ACCOUNTS
+  )
+  logWithInstance(
+    dryRun ? 'Would update' : 'Has updated',
+    transactions.length,
+    DOCTYPE_BANK_TRANSACTIONS
+  )
+  logWithInstance(
+    dryRun ? 'Would update' : 'Has updated',
+    settings.length,
+    DOCTYPE_BANK_SETTINGS
+  )
 }
 
 module.exports = {
   api: api,
-  getDoctypes: function () {
+  getDoctypes: function() {
     return [
       DOCTYPE_BANK_TRANSACTIONS,
       DOCTYPE_BANK_ACCOUNTS,
@@ -89,7 +110,7 @@ module.exports = {
     ]
   },
 
-  run: async function (ach, dryRun=true) {
+  run: async function(ach, dryRun = true) {
     client = ach.client
     api = mkAPI(client)
     try {

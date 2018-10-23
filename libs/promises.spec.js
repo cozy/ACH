@@ -16,7 +16,7 @@ describe('promise tools', () => {
       'Hello 11',
       'Hello 12',
       'Hello 13',
-      'Hello 14',
+      'Hello 14'
     ])
   })
 
@@ -29,7 +29,7 @@ describe('promise tools', () => {
       'Hello 11',
       'Hello 12',
       'Hello 13',
-      'Hello 14',
+      'Hello 14'
     ])
   })
 

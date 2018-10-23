@@ -13,20 +13,23 @@ const enableDestroy = require('server-destroy')
 
 const revokeACHClients = (cozyClient, options) => {
   const { exclude } = options
-  return cozyClient.settings.getClients()
-    .then(oAuthClients => {
-      const revocations = oAuthClients
-        .filter(oAuthClient => oAuthClient.attributes.client_name === 'ACH' && oAuthClient._id !== exclude)
-        .map(achClient => {
-          log.debug(`Revoking ACH client ${achClient._id}`)
-          return cozyClient.settings.deleteClientById(achClient._id)
-        })
-      return Promise.all(revocations)
-    })
+  return cozyClient.settings.getClients().then(oAuthClients => {
+    const revocations = oAuthClients
+      .filter(
+        oAuthClient =>
+          oAuthClient.attributes.client_name === 'ACH' &&
+          oAuthClient._id !== exclude
+      )
+      .map(achClient => {
+        log.debug(`Revoking ACH client ${achClient._id}`)
+        return cozyClient.settings.deleteClientById(achClient._id)
+      })
+    return Promise.all(revocations)
+  })
 }
 
 const getClientWithoutToken = tokenPath => (url, docTypes = []) => {
-  let permissions = docTypes.map(docType => (docType.toString() + ':ALL'))
+  let permissions = docTypes.map(docType => docType.toString() + ':ALL')
 
   // Needed for ACH revocation after execution
   permissions.push('io.cozy.oauth.clients:ALL')
@@ -45,20 +48,21 @@ const getClientWithoutToken = tokenPath => (url, docTypes = []) => {
     }
   })
 
-  return cozyClient.authorize()
-    .then(creds => {
-      let token = creds.token.accessToken
-      cozyClient._token = new AppToken({ token })
+  return cozyClient.authorize().then(creds => {
+    let token = creds.token.accessToken
+    cozyClient._token = new AppToken({ token })
 
-      log.debug('Writing token file to ' + tokenPath)
-      fs.writeFileSync(tokenPath, JSON.stringify({token: token}), 'utf8')
+    log.debug('Writing token file to ' + tokenPath)
+    fs.writeFileSync(tokenPath, JSON.stringify({ token: token }), 'utf8')
 
-      return revokeACHClients(cozyClient, {
-        exclude: creds.client.clientID
-      }).catch(error => {
-        log.error('Cannot revoke ACH clients', error)
-      }).then(() => cozyClient)
+    return revokeACHClients(cozyClient, {
+      exclude: creds.client.clientID
     })
+      .catch(error => {
+        log.error('Cannot revoke ACH clients', error)
+      })
+      .then(() => cozyClient)
+  })
 }
 
 // handle the redirect url in the oauth flow
@@ -68,7 +72,7 @@ const onRegistered = (client, url) => {
 
   let server
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     server = http.createServer((request, response) => {
       if (request.url.indexOf('/do_access') === 0) {
         resolve(request.url)
@@ -77,21 +81,23 @@ const onRegistered = (client, url) => {
     })
 
     server.listen(3333, () => {
-      opn(url, {wait: false})
+      opn(url, { wait: false })
     })
     enableDestroy(server)
-  })
-  .then(url => {
-    server.destroy()
-    return url
-  }, err => {
-    server.destroy()
-    throw err
-  })
+  }).then(
+    url => {
+      server.destroy()
+      return url
+    },
+    err => {
+      server.destroy()
+      throw err
+    }
+  )
 }
 
 // returns a client when there is already a stored token
-const getClientWithToken = tokenPath => (url, docTypes) => {
+const getClientWithToken = tokenPath => url => {
   return new Promise((resolve, reject) => {
     try {
       // try to load a locally stored token and use that
@@ -114,20 +120,27 @@ const getClientWithToken = tokenPath => (url, docTypes) => {
 // convenience wrapper around the 2 client getters
 module.exports = (tokenPath, cozyUrl, docTypes) => {
   tokenPath = path.resolve(tokenPath)
-  const getClientFn = fs.existsSync(tokenPath) ? getClientWithToken(tokenPath) : getClientWithoutToken(tokenPath)
+  const getClientFn = fs.existsSync(tokenPath)
+    ? getClientWithToken(tokenPath)
+    : getClientWithoutToken(tokenPath)
 
   return getClientFn(cozyUrl, docTypes)
-  .then(client => {
-    addUtilityMethods(client)
-    return client
-  })
-  .catch(err => {
-    if (err.message === "ENOENT: no such file or directory, open '" + tokenPath + "'") {
-      console.warn('No stored token found, are you sure you generated one? Use option "-t" if you want to generate one next time.')
-    } else {
-      console.warn(err)
-    }
+    .then(client => {
+      addUtilityMethods(client)
+      return client
+    })
+    .catch(err => {
+      if (
+        err.message ===
+        "ENOENT: no such file or directory, open '" + tokenPath + "'"
+      ) {
+        console.warn(
+          'No stored token found, are you sure you generated one? Use option "-t" if you want to generate one next time.'
+        )
+      } else {
+        console.warn(err)
+      }
 
-    return err
-  })
+      return err
+    })
 }

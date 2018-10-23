@@ -1,17 +1,24 @@
-const { queryAll } = require('./utils')
 const log = require('./log')
-const { runInPool } = require('./promises')
 
 const flagForDeletion = doc => ({ ...doc, _deleted: true })
 const dropCollection = (client, doctype) => {
-  return client.fetchJSON('GET', `/data/${doctype}/_all_docs?include_docs=true`)
+  return client
+    .fetchJSON('GET', `/data/${doctype}/_all_docs?include_docs=true`)
     .then(result => result.rows.map(r => r.doc))
-    .then(docs => client.fetchJSON(
-      'POST',
-      `/data/${doctype}/_bulk_docs`, { docs: docs.map(flagForDeletion) }
-    ))
+    .then(docs =>
+      client.fetchJSON('POST', `/data/${doctype}/_bulk_docs`, {
+        docs: docs.map(flagForDeletion)
+      })
+    )
     .then(results => {
-      log.success(doctype + ': deleted ' + results.filter(result => result.ok).length + '/' + results.length + ' documents.')
+      log.success(
+        doctype +
+          ': deleted ' +
+          results.filter(result => result.ok).length +
+          '/' +
+          results.length +
+          ' documents.'
+      )
       return results
     })
 }

@@ -2,23 +2,19 @@ const path = require('path')
 const fs = require('fs')
 const Handlebars = require('handlebars')
 const dirTree = require('directory-tree')
-const { merge, once, flatten } = require('lodash')
+const { merge, once } = require('lodash')
 const ACH = require('./ACH')
 const log = require('./log')
 const { uploadFile, handleBadToken } = require('./utils')
-const {
-  runSerially,
-  runInPool,
-  runInPoolAfterFirst,
-  tee
-} = require('./promises')
+const { runSerially, runInPoolAfterFirst, tee } = require('./promises')
 
 const FILE_DOCTYPE = 'io.cozy.files'
 const H = Handlebars.create()
 
-
-const assert = function (cond, msg) {
-  if (!cond) { throw new Error(msg) }
+const assert = function(cond, msg) {
+  if (!cond) {
+    throw new Error(msg)
+  }
 }
 
 // We save results from cozy imports here
@@ -26,12 +22,12 @@ const assert = function (cond, msg) {
 // It is useful when a document needs to be able
 // to reference another one
 const metadata = {}
-const saveMetadata = function (doctype, result) {
+const saveMetadata = function(doctype, result) {
   metadata[doctype] = metadata[doctype] || []
   metadata[doctype].push(result)
 }
 
-const getMetadata = function (doctype, index, field) {
+const getMetadata = function(doctype, index, field) {
   try {
     return metadata[doctype][index][field]
   } catch (e) {
@@ -40,7 +36,7 @@ const getMetadata = function (doctype, index, field) {
   }
 }
 
-const singleQuoteString = function (value) {
+const singleQuoteString = function(value) {
   if (typeof value === 'string') {
     return `'${value}'`
   } else {
@@ -69,30 +65,38 @@ const singleQuoteString = function (value) {
  * const str = Handlebars.compile("{{ reference 'io.cozy.files' 0 '_id' }}")()
  * > str = "{{ reference 'io.cozy.files' 0 '_id' }}"
  */
-const passthroughHelper = function (name, callback) {
-  return function () {
+const passthroughHelper = function(name, callback) {
+  return function() {
     callback && callback()
     return new Handlebars.SafeString(
-      `{{ ${name} ${Array.from(arguments).slice(0, -1).map(singleQuoteString).join(' ')} }}`)
+      `{{ ${name} ${Array.from(arguments)
+        .slice(0, -1)
+        .map(singleQuoteString)
+        .join(' ')} }}`
+    )
   }
 }
 
-const runTemplate = function (str) {
+const runTemplate = function(str) {
   return H.compile(str)({})
 }
 
-const applyHelpers = function (data) {
+const applyHelpers = function(data) {
   return JSON.parse(runTemplate(JSON.stringify(data)))
 }
 
-const dirname = path => path.split('/').slice(0, -1).join('/')
+const dirname = path =>
+  path
+    .split('/')
+    .slice(0, -1)
+    .join('/')
 
 /**
  * If the document is a file, will take appropriate action to have it
  * uploaded, looks at the __SRC__ and __DEST__ fields of the document
  * to know where is the file and where to put it.
  */
-const createDocumentFromDescription = async function (client, doctype, data) {
+const createDocumentFromDescription = async function(client, doctype, data) {
   if (doctype === FILE_DOCTYPE) {
     const src = data.__SRC__
     const dest = data.__DEST__
@@ -129,12 +133,17 @@ const createDocumentFromDescription = async function (client, doctype, data) {
  * @param  {Object} data    - Document to be created
  * @return {Promise}
  */
-const createDoc = async function (client, doctype, data) {
+const createDoc = async function(client, doctype, data) {
   assert(doctype, 'Must pass a doctype, you passed ' + doctype)
   assert(data, 'Must pass data, you passed ' + data)
   data = applyHelpers(data)
   try {
-    const result = await createDocumentFromDescription(client, doctype, data, true)
+    const result = await createDocumentFromDescription(
+      client,
+      doctype,
+      data,
+      true
+    )
     saveMetadata(doctype, result)
     return result
   } catch (err) {
@@ -142,7 +151,9 @@ const createDoc = async function (client, doctype, data) {
     if (err.name === 'FetchError' && err.status === 400) {
       log.error(err.reason.error)
     } else if (err.name === 'FetchError' && err.status === 403) {
-      log.info('The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions?')
+      log.info(
+        'The server replied with 403 forbidden; are you sure the last generated token is still valid and has the correct permissions?'
+      )
     } else if (err.name === 'FetchError' && err.status === 409) {
       log.error('Document update conflict: ' + err.url)
     } else {
@@ -152,29 +163,28 @@ const createDoc = async function (client, doctype, data) {
   }
 }
 
-
-
-
 /**
  * @return {function} - Progress logger when importing documents
  */
 const progressReport = options => {
   let i = 0
-  const { docs, doctype, every } = options
+  const { docs, doctype } = options
   return tee(() => {
     i++
     if (i % options.every == 0 || i === docs.length) {
-      console.log(doctype + ': ' + (i / docs.length * 100).toFixed(2) + '%')
+      console.log(doctype + ': ' + ((i / docs.length) * 100).toFixed(2) + '%')
     }
   })
 }
 
-const importData = async function (cozyClient, data, options) {
+const importData = async function(cozyClient, data, options) {
   // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
   // because if it's a new doctype, the stack needs time to create the collection
   // and can't handle the other incoming requests
   const CONCURRENCY = 75
-  const runPerDocument = options.parallel ? runInPoolAfterFirst(CONCURRENCY) : runSerially
+  const runPerDocument = options.parallel
+    ? runInPoolAfterFirst(CONCURRENCY)
+    : runSerially
 
   for (let doctype of Object.keys(data)) {
     let docs = data[doctype]
@@ -185,20 +195,26 @@ const importData = async function (cozyClient, data, options) {
       every: 50
     })
     const createWithProgress = doc =>
-      createDoc(cozyClient, doctype, doc)
-        .then(report)
+      createDoc(cozyClient, doctype, doc).then(report)
     try {
       const results = await runPerDocument(docs, createWithProgress)
-      console.log('Imported ' + results.length + ' ' + doctype + ' document' + (results.length > 1 ? 's' : ''))
-      console.log(results.map(result => (result._id)))
-    } catch (error){
+      console.log(
+        'Imported ' +
+          results.length +
+          ' ' +
+          doctype +
+          ' document' +
+          (results.length > 1 ? 's' : '')
+      )
+      console.log(results.map(result => result._id))
+    } catch (error) {
       throw new Error(error)
     }
   }
-  return true;
+  return true
 }
 
-const parseBool = function (boolString, defaultVal) {
+const parseBool = function(boolString, defaultVal) {
   return boolString === undefined ? defaultVal : boolString === 'true'
 }
 
@@ -214,12 +230,12 @@ const parseBool = function (boolString, defaultVal) {
 module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
   if (!filepath) filepath = 'example-data.json'
   const dummyjson = require('dummy-json')
-  const template = fs.readFileSync(filepath, {encoding: 'utf8'})
+  const template = fs.readFileSync(filepath, { encoding: 'utf8' })
   const templateDir = path.dirname(path.resolve(filepath))
 
   // dummy-json pass helpers
   const options = { parallel: parseBool(process.env.ACH_PARALLEL, true) }
-  const turnOffParallelism = once(function () {
+  const turnOffParallelism = once(function() {
     log.debug('Turning off parallelism since {{ reference }} helper is used.')
     options.parallel = false
   })
@@ -232,7 +248,10 @@ module.exports = (cozyUrl, token, filepath, handlebarsOptionsFile) => {
   }
 
   if (handlebarsOptionsFile) {
-    handlebarsOptions = merge(handlebarsOptions, require(path.resolve(`./${handlebarsOptionsFile}`)))
+    handlebarsOptions = merge(
+      handlebarsOptions,
+      require(path.resolve(`./${handlebarsOptionsFile}`))
+    )
   }
 
   // dummy-json pass passthrough helpers
