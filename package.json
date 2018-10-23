@@ -24,11 +24,14 @@
     "timezone": "^1.0.13"
   },
   "devDependencies": {
+    "eslint": "^5.7.0",
+    "eslint-config-cozy-app": "^1.1.4",
     "jest": "^22.1.4",
     "travis-deploy-once": "^5.0.2",
     "semantic-release": "^15.9.5"
   },
   "scripts": {
+    "lint": "eslint '**/*.js'",
     "test": "jest",
     "start": "node index.js",
     "travis-deploy-once": "travis-deploy-once",
