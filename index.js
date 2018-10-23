@@ -230,6 +230,7 @@ program
 
 program
   .command('script <scriptName>')
+  .option('--autotoken', 'Automatically generate the permission token')
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .option('-d, --doctypes', 'Print necessary doctypes (useful for automation)')
   .description('Launch script')
@@ -247,7 +248,11 @@ program
     const { getDoctypes, run } = script
     const url = program.url
     const doctypes = getDoctypes()
-    const token = program.token || autotoken(url, doctypes)
+    let token = program.token
+    if (action.autotoken) {
+      token = autotoken(url, doctypes)
+    }
+
     if (action.doctypes) {
       console.log(doctypes.join(' '))
     } else {
