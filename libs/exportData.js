@@ -1,6 +1,5 @@
 const _ = require('lodash')
 const fs = require('fs')
-const { queryAll } = require('./utils')
 const log = require('./log')
 
 // helpers

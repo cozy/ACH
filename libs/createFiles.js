@@ -1,4 +1,3 @@
-const { uploadFile } = require('./utils')
 const randomWords = require('random-words')
 const ProgressBar = require('progress')
 

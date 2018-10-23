@@ -5,9 +5,6 @@
  * in the trigger.
  */
 
-const { queryAll } = require('../libs/utils')
-const PromisePool = require('es6-promise-pool')
-
 const DOCTYPE_COZY_ACCOUNTS = 'io.cozy.accounts'
 const DOCTYPE_COZY_TRIGGERS = 'io.cozy.triggers'
 

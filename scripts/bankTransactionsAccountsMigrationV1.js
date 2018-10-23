@@ -1,4 +1,3 @@
-const keyBy = require('lodash/keyBy')
 const tz = require('timezone')
 const eu = tz(require('timezone/Europe'))
 const jdiff = require('jest-diff')
@@ -8,7 +7,7 @@ const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_SETTINGS = 'io.cozy.bank.settings'
 
-let client, api, log
+let client, api
 
 const diff = (current, updated) => {
   return jdiff(current, updated)

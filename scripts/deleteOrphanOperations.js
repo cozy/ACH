@@ -3,12 +3,6 @@ const DOCTYPE_BANK_OPERATIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const api = require('./api')
 
-let client
-
-const flagForDeletion = doc => {
-  return { ...doc, _deleted: true }
-}
-
 const deleteOrphanBankOperations = async dryRun => {
   const accounts = keyBy(await api.fetchAll(DOCTYPE_BANK_ACCOUNTS), 'id')
   const operations = (await api.fetchAll(
@@ -37,7 +31,6 @@ module.exports = {
   },
 
   run: async function(ach, dryRun = true) {
-    client = ach.client
     try {
       await deleteOrphanBankOperations(dryRun)
     } catch (err) {

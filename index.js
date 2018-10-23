@@ -1,11 +1,9 @@
 #!/usr/bin/env node
 
 const fs = require('fs')
-const _ = require('lodash')
 const appPackage = require('./package.json')
 const path = require('path')
-const { merge, keyBy, sortBy } = require('lodash')
-const Handlebars = require('handlebars')
+const { keyBy, sortBy } = require('lodash')
 const spawnSync = require('child_process').spawnSync
 
 const { ACH, importData, assert, log, askConfirmation } = require('./libs')
@@ -272,7 +270,7 @@ program
 program
   .command('ls-scripts')
   .description('Lists all scripts, useful for autocompletion')
-  .action(function(scriptName, action) {
+  .action(function() {
     const dir = path.join(__dirname, 'scripts')
     const scripts = fs
       .readdirSync(dir)

@@ -2,16 +2,11 @@ const path = require('path')
 const fs = require('fs')
 const Handlebars = require('handlebars')
 const dirTree = require('directory-tree')
-const { merge, once, flatten } = require('lodash')
+const { merge, once } = require('lodash')
 const ACH = require('./ACH')
 const log = require('./log')
 const { uploadFile, handleBadToken } = require('./utils')
-const {
-  runSerially,
-  runInPool,
-  runInPoolAfterFirst,
-  tee
-} = require('./promises')
+const { runSerially, runInPoolAfterFirst, tee } = require('./promises')
 
 const FILE_DOCTYPE = 'io.cozy.files'
 const H = Handlebars.create()
@@ -173,7 +168,7 @@ const createDoc = async function(client, doctype, data) {
  */
 const progressReport = options => {
   let i = 0
-  const { docs, doctype, every } = options
+  const { docs, doctype } = options
   return tee(() => {
     i++
     if (i % options.every == 0 || i === docs.length) {

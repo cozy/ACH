@@ -1,6 +1,4 @@
-const { queryAll } = require('./utils')
 const log = require('./log')
-const { runInPool } = require('./promises')
 
 const flagForDeletion = doc => ({ ...doc, _deleted: true })
 const dropCollection = (client, doctype) => {

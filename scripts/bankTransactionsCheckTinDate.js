@@ -1,14 +1,9 @@
-const keyBy = require('lodash/keyBy')
-const tz = require('timezone')
-const eu = tz(require('timezone/Europe'))
 const jdiff = require('jest-diff')
 const mkAPI = require('./api')
 
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
-const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
-const DOCTYPE_BANK_SETTINGS = 'io.cozy.bank.settings'
 
-let client, api, log
+let client, api
 
 const diff = (current, updated) => {
   return jdiff(current, updated)
@@ -22,14 +17,6 @@ const logWithInstance = function() {
   console.log.apply(console, args)
 }
 
-const parisTime = date => {
-  if (!date) {
-    return
-  }
-  const epoch = tz(date)
-  return eu(epoch, 'Europe/Paris', '%FT%T%^z')
-}
-
 const removeSpaceFromDates = transaction => {
   const utransaction = { ...transaction }
   utransaction.date = utransaction.date.replace(' ', 'T')
@@ -39,12 +26,7 @@ const removeSpaceFromDates = transaction => {
   return utransaction
 }
 
-const migrateTransactionsV1 = docs => docs.map(migrateTransactionV1)
-
 const doMigrations = async dryRun => {
-  const index = await client.data.defineIndex('io.cozy.bank.operations', [
-    'date'
-  ])
   const transactions = (await api.fetchAll('io.cozy.bank.operations')).filter(
     x => x.date.indexOf(' ') > -1
   )

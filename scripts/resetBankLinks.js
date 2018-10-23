@@ -17,7 +17,7 @@ module.exports = {
   },
   run: async function(ach, dryRun) {
     client = ach.client
-    api = mkAPI(client)
+    const api = mkAPI(client)
     const operations = await api.fetchAll(DOCTYPE_OPERATIONS)
     if (dryRun) {
       console.log(`Would update ${operations.length} operations`)

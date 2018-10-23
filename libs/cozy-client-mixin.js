@@ -1,4 +1,4 @@
-const doNotThrowOn404 = function(method, that) {
+const doNotThrowOn404 = function(method) {
   return function() {
     return method.apply(this, arguments).catch(err => {
       if (err && err.response && err.response.status === 404) {

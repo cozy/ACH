@@ -72,7 +72,7 @@ const onRegistered = (client, url) => {
 
   let server
 
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     server = http.createServer((request, response) => {
       if (request.url.indexOf('/do_access') === 0) {
         resolve(request.url)
@@ -97,7 +97,7 @@ const onRegistered = (client, url) => {
 }
 
 // returns a client when there is already a stored token
-const getClientWithToken = tokenPath => (url, docTypes) => {
+const getClientWithToken = tokenPath => url => {
   return new Promise((resolve, reject) => {
     try {
       // try to load a locally stored token and use that

@@ -1,6 +1,6 @@
 const mkAPI = client => {
   const api = {
-    fetchAll: async (doctype, queryOptions = '') => {
+    fetchAll: async doctype => {
       try {
         const result = await client.fetchJSON(
           'GET',
@@ -25,7 +25,6 @@ const mkAPI = client => {
     },
 
     deleteAll: async (doctype, docs) => {
-      const udocs = docs.map(flagForDeletion)
       return api.updateAll(doctype, docs)
     }
   }

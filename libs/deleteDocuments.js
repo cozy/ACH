@@ -1,5 +1,3 @@
-const { queryAll } = require('./utils')
-
 const deleteDocument = (client, doctype, id) => {
   return client.data
     .find(doctype, id)

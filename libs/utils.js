@@ -1,4 +1,3 @@
-const path = require('path')
 const fs = require('fs')
 const log = require('./log')
 
@@ -36,8 +35,7 @@ const getContentTypeFromExtension = function(extension) {
 const uploadFile = (module.exports.uploadFile = (
   client,
   fileJSON,
-  dirPath = '',
-  force
+  dirPath = ''
 ) => {
   const data = fs.createReadStream(fileJSON.path)
   const contentType = getContentTypeFromExtension(fileJSON.extension)

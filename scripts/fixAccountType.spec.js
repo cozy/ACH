@@ -218,7 +218,7 @@ const expected = {
 }
 
 const asyncResolve = data => {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     setTimeout(() => resolve(data), 1)
   })
 }
