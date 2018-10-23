@@ -1,4 +1,4 @@
-/* 
+/*
 
 ## Summary
 
@@ -30,15 +30,29 @@ $ node # in ACH directory
 
 const fs = require('fs')
 
-const paths = fs
-  .readFileSync('/tmp/paths')
-  .toString()
-  .split('\n')
-  .filter(x => x.length > 0)
+let client
 
-const result = {}
-Promise.all(
-  paths.map(path => files.statByPath(path).then(x => (result[path] = x._id)))
-).then(() => {
-  console.log(result)
-})
+module.exports = {
+  getDoctypes: function() {
+    return ['io.cozy.files']
+  },
+
+  run: async function(ach) {
+    client = ach.client
+
+    const paths = fs
+      .readFileSync('/tmp/paths')
+      .toString()
+      .split('\n')
+      .filter(x => x.length > 0)
+
+    const result = {}
+    Promise.all(
+      paths.map(path =>
+        client.files.statByPath(path).then(x => (result[path] = x._id))
+      )
+    ).then(result => {
+      console.log(result)
+    })
+  }
+}
