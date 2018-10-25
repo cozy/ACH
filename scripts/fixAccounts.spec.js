@@ -84,7 +84,7 @@ describe('fixAccount', async () => {
   })
 
   it('moves misplaced `folderPath` to `auth.folderPath`', async () => {
-    const unexpectedAccount = {
+    const invalidAccount = {
       ...expectedAccount,
       auth: {
         accountName: '',
@@ -95,7 +95,7 @@ describe('fixAccount', async () => {
       },
       folderPath: '/Administrative/Test/claude_cozycloud_cc'
     }
-    await fixAccount(client, unexpectedAccount, false)
+    await fixAccount(client, invalidAccount, false)
     expect(client.data.update.mock.calls.length).toBe(1)
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
@@ -118,15 +118,15 @@ describe('fixAccount', async () => {
       type: 'io.cozy.accounts'
     }
 
-    const unexpectedOAuthAccount = {
+    const invalidOAuthAccount = {
       ...expectedOAuthAccount,
       oauth: { ...expectedOAuthAccount.oauth },
       folderPath: '/Administrative/Test/claude_cozycloud_cc'
     }
 
-    delete unexpectedOAuthAccount.auth
+    delete invalidOAuthAccount.auth
 
-    await fixAccount(client, unexpectedOAuthAccount, false)
+    await fixAccount(client, invalidOAuthAccount, false)
     expect(client.data.update.mock.calls.length).toBe(1)
     expect(client.data.update.mock.calls[0][2]).toMatchObject(
       expectedOAuthAccount
@@ -134,17 +134,17 @@ describe('fixAccount', async () => {
   })
 
   it('removes `folderPath` if `auth.folderPath` exists', async () => {
-    const unexpectedAccount = {
+    const invalidAccount = {
       ...expectedAccount,
       folderPath: '/Administrative/Should/Be/Ignored'
     }
-    await fixAccount(client, unexpectedAccount, false)
+    await fixAccount(client, invalidAccount, false)
     expect(client.data.update.mock.calls.length).toBe(1)
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
 
   it('makes `auth.folderPath` and `auth.namePath` consistent', async () => {
-    const unexpectedAccount = {
+    const invalidAccount = {
       ...expectedAccount,
       auth: {
         ...expectedAccount.auth,
@@ -152,13 +152,13 @@ describe('fixAccount', async () => {
         namePath: 'claude_cozycloud_cc'
       }
     }
-    await fixAccount(client, unexpectedAccount, false)
+    await fixAccount(client, invalidAccount, false)
     expect(client.data.update.mock.calls.length).toBe(1)
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
 
   it('makes `auth.folderPath` and `auth.namePath` consistent with `/`', async () => {
-    const unexpectedAccount = {
+    const invalidAccount = {
       ...expectedAccount,
       auth: {
         ...expectedAccount.auth,
@@ -166,21 +166,21 @@ describe('fixAccount', async () => {
         namePath: 'claude_cozycloud_cc'
       }
     }
-    await fixAccount(client, unexpectedAccount, false)
+    await fixAccount(client, invalidAccount, false)
     expect(client.data.update.mock.calls.length).toBe(1)
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
 
   it('keeps `auth.folderPath` consistent when no `auth.namePath`', async () => {
-    const unexpectedAccount = {
+    const invalidAccount = {
       ...expectedAccount,
       auth: {
         ...expectedAccount.auth,
         folderPath: '/Administrative/Test/'
       }
     }
-    delete unexpectedAccount.auth.namePath
-    await fixAccount(client, unexpectedAccount, false)
+    delete invalidAccount.auth.namePath
+    await fixAccount(client, invalidAccount, false)
     expect(client.data.update.mock.calls.length).toBe(1)
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
@@ -209,15 +209,15 @@ describe('fixAccount', async () => {
           }
         }
 
-        const unexpectedAccount = {
+        const invalidAccount = {
           ...expectedAccountWithSource,
           auth: {
             ...expectedAccountWithSource.auth
           }
         }
-        delete unexpectedAccount.auth.namePath
+        delete invalidAccount.auth.namePath
 
-        await fixAccount(client, unexpectedAccount, false)
+        await fixAccount(client, invalidAccount, false)
 
         expect(client.data.update.mock.calls.length).toBe(1)
         expect(client.data.update.mock.calls[0][2]).toMatchObject(
@@ -246,13 +246,13 @@ describe('fixAccount', async () => {
 
   describe('with related trigger', async () => {
     it('restores `auth.folderPath` from related trigger', async () => {
-      const unexpectedAccount = {
+      const invalidAccount = {
         ...expectedAccount,
         auth: { ...expectedAccount.auth }
       }
-      delete unexpectedAccount.auth.folderPath
+      delete invalidAccount.auth.folderPath
 
-      await fixAccount(client, unexpectedAccount, false)
+      await fixAccount(client, invalidAccount, false)
 
       expect(client.data.update.mock.calls.length).toBe(1)
       expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
