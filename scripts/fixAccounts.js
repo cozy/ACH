@@ -2,6 +2,7 @@
  * Due to legacy some io.cozy.account need a little cleaning.
  * This watch every account and update it if needed.
  */
+const { isEqual } = require('lodash')
 
 const DOCTYPE_COZY_ACCOUNTS = 'io.cozy.accounts'
 const DOCTYPE_COZY_FILES = 'io.cozy.files'
@@ -27,6 +28,21 @@ const findFolder = async (client, folderId) => {
   return await client.files.statById(folderId)
 }
 
+// Check for outdated legacy attributes
+// dir_id is an old attribute which was still added on updates
+const fixAccountDirId = (account, dryRun = true) => {
+  const sanitizedAccount = { ...account }
+  if (typeof account.dir_id === 'undefined') {
+    console.log('✅  No attribute `dir_id`')
+  } else if (dryRun) {
+    console.info(`👌  Would remove \`dir_id\` from ${account._id}`)
+  } else {
+    console.info(`👌  Removing \`dir_id\` from ${account._id}`)
+    delete sanitizedAccount.dir_id
+  }
+  return sanitizedAccount
+}
+
 const fixAccount = async (client, account, dryRun = true) => {
   const accountId = account._id
   console.log(
@@ -34,20 +50,10 @@ const fixAccount = async (client, account, dryRun = true) => {
       ` (${account.account_type})`}`
   )
 
-  const sanitizedAccount = { ...account }
+  let sanitizedAccount = { ...account }
   let needUpdate = false
 
-  // Check for outdated legacy attributes
-  // dir_id is an old attribute which was still added on updates
-  if (typeof account.dir_id === 'undefined') {
-    console.log('✅  No attribute `dir_id`')
-  } else if (dryRun) {
-    console.info(`👌  Would remove \`dir_id\` from ${accountId}`)
-  } else {
-    console.info(`👌  Removing \`dir_id\` from ${accountId}`)
-    delete sanitizedAccount.dir_id
-    needUpdate = true
-  }
+  sanitizedAccount = fixAccountDirId(account, dryRun)
 
   // folderId is a deprecated attribute. This information is now stored
   // directly in the trigger document
@@ -204,6 +210,8 @@ const fixAccount = async (client, account, dryRun = true) => {
   } else {
     console.log(`❌  Account ${accountId} does not contain \`auth\` attribute`)
   }
+
+  needUpdate = needUpdate || !isEqual(account, sanitizedAccount)
 
   if (needUpdate) {
     if (dryRun) {
