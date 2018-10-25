@@ -59,20 +59,9 @@ const fixAccountFolderId = (account, dryRun = true) => {
   return sanitizedAccount
 }
 
-const fixAccount = async (client, account, dryRun = true) => {
-  const accountId = account._id
-  console.log(
-    `Account ${accountId}${account.account_type &&
-      ` (${account.account_type})`}`
-  )
-
-  let sanitizedAccount = { ...account }
-  let needUpdate = false
-
-  sanitizedAccount = fixAccountDirId(sanitizedAccount, dryRun)
-  sanitizedAccount = fixAccountFolderId(sanitizedAccount, dryRun)
-
-  // Misplaced folderPath
+// Misplaced folderPath
+const fixAccountFolderPath = (account, dryRun = true) => {
+  const sanitizedAccount = { ...account }
   if (typeof account.folderPath === 'undefined') {
     console.log('✅  No attribute `folderPath` in account root')
   } else {
@@ -82,32 +71,40 @@ const fixAccount = async (client, account, dryRun = true) => {
     if (!account.auth || typeof account.auth.folderPath === 'undefined') {
       if (dryRun) {
         console.info(
-          `👌  Would move \`folderPath\` from ${accountId} to \`auth.folderPath\``
+          `👌  Would move \`folderPath\` from ${
+            account._id
+          } to \`auth.folderPath\``
         )
       } else {
         console.info(
-          `👌  Moving \`folderPath\` from ${accountId} to \`auth.folderPath\``
+          `👌  Moving \`folderPath\` from ${account._id} to \`auth.folderPath\``
         )
         sanitizedAccount.auth.folderPath = sanitizedAccount.folderPath
         delete sanitizedAccount.folderPath
-        needUpdate = true
       }
     } else {
       console.log(
         '❌  Conflict between `folderPath` and `auth.folderPath`, keeping `auth.folderPath`'
       )
       if (dryRun) {
-        console.info(`👌  Would remove \`folderPath\` from ${accountId}`)
+        console.info(`👌  Would remove \`folderPath\` from ${account._id}`)
       } else {
-        console.info(`👌  Removing \`folderPath\` from ${accountId}`)
+        console.info(`👌  Removing \`folderPath\` from ${account._id}`)
         delete sanitizedAccount.folderPath
-        needUpdate = true
       }
     }
   }
+  return sanitizedAccount
+}
 
-  // Consistency between auth.folderPath and auth.namePath
-  // auth.folderPath must contains auth.namePath as last segment
+// Consistency between auth.folderPath and auth.namePath
+// auth.folderPath must contains auth.namePath as last segment
+const fixAccountFolderPathConsistency = async (
+  client,
+  account,
+  dryRun = true
+) => {
+  const sanitizedAccount = { ...account, auth: { ...account.auth } }
   if (account.auth) {
     const {
       accountName,
@@ -122,7 +119,7 @@ const fixAccount = async (client, account, dryRun = true) => {
 
     if (!actualFolderPath) {
       // Get related trigger
-      const trigger = await findTriggerByAccount(client, accountId)
+      const trigger = await findTriggerByAccount(client, account._id)
       if (trigger) {
         if (trigger.message && trigger.message.folder_to_save) {
           // Get related folder
@@ -133,40 +130,49 @@ const fixAccount = async (client, account, dryRun = true) => {
           // folderPath
           if (folder) {
             console.log(
-              `❌  Account ${accountId} does not contain \`auth.folderPath\` attribute`
+              `❌  Account ${
+                account._id
+              } does not contain \`auth.folderPath\` attribute`
             )
 
             actualFolderPath = folder.attributes.path
             if (dryRun) {
               console.info(
-                `👌  Would update \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
+                `👌  Would update \`auth.folderPath\` to ${actualFolderPath} in ${
+                  account._id
+                }`
               )
             } else {
               console.info(
-                `👌  Updating \`auth.folderPath\` to ${actualFolderPath} in ${accountId}`
+                `👌  Updating \`auth.folderPath\` to ${actualFolderPath} in ${
+                  account._id
+                }`
               )
               sanitizedAccount.auth.folderPath = actualFolderPath
-              needUpdate = true
             }
           } else {
             console.log(
-              `❌  Account ${accountId}'s trigger is not related to any existing folder\n\r`
+              `❌  Account ${
+                account._id
+              }'s trigger is not related to any existing folder\n\r`
             )
             return
           }
         } else {
           console.log(
-            `✅  No attribute \`folderPath\` in account ${accountId} but related trigger ${
+            `✅  No attribute \`folderPath\` in account ${
+              account._id
+            } but related trigger ${
               trigger._id
             } does not contain \`message.folder_to_save\`\n\r`
           )
-          return
+          return sanitizedAccount
         }
       } else {
         console.log(
-          `❌  Account ${accountId} is not related to any trigger\n\r`
+          `❌  Account ${account._id} is not related to any trigger\n\r`
         )
-        return
+        return sanitizedAccount
       }
     }
 
@@ -180,45 +186,73 @@ const fixAccount = async (client, account, dryRun = true) => {
         '_'
       )
 
-      if (dryRun) {
-        console.info(
-          `👌  Would create \`auth.namePath\` with value ${sanitizedNamePath}`
-        )
-      } else {
-        console.info(
-          `👌  Creating \`auth.namePath\` with value ${sanitizedNamePath}`
-        )
-        sanitizedAccount.auth.namePath = sanitizedNamePath
-        needUpdate = true
+      if (sanitizedNamePath) {
+        if (dryRun) {
+          console.info(
+            `👌  Would create \`auth.namePath\` with value ${sanitizedNamePath}`
+          )
+        } else {
+          console.info(
+            `👌  Creating \`auth.namePath\` with value ${sanitizedNamePath}`
+          )
+          sanitizedAccount.auth.namePath = sanitizedNamePath
+        }
       }
     }
-
     const segments = actualFolderPath.split('/')
     if (segments[segments.length - 1] === sanitizedNamePath) {
       console.log('✅  `auth.folderPath` is consistent with `namePath`')
     } else {
       const sanitizedFolderPath = `${actualFolderPath}${
-        actualFolderPath[actualFolderPath.length - 1] === '/' ? '' : '/'
+        sanitizedNamePath &&
+        actualFolderPath[actualFolderPath.length - 1] !== '/'
+          ? '/'
+          : ''
       }${sanitizedNamePath}`
+
       if (dryRun) {
         console.info(
-          `👌  Would update \`auth.folderPath\` to ${sanitizedFolderPath} in ${accountId}`
+          `👌  Would update \`auth.folderPath\` to ${sanitizedFolderPath} in ${
+            account._id
+          }`
         )
       } else {
         console.info(
-          `👌  Updating \`auth.folderPath\` to ${sanitizedFolderPath} in ${accountId}`
+          `👌  Updating \`auth.folderPath\` to ${sanitizedFolderPath} in ${
+            account._id
+          }`
         )
         sanitizedAccount.auth.folderPath = sanitizedFolderPath
-        needUpdate = true
       }
     }
   } else {
-    console.log(`❌  Account ${accountId} does not contain \`auth\` attribute`)
+    console.log(
+      `❌  Account ${account._id} does not contain \`auth\` attribute`
+    )
   }
 
-  needUpdate = needUpdate || !isEqual(account, sanitizedAccount)
+  return sanitizedAccount
+}
 
-  if (needUpdate) {
+const fixAccount = async (client, account, dryRun = true) => {
+  const accountId = account._id
+  console.log(
+    `Account ${accountId}${account.account_type &&
+      ` (${account.account_type})`}`
+  )
+
+  let sanitizedAccount = { ...account }
+
+  sanitizedAccount = fixAccountDirId(sanitizedAccount, dryRun)
+  sanitizedAccount = fixAccountFolderId(sanitizedAccount, dryRun)
+  sanitizedAccount = fixAccountFolderPath(sanitizedAccount, dryRun)
+  sanitizedAccount = await fixAccountFolderPathConsistency(
+    client,
+    sanitizedAccount,
+    dryRun
+  )
+
+  if (!isEqual(account, sanitizedAccount)) {
     if (dryRun) {
       console.info(`👌  Would update ${accountId}`)
     } else {
