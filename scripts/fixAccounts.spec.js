@@ -1,3 +1,4 @@
+const { omit } = require('lodash')
 const { fixAccount } = require('./fixAccounts')
 
 describe('fixAccount', async () => {
@@ -174,12 +175,15 @@ describe('fixAccount', async () => {
   it('keeps `auth.folderPath` consistent when no `auth.namePath`', async () => {
     const invalidAccount = {
       ...expectedAccount,
-      auth: {
-        ...expectedAccount.auth,
-        folderPath: '/Administrative/Test/'
-      }
+      auth: omit(
+        {
+          ...expectedAccount.auth,
+          folderPath: '/Administrative/Test/'
+        },
+        'namePath'
+      )
     }
-    delete invalidAccount.auth.namePath
+
     await fixAccount(client, invalidAccount, false)
     expect(client.data.update.mock.calls.length).toBe(1)
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
@@ -190,13 +194,7 @@ describe('fixAccount', async () => {
 
     const expectedAccountBase = {
       ...expectedAccount,
-      auth: {
-        ...expectedAccount.auth
-      }
-    }
-
-    for (const field of namePathSourceFields) {
-      delete expectedAccountBase.auth[field]
+      auth: omit(expectedAccount.auth, namePathSourceFields)
     }
 
     for (const field of namePathSourceFields) {
@@ -211,11 +209,8 @@ describe('fixAccount', async () => {
 
         const invalidAccount = {
           ...expectedAccountWithSource,
-          auth: {
-            ...expectedAccountWithSource.auth
-          }
+          auth: omit(expectedAccountWithSource.auth, 'namePath')
         }
-        delete invalidAccount.auth.namePath
 
         await fixAccount(client, invalidAccount, false)
 
@@ -230,16 +225,12 @@ describe('fixAccount', async () => {
   it('does not create namePath when folderPath is expected to be missing', async () => {
     const expectedAccountWithoutNamePath = {
       ...expectedAccount,
-      auth: {
-        ...expectedAccount.auth
-      }
+      auth: omit(expectedAccount.auth, ['folderPath', 'namePath'])
     }
 
     // The trigger does not contain any `message.folder_to_save`
     client.data.query.mockResolvedValue([{ message: {} }])
 
-    delete expectedAccountWithoutNamePath.auth.folderPath
-    delete expectedAccountWithoutNamePath.auth.namePath
     await fixAccount(client, expectedAccountWithoutNamePath, false)
     expect(client.data.update.mock.calls.length).toBe(0)
   })
@@ -248,9 +239,8 @@ describe('fixAccount', async () => {
     it('restores `auth.folderPath` from related trigger', async () => {
       const invalidAccount = {
         ...expectedAccount,
-        auth: { ...expectedAccount.auth }
+        auth: omit(expectedAccount.auth, 'folderPath')
       }
-      delete invalidAccount.auth.folderPath
 
       await fixAccount(client, invalidAccount, false)
 
