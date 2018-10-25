@@ -235,9 +235,8 @@ const fixAccountFolderPathConsistency = async (
 }
 
 const fixAccount = async (client, account, dryRun = true) => {
-  const accountId = account._id
   console.log(
-    `Account ${accountId}${account.account_type &&
+    `Account ${account._id}${account.account_type &&
       ` (${account.account_type})`}`
   )
 
@@ -254,9 +253,9 @@ const fixAccount = async (client, account, dryRun = true) => {
 
   if (!isEqual(account, sanitizedAccount)) {
     if (dryRun) {
-      console.info(`👌  Would update ${accountId}`)
+      console.info(`👌  Would update ${account._id}`)
     } else {
-      console.info(`👌  Updating ${accountId}`)
+      console.info(`👌  Updating ${account._id}`)
       await client.data.update(DOCTYPE_COZY_ACCOUNTS, account, sanitizedAccount)
     }
   }
