@@ -29,6 +29,7 @@ const findFolder = async (client, folderId) => {
 }
 
 // Check for outdated legacy attributes
+
 // dir_id is an old attribute which was still added on updates
 const fixAccountDirId = (account, dryRun = true) => {
   const sanitizedAccount = { ...account }
@@ -43,6 +44,21 @@ const fixAccountDirId = (account, dryRun = true) => {
   return sanitizedAccount
 }
 
+// folderId is a deprecated attribute. This information is now stored
+// directly in the trigger document
+const fixAccountFolderId = (account, dryRun = true) => {
+  const sanitizedAccount = { ...account }
+  if (typeof account.folderId === 'undefined') {
+    console.log('✅  No attribute `folderId`')
+  } else if (dryRun) {
+    console.info(`👌  Would remove \`folderId\` from ${account._id}`)
+  } else {
+    console.info(`👌  Removing \`folderId\` from ${account._id}`)
+    delete sanitizedAccount.folderId
+  }
+  return sanitizedAccount
+}
+
 const fixAccount = async (client, account, dryRun = true) => {
   const accountId = account._id
   console.log(
@@ -53,19 +69,8 @@ const fixAccount = async (client, account, dryRun = true) => {
   let sanitizedAccount = { ...account }
   let needUpdate = false
 
-  sanitizedAccount = fixAccountDirId(account, dryRun)
-
-  // folderId is a deprecated attribute. This information is now stored
-  // directly in the trigger document
-  if (typeof account.folderId === 'undefined') {
-    console.log('✅  No attribute `folderId`')
-  } else if (dryRun) {
-    console.info(`👌  Would remove \`folderId\` from ${accountId}`)
-  } else {
-    console.info(`👌  Removing \`folderId\` from ${accountId}`)
-    delete sanitizedAccount.folderId
-    needUpdate = true
-  }
+  sanitizedAccount = fixAccountDirId(sanitizedAccount, dryRun)
+  sanitizedAccount = fixAccountFolderId(sanitizedAccount, dryRun)
 
   // Misplaced folderPath
   if (typeof account.folderPath === 'undefined') {
