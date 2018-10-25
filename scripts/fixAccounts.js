@@ -242,9 +242,14 @@ const fixAccount = async (client, account, dryRun = true) => {
 
   let sanitizedAccount = { ...account }
 
-  sanitizedAccount = fixAccountDirId(sanitizedAccount, dryRun)
-  sanitizedAccount = fixAccountFolderId(sanitizedAccount, dryRun)
-  sanitizedAccount = fixAccountFolderPath(sanitizedAccount, dryRun)
+  for (const fixer of [
+    fixAccountDirId,
+    fixAccountFolderId,
+    fixAccountFolderPath
+  ]) {
+    sanitizedAccount = fixer(sanitizedAccount, dryRun)
+  }
+
   sanitizedAccount = await fixAccountFolderPathConsistency(
     client,
     sanitizedAccount,
