@@ -181,7 +181,8 @@ const importData = async function(cozyClient, data, options) {
   // Even if we are in parallel mode, insert the first document serially, and then all the other ones in parallel.
   // because if it's a new doctype, the stack needs time to create the collection
   // and can't handle the other incoming requests
-  const CONCURRENCY = 75
+
+  const CONCURRENCY = 25
   const runPerDocument = options.parallel
     ? runInPoolAfterFirst(CONCURRENCY)
     : runSerially
