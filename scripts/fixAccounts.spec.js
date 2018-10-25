@@ -54,7 +54,7 @@ describe('fixAccount', async () => {
     type: 'io.cozy.accounts'
   }
 
-  it('does not update without disabling dry run mode', async () => {
+  it('does not update when in dry run mode', async () => {
     await fixAccount(client, expectedAccount)
     expect(client.data.update.mock.calls.length).toBe(0)
   })
@@ -144,7 +144,7 @@ describe('fixAccount', async () => {
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
 
-  it('makes `auth.folderPath` and `auth.namePath` consistent', async () => {
+  it('makes `auth.folderPath` and `auth.namePath` coherent', async () => {
     const invalidAccount = {
       ...expectedAccount,
       auth: {
@@ -158,7 +158,7 @@ describe('fixAccount', async () => {
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
 
-  it('makes `auth.folderPath` and `auth.namePath` consistent with `/`', async () => {
+  it('makes `auth.folderPath` and `auth.namePath` coherent with `/`', async () => {
     const invalidAccount = {
       ...expectedAccount,
       auth: {
@@ -172,7 +172,7 @@ describe('fixAccount', async () => {
     expect(client.data.update.mock.calls[0][2]).toMatchObject(expectedAccount)
   })
 
-  it('keeps `auth.folderPath` consistent when no `auth.namePath`', async () => {
+  it('keeps `auth.folderPath` coherent when no `auth.namePath`', async () => {
     const invalidAccount = {
       ...expectedAccount,
       auth: omit(
