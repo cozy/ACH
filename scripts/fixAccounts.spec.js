@@ -2,8 +2,7 @@ const { omit } = require('lodash')
 const { fixAccount } = require('./fixAccounts')
 
 describe('fixAccount', async () => {
-  let client,
-    capturedLoggers = {}
+  let client
 
   const mockedFolder = {
     attributes: {
@@ -19,8 +18,7 @@ describe('fixAccount', async () => {
 
   beforeEach(() => {
     ;['log', 'info'].forEach(logger => {
-      capturedLoggers[logger] = console[logger]
-      console[logger] = jest.fn()
+      jest.spyOn(console, logger).mockImplementation(() => {})
     })
     client = {
       data: {
@@ -36,7 +34,7 @@ describe('fixAccount', async () => {
 
   afterEach(() => {
     ;['log', 'info'].forEach(logger => {
-      console[logger] = capturedLoggers[logger]
+      console[logger].mockRestore()
     })
   })
 
