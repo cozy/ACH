@@ -22,11 +22,7 @@ module.exports = {
     return [DOCTYPE_BILLS, DOCTYPE_FILES, DOCTYPE_ACCOUNTS, DOCTYPE_OPERATIONS]
   },
   run: async function(ach, dryRun, argv) {
-    const [vendor] = argv
-    if (vendor == null) {
-      console.log(`wrong arguments : ${argv}`)
-      process.exit()
-    }
+    const vendor = null
 
     const instance = ach.url.replace('https://', '')
 
@@ -70,13 +66,15 @@ module.exports = {
     })
 
     const chunks = chunk(toRemove, 10000)
-    for (let i=0;i<chunks.length;i++) {
+    for (let i = 0; i < chunks.length; i++) {
       todo.toRemove.push.apply(todo.toRemove, chunks[i])
     }
 
     // update and delete if not dryRun
     console.log(
-      `Will delete ${todo.toRemove.length} bills / ${bills.length} total on ${instance}`
+      `Will delete ${todo.toRemove.length} bills / ${
+        bills.length
+      } total on ${instance}`
     )
 
     removeBillsFromOperations(todo.toRemove, operations, dryRun, instance)
@@ -84,13 +82,13 @@ module.exports = {
     if (!dryRun) {
       if (todo.toRemove.length) {
         log('Removing duplicates')
-	const parts = chunk(todo.toRemove, 10000)
-	let i = 0	
-	for (const part of parts) {
-	  i++
+        const parts = chunk(todo.toRemove, 10000)
+        let i = 0
+        for (const part of parts) {
+          i++
           console.log(`chunk ${i} / ${parts.length}`)
           await api.deleteAll(DOCTYPE_BILLS, part)
-	}
+        }
       }
     }
   }
@@ -164,7 +162,10 @@ async function removeBillsFromOperations(bills, operations, dryRun, instance) {
     for (let bill of bills) {
       const billLongId = `io.cozy.bills:${bill._id}`
       // if bill id found in op bills, do something
-      if (Array.isArray(billsAttribute) && billsAttribute.indexOf(billLongId) >= 0) {
+      if (
+        Array.isArray(billsAttribute) &&
+        billsAttribute.indexOf(billLongId) >= 0
+      ) {
         log(`  found bill to remove: ${bill._id}`, true)
         needUpdate = true
         billsAttribute = billsAttribute.filter(
