@@ -31,14 +31,18 @@ const progress = (i, arr) => {
   }
 }
 
-const runBatch = async (script, domainsFile) => {
+const runBatch = async (script, domainsFile, limit) => {
   const domains = fs
     .readFileSync(domainsFile)
     .toString()
     .split('\n')
     .filter(x => x != '')
+
   const start = new Date()
-  const pool = new PromisePool(runScriptPool(script, domains, progress), 30)
+  const pool = new PromisePool(
+    runScriptPool(script, limit ? domains.slice(0, limit) : domains, progress),
+    30
+  )
   await pool.start()
   const end = new Date()
   log.success(`Done in ${Math.round((end - start) / 1000, 2)}s`)

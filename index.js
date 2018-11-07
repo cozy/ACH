@@ -283,6 +283,9 @@ program
 
 program
   .command('batch <scriptName> <domainsFile>')
+  .option('-l, --limit <n>', 'Only take limit instances from the file', x =>
+    parseInt(x, 10)
+  )
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .description('Launch script')
   .action(async function(scriptName, domainsFile, action) {
@@ -297,7 +300,8 @@ program
     }
 
     try {
-      await runBatch(script, domainsFile, action)
+      const limit = !isNaN(action.limit) ? action.limit : undefined
+      await runBatch(script, domainsFile, limit, action)
     } catch (e) {
       console.error('Error during batch execution')
       console.error(e)
