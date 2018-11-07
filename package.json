@@ -17,6 +17,7 @@
     "lodash": "^4.17.4",
     "opn": "^5.1.0",
     "progress": "^2.0.0",
+    "promise-pool": "^0.1.9",
     "random-words": "^1.1.0",
     "regenerator-runtime": "0.11.0",
     "request": "^2.87.0",
@@ -27,6 +28,7 @@
     "eslint": "^5.7.0",
     "eslint-config-cozy-app": "^1.1.4",
     "jest": "^23.6.0",
+    "prettier-cli": "^0.1.0",
     "semantic-release": "^15.9.5",
     "travis-deploy-once": "^5.0.2"
   },
