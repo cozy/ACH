@@ -1,9 +1,9 @@
-const { URL, URLSearchParams } = require('url')
+const { URLSearchParams } = require('url')
 const fetch = require('node-fetch')
 const config = require('./config')
 
 // Required since we use a self signed certificate
-const https = require("https");
+const https = require('https')
 const agent = new https.Agent({
   rejectUnauthorized: false
 })
@@ -14,9 +14,9 @@ const baseFetch = (route, options) => {
   const allOptions = {
     ...options,
     headers: {
-      'Authorization': `Basic ${auth}`,
+      Authorization: `Basic ${auth}`,
       'Content-type': 'application/json',
-      'Accept': 'application/json',
+      Accept: 'application/json',
       ...(options.headers || {})
     },
     agent
