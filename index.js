@@ -164,7 +164,7 @@ const autotoken = (url, doctypes) => {
 }
 
 program
-  .command('export <doctypes> <filename>')
+  .command('export <doctypes> [filename]')
   .description(
     'Exports data from the doctypes (separated by commas) to filename'
   )
