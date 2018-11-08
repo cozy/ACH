@@ -1,4 +1,3 @@
-const keyBy = require('lodash/keyBy')
 const groupBy = require('lodash/groupBy')
 const log = require('../libs/log')
 const { Document, BankAccount, BankTransaction } = require('cozy-doctypes')
@@ -25,7 +24,7 @@ const findDuplicateAccountsWithNoOperations = (accounts, operations) => {
   return res
 }
 
-const run = async (dryRun) => {
+const run = async dryRun => {
   const accounts = await BankAccount.fetchAll()
   const operations = await BankTransaction.fetchAll()
   const accountsWithNoOperations = findDuplicateAccountsWithNoOperations(
