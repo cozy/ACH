@@ -17,6 +17,9 @@ const runScriptPool = function*(script, domains, progress, dryRun) {
 
   for (const domain of domains) {
     const onResultOrError = res => {
+      if (res instanceof Error) {
+        res = { message: res.message, stack: res.stack }
+      }
       i++
       console.log(JSON.stringify({ ...res, domain }))
       progress(i, domains)
