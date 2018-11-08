@@ -22,10 +22,6 @@ const mkAPI = client => {
         return []
       }
       return client.fetchJSON('POST', `/data/${doctype}/_bulk_docs`, { docs })
-    },
-
-    deleteAll: async (doctype, docs) => {
-      return api.updateAll(doctype, docs)
     }
   }
 
