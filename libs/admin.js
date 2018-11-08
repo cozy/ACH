@@ -1,6 +1,6 @@
 const { URLSearchParams } = require('url')
 const fetch = require('node-fetch')
-const config = require('./config')
+const { getAdminConfigForDomain } = require('./config')
 
 // Required since we use a self signed certificate
 const https = require('https')
@@ -8,9 +8,14 @@ const agent = new https.Agent({
   rejectUnauthorized: false
 })
 
-const baseFetch = (route, options) => {
-  const auth = Buffer(config.adminAuth).toString('base64')
-  const url = `${config.adminURL}${route}`
+/**
+ * Base fetch to talk with admin endpoints
+ * Deals with base URL, authentication and headers
+ */
+const baseFetch = (domain, route, options) => {
+  const { adminAuth, adminURL } = getAdminConfigForDomain(domain)
+  const auth = Buffer(adminAuth).toString('base64')
+  const url = `${adminURL}${route}`
   const allOptions = {
     ...options,
     headers: {
@@ -36,7 +41,7 @@ const createToken = (domain, doctypes) => {
     Audience: 'cli',
     Scope: doctypes.join(' ')
   })
-  return baseFetch(`/instances/token?${params}`, {
+  return baseFetch(domain, `/instances/token?${params}`, {
     method: 'POST'
   }).then(resp => resp.text())
 }
