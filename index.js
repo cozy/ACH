@@ -7,6 +7,7 @@ const { keyBy, sortBy } = require('lodash')
 const spawnSync = require('child_process').spawnSync
 
 const { ACH, importData, assert, log, askConfirmation } = require('./libs')
+const runBatch = require('./libs/runBatch')
 
 const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
 
@@ -278,6 +279,34 @@ program
       .filter(x => !/\.spec\.js$/.exec(x))
       .map(x => x.replace(/\.js$/, ''))
     console.log(scripts.join('\n'))
+  })
+
+program
+  .command('batch <scriptName> <domainsFile>')
+  .option('-l, --limit <n>', 'Only take limit instances from the file', x =>
+    parseInt(x, 10)
+  )
+  .option('-x, --execute', 'Execute the script (disable dry run)')
+  .description('Launch script')
+  .action(async function(scriptName, domainsFile, action) {
+    const dir = path.join(__dirname, 'scripts')
+    let script
+    try {
+      script = require(path.join(dir, scriptName))
+    } catch (e) {
+      console.log(e)
+      console.error(`${scriptName} does not exist in ${dir}`)
+      process.exit(1)
+    }
+
+    try {
+      const limit = !isNaN(action.limit) ? action.limit : undefined
+      await runBatch(script, domainsFile, limit, action)
+    } catch (e) {
+      console.error('Error during batch execution')
+      console.error(e)
+      process.exit(1)
+    }
   })
 
 program.parse(process.argv)

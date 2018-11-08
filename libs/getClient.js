@@ -5,7 +5,7 @@ const { addUtilityMethods } = require('./cozy-client-mixin')
 const path = require('path')
 const AppToken = cozy.auth.AppToken
 const log = require('./log')
-
+const jwt = require('jsonwebtoken')
 const CLIENT_NAME = appPackage.name.toUpperCase()
 const SOFTWARE_ID = CLIENT_NAME + '-' + appPackage.version
 
@@ -117,12 +117,27 @@ const getClientWithToken = tokenPath => url => {
   })
 }
 
+const getClientWithTokenString = tokenString => async url => {
+  const client = new cozy.Client()
+  client.init({ cozyURL: url, token: tokenString })
+  return client
+}
+
 // convenience wrapper around the 2 client getters
 module.exports = (tokenPath, cozyUrl, docTypes) => {
-  tokenPath = path.resolve(tokenPath)
-  const getClientFn = fs.existsSync(tokenPath)
-    ? getClientWithToken(tokenPath)
-    : getClientWithoutToken(tokenPath)
+  const absoluteTokenPath = path.resolve(tokenPath)
+
+  let getClientFn
+  if (fs.existsSync(absoluteTokenPath)) {
+    getClientFn = getClientWithToken(absoluteTokenPath)
+  } else {
+    const decoded = jwt.decode(tokenPath, { complete: true })
+    if (decoded) {
+      getClientFn = getClientWithTokenString(tokenPath)
+    } else {
+      getClientFn = getClientWithoutToken(absoluteTokenPath)
+    }
+  }
 
   return getClientFn(cozyUrl, docTypes)
     .then(client => {

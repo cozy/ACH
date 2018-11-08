@@ -10,24 +10,44 @@ const writeLnErr = msg => {
   process.stderr.write(msg + '\n')
 }
 
+const LEVELS = {
+  DEBUG: 3,
+  INFO: 2,
+  WARN: 1,
+  ERROR: 0,
+  SUCCESS: 0
+}
+
+const level = LEVELS[process.env.LOG_LEVEL || 'INFO']
+
 module.exports = {
   success: function(msg) {
-    writeLnErr(green(msg))
+    if (level >= LEVELS.SUCCESS) {
+      writeLnErr(green(msg))
+    }
   },
 
   info: function(msg) {
-    writeLnErr(blue(msg))
+    if (level >= LEVELS.INFO) {
+      writeLnErr(blue(msg))
+    }
   },
 
   debug: function(msg) {
-    writeLnErr(gray(msg))
+    if (level >= LEVELS.DEBUG) {
+      writeLnErr(gray(msg))
+    }
   },
 
   warn: function(msg) {
-    writeLnErr(yellow(msg))
+    if (level >= LEVELS.WARN) {
+      writeLnErr(yellow(msg))
+    }
   },
 
   error: function(msg) {
-    writeLnErr(red(msg))
+    if (level >= LEVELS.ERROR) {
+      writeLnErr(red(msg))
+    }
   }
 }

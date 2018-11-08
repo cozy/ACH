@@ -10,7 +10,7 @@ const mkAPI = client => {
           .filter(x => x.id.indexOf('_design') !== 0)
           .map(x => x.doc)
       } catch (e) {
-        if (e.reason.reason == 'Database does not exist.') {
+        if (e.reason && e.reason.reason == 'Database does not exist.') {
           return []
         }
         throw e
