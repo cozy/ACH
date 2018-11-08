@@ -301,7 +301,7 @@ program
 
     try {
       const limit = !isNaN(action.limit) ? action.limit : undefined
-      await runBatch(script, domainsFile, limit, action)
+      await runBatch(script, domainsFile, limit, !action.execute)
     } catch (e) {
       console.error('Error during batch execution')
       console.error(e)

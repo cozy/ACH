@@ -4,15 +4,15 @@ const log = require('./log')
 const admin = require('./admin')
 const fs = require('fs')
 
-const runScript = async (script, domain) => {
+const runScript = async (script, domain, dryRun) => {
   const doctypes = script.getDoctypes()
   const token = await admin.createToken(domain, doctypes)
   const ach = new ACH(token, 'https://' + domain, doctypes)
   await ach.connect()
-  return script.run(ach, true)
+  return script.run(ach, dryRun)
 }
 
-const runScriptPool = function*(script, domains) {
+const runScriptPool = function*(script, domains, progress, dryRun) {
   let i = 0
 
   for (const domain of domains) {
@@ -21,7 +21,10 @@ const runScriptPool = function*(script, domains) {
       console.log(JSON.stringify({ ...res, domain }))
       progress(i, domains)
     }
-    yield runScript(script, domain).then(onResultOrError, onResultOrError)
+    yield runScript(script, domain, dryRun).then(
+      onResultOrError,
+      onResultOrError
+    )
   }
 }
 
@@ -31,7 +34,7 @@ const progress = (i, arr) => {
   }
 }
 
-const runBatch = async (script, domainsFile, limit) => {
+const runBatch = async (script, domainsFile, limit, dryRun) => {
   const domains = fs
     .readFileSync(domainsFile)
     .toString()
@@ -40,7 +43,12 @@ const runBatch = async (script, domainsFile, limit) => {
 
   const start = new Date()
   const pool = new PromisePool(
-    runScriptPool(script, limit ? domains.slice(0, limit) : domains, progress),
+    runScriptPool(
+      script,
+      limit ? domains.slice(0, limit) : domains,
+      progress,
+      dryRun
+    ),
     30
   )
   await pool.start()
