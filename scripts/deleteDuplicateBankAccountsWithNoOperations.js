@@ -1,5 +1,3 @@
-const groupBy = require('lodash/groupBy')
-const log = require('../libs/log')
 const { Document, BankAccount, BankTransaction } = require('cozy-doctypes')
 
 const run = async dryRun => {
@@ -10,9 +8,11 @@ const run = async dryRun => {
     operations
   )
   const info = {
-    deletedAccounts: accountsWithNoOperations.map(x => (
-      { label: x.label, _id: x._id, shortLabel: x.shortLabel }
-    ))
+    deletedAccounts: accountsWithNoOperations.map(x => ({
+      label: x.label,
+      _id: x._id,
+      shortLabel: x.shortLabel
+    }))
   }
   try {
     if (dryRun) {
