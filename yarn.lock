@@ -1904,10 +1904,10 @@ cozy-client-js@^0.3.4:
   resolved "https://registry.yarnpkg.com/cozy-client-js/-/cozy-client-js-0.3.21.tgz#d27d0288077ce95139333c41dfb537b8584ff254"
   integrity sha1-0n0CiAd86VE5MzxB37U3uFhP8lQ=
 
-cozy-doctypes@^1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/cozy-doctypes/-/cozy-doctypes-1.11.0.tgz#eee646a30d7e765a01f9b5e95889836c758ef73b"
-  integrity sha512-QpBB2B1v+2UkbVM00tB9x+KGxS9IcAeFcYnGsiVB/6+cRckghHYlsVfsC8XtDGwAbTLd7v0sNsxodQ5ggXzdmA==
+cozy-doctypes@^1.12.1:
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/cozy-doctypes/-/cozy-doctypes-1.12.1.tgz#a5a5ada91e340d7b9c2e6d4df6d33f8cb27b39af"
+  integrity sha512-Nm/eVRFjWwKKKp260R2NNGI3RrmpVwwlbL9oX+GkwgIe4WEVJ8wT60FlcbyQ0QG8bMZr59HvegTtZJ+7muU+bg==
   dependencies:
     cozy-logger "1.2.0"
     es6-promise-pool "2.5.0"
