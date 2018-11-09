@@ -16,14 +16,14 @@ const runScriptPool = function*(script, domains, progress, dryRun) {
   let i = 0
 
   for (const domain of domains) {
-    const onResultOrError = res => {
+    const onResultOrError = (domain => res => {
       if (res instanceof Error) {
         res = { message: res.message, stack: res.stack }
       }
       i++
       console.log(JSON.stringify({ ...res, domain }))
       progress(i, domains)
-    }
+    })(domain)
     yield runScript(script, domain, dryRun).then(
       onResultOrError,
       onResultOrError
