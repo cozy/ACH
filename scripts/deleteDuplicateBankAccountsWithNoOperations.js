@@ -9,9 +9,10 @@ const run = async dryRun => {
     accounts,
     operations
   )
-  const deletedAccountIds = accountsWithNoOperations.map(x => x._id)
   const info = {
-    deletedAccountIds
+    deletedAccounts: accountsWithNoOperations.map(x => (
+      { label: x.label, _id: x._id, shortLabel: x.shortLabel }
+    ))
   }
   try {
     if (dryRun) {
