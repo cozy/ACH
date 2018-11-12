@@ -52,7 +52,7 @@ const run = async (api, dryRun) => {
       info.dryRun = true
     } else {
       if (accountsToDelete.length > 0) {
-        api.deleteAll(DOCTYPE_BANK_ACCOUNTS, accountsToDelete)
+        await api.deleteAll(DOCTYPE_BANK_ACCOUNTS, accountsToDelete)
       }
       info.success = true
     }
