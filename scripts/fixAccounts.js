@@ -236,7 +236,7 @@ const fixAccountFolderPathConsistency = async (
 
 const fixAccount = async (client, account, dryRun = true) => {
   console.log(
-    `Account ${account._id}${account.account_type &&
+    `🔍  ${client._url}: Account ${account._id}${account.account_type &&
       ` (${account.account_type})`}`
   )
 
@@ -268,7 +268,8 @@ const fixAccount = async (client, account, dryRun = true) => {
   console.log()
 }
 
-const fixAccounts = async (client, dryRun = true) => {
+const fixAccounts = async (url, client, dryRun = true) => {
+  console.log(`\n\r🔧  Running fixAccounts on ${url}\n\r`)
   const index = await client.data.defineIndex(DOCTYPE_COZY_ACCOUNTS, ['_id'])
   const accounts = await client.data.query(index, {
     selector: { _id: { $gt: null } }
@@ -287,7 +288,7 @@ module.exports = {
   run: async function(ach, dryRun = true) {
     client = ach.client
 
-    await fixAccounts(client, dryRun).catch(x => {
+    await fixAccounts(ach.url, client, dryRun).catch(x => {
       console.log(x)
     })
   },
