@@ -236,8 +236,9 @@ const fixAccountFolderPathConsistency = async (
 
 const fixAccount = async (client, account, dryRun = true) => {
   console.log(
-    `🔍  ${client._url}: Account ${account._id}${account.account_type &&
-      ` (${account.account_type})`}`
+    `🔍  ${client._url}: Account ${account._id} (${
+      account.account_type ? account.account_type : 'unknow account_type'
+    })`
   )
 
   let sanitizedAccount = { ...account }
