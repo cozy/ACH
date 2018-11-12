@@ -1,7 +1,6 @@
 const mkAPI = client => {
   const api = {
     fetchAll: async doctype => {
-      console.warn('Do not use api, prefer to use cozy-doctypes')
       try {
         const result = await client.fetchJSON(
           'GET',
@@ -19,11 +18,14 @@ const mkAPI = client => {
     },
 
     updateAll: async (doctype, docs) => {
-      console.warn('Do not use api, prefer to use cozy-doctypes')
       if (!docs || docs.length === 0) {
         return []
       }
       return client.fetchJSON('POST', `/data/${doctype}/_bulk_docs`, { docs })
+    },
+
+    deleteAll: async (doctype, docs) => {
+      return api.updateAll(doctype, docs.map(x => ({ ...x, _deleted: true })))
     }
   }
 
