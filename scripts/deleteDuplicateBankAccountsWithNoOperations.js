@@ -1,43 +1,44 @@
 const mkAPI = require('./api')
 const groupBy = require('lodash/groupBy')
+const flatten = require('lodash/flatten')
 const log = require('../libs/log')
 
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 
-const findDuplicateAccountsWithNoOperations = (accounts, operations) => {
-  const opsByAccountId = groupBy(operations, op => op.account)
-
+const findDuplicateAccounts = (accounts, operations) => {
   const duplicateAccountGroups = Object.entries(
     groupBy(accounts, x => x.institutionLabel + ' > ' + x.label)
   )
     .map(([, group]) => group)
     .filter(group => group.length > 1)
 
-  const res = []
-  for (const duplicateAccounts of duplicateAccountGroups) {
-    for (const account of duplicateAccounts) {
-      const accountOperations = opsByAccountId[account._id] || []
-      log.info(
-        `Account ${account._id} has ${accountOperations.length} operations`
-      )
-      if (accountOperations.length === 0) {
-        res.push(account)
-      }
-    }
+  return flatten(duplicateAccountGroups)
+}
+
+/** Returns a functions that filters out accounts with operations */
+const hasNoOperations = operations => {
+  const opsByAccountId = groupBy(operations, op => op.account)
+  return account => {
+    const accountOperations = opsByAccountId[account._id] || []
+    log.info(
+      `Account ${account._id} has ${accountOperations.length} operations`
+    )
+    return accountOperations.length === 0
   }
-  return res
 }
 
 const run = async (api, dryRun) => {
   const accounts = await api.fetchAll(DOCTYPE_BANK_ACCOUNTS)
   const operations = await api.fetchAll(DOCTYPE_BANK_TRANSACTIONS)
-  const accountsWithNoOperations = findDuplicateAccountsWithNoOperations(
-    accounts,
-    operations
+  const duplicates = findDuplicateAccounts(
+    accounts
   )
+  const duplicatesWithoutOps = duplicates.filter(hasNoOperations(operations))
+
   const info = {
-    deletedAccounts: accountsWithNoOperations.map(x => ({
+    nDuplicateAccounts: duplicates.length,
+    deletedAccounts: duplicatesWithoutOps.map(x => ({
       label: x.label,
       _id: x._id
     }))
@@ -46,7 +47,9 @@ const run = async (api, dryRun) => {
     if (dryRun) {
       info.dryRun = true
     } else {
-      api.deleteAll(DOCTYPE_BANK_ACCOUNTS, accountsWithNoOperations)
+      if (duplicatesWithoutOps.length > 0) {
+        api.deleteAll(DOCTYPE_BANK_ACCOUNTS, duplicatesWithoutOps)
+      }
       info.success = true
     }
   } catch (e) {
@@ -62,7 +65,8 @@ module.exports = {
   getDoctypes: function() {
     return [DOCTYPE_BANK_ACCOUNTS, DOCTYPE_BANK_TRANSACTIONS]
   },
-  findDuplicateAccountsWithNoOperations,
+  findDuplicateAccounts,
+  hasNoOperations,
   run: async function(ach, dryRun = true) {
     return run(mkAPI(ach.client), dryRun).catch(err => {
       return {
