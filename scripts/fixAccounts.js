@@ -104,8 +104,9 @@ const fixAccountFolderPathConsistency = async (
   account,
   dryRun = true
 ) => {
-  const sanitizedAccount = { ...account, auth: { ...account.auth } }
+  const sanitizedAccount = { ...account }
   if (account.auth) {
+    sanitizedAccount.auth = { ...account.auth }
     const {
       accountName,
       email,
