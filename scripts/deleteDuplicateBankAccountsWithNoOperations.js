@@ -1,6 +1,7 @@
 const mkAPI = require('./api')
 const groupBy = require('lodash/groupBy')
 const flatten = require('lodash/flatten')
+const find = require('lodash/find')
 const log = require('../libs/log')
 
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
@@ -13,7 +14,7 @@ const findDuplicateAccounts = (accounts, operations) => {
     .map(([, group]) => group)
     .filter(group => group.length > 1)
 
-  return flatten(duplicateAccountGroups)
+  return duplicateAccountGroups
 }
 
 /** Returns a functions that filters out accounts with operations */
@@ -31,14 +32,17 @@ const hasNoOperations = operations => {
 const run = async (api, dryRun) => {
   const accounts = await api.fetchAll(DOCTYPE_BANK_ACCOUNTS)
   const operations = await api.fetchAll(DOCTYPE_BANK_TRANSACTIONS)
-  const duplicates = findDuplicateAccounts(
+  const duplicateGroups = findDuplicateAccounts(
     accounts
   )
-  const duplicatesWithoutOps = duplicates.filter(hasNoOperations(operations))
+  const withoutOps = hasNoOperations(operations)
+  const accountsToDelete = duplicateGroups.map(
+    accounts => find(accounts, withoutOps)
+  ).filter(Boolean)
 
   const info = {
-    nDuplicateAccounts: duplicates.length,
-    deletedAccounts: duplicatesWithoutOps.map(x => ({
+    nDuplicateGroups: duplicateGroups.length,
+    deletedAccounts: accountsToDelete.map(x => ({
       label: x.label,
       _id: x._id
     }))
@@ -47,8 +51,8 @@ const run = async (api, dryRun) => {
     if (dryRun) {
       info.dryRun = true
     } else {
-      if (duplicatesWithoutOps.length > 0) {
-        api.deleteAll(DOCTYPE_BANK_ACCOUNTS, duplicatesWithoutOps)
+      if (accountsToDelete.length > 0) {
+        api.deleteAll(DOCTYPE_BANK_ACCOUNTS, accountsToDelete)
       }
       info.success = true
     }
