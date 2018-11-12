@@ -28,9 +28,23 @@
 
 const fs = require('fs')
 
-const config = JSON.parse(
-  fs.readFileSync(`${process.env.HOME}/.ACH.json`).toString()
-)
+const loadConfig = configPath => {
+  if (fs.existsSync(configPath)) {
+    try {
+      return JSON.parse(fs.readFileSync(configPath).toString())
+    } catch (e) {
+      console.error(
+        `Config file ${configPath} does not seem to be a valid JSON.`
+      )
+      throw new Error('Wrong config file')
+    }
+  } else {
+    return {}
+  }
+}
+
+const CONFIG_PATH = `${process.env.HOME}/.ACH.json`
+const config = loadConfig(CONFIG_PATH)
 
 const domainToEnv = {
   'cozy.wtf': 'dev',
