@@ -36,9 +36,9 @@ const run = async (api, dryRun) => {
     accounts
   )
   const withoutOps = hasNoOperations(operations)
-  const accountsToDelete = duplicateGroups.map(
-    accounts => find(accounts, withoutOps)
-  ).filter(Boolean)
+  const accountsToDelete = flatten(duplicateGroups.map(
+    accounts => accounts.filter(withoutOps).slice(1)
+  ).filter(Boolean))
 
   const info = {
     nDuplicateGroups: duplicateGroups.length,
