@@ -104,8 +104,9 @@ const fixAccountFolderPathConsistency = async (
   account,
   dryRun = true
 ) => {
-  const sanitizedAccount = { ...account, auth: { ...account.auth } }
+  const sanitizedAccount = { ...account }
   if (account.auth) {
+    sanitizedAccount.auth = { ...account.auth }
     const {
       accountName,
       email,
@@ -236,8 +237,9 @@ const fixAccountFolderPathConsistency = async (
 
 const fixAccount = async (client, account, dryRun = true) => {
   console.log(
-    `Account ${account._id}${account.account_type &&
-      ` (${account.account_type})`}`
+    `🔍  ${client._url}: Account ${account._id} (${
+      account.account_type ? account.account_type : 'unknow account_type'
+    })`
   )
 
   let sanitizedAccount = { ...account }
@@ -268,11 +270,21 @@ const fixAccount = async (client, account, dryRun = true) => {
   console.log()
 }
 
-const fixAccounts = async (client, dryRun = true) => {
-  const index = await client.data.defineIndex(DOCTYPE_COZY_ACCOUNTS, ['_id'])
-  const accounts = await client.data.query(index, {
-    selector: { _id: { $gt: null } }
-  })
+const fixAccounts = async (url, client, dryRun = true) => {
+  console.log(`\n\r🔧  Running fixAccounts on ${url}\n\r`)
+
+  let accounts
+  try {
+    const index = await client.data.defineIndex(DOCTYPE_COZY_ACCOUNTS, ['_id'])
+    accounts = await client.data.query(index, {
+      selector: { _id: { $gt: null } }
+    })
+  } catch (error) {
+    console.log(
+      `💀  Fetch error, probably due to unaccepted Term of services (${error})`
+    )
+    return
+  }
 
   for (let account of accounts) {
     await fixAccount(client, account, dryRun)
@@ -287,7 +299,7 @@ module.exports = {
   run: async function(ach, dryRun = true) {
     client = ach.client
 
-    await fixAccounts(client, dryRun).catch(x => {
+    await fixAccounts(ach.url, client, dryRun).catch(x => {
       console.log(x)
     })
   },
