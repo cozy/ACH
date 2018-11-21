@@ -5,7 +5,6 @@ const {
 
 describe('deleteDuplicateBankAccountsWithNoOperations', () => {
   it('should return duplicate with no operations', () => {
-
     const accounts = [
       { _id: 'empty', label: 'Duplicate account', institutionLabel: 'i1' },
       { _id: 'filled', label: 'Duplicate account', institutionLabel: 'i1' },
