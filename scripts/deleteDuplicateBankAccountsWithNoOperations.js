@@ -7,11 +7,11 @@ const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 
 const findDuplicateAccounts = accounts => {
-  const duplicateAccountGroups = Object.entries(
-    groupBy(accounts, x => x.institutionLabel + ' > ' + x.label)
+  const duplicateAccountGroups = flatten(
+    Object.entries(groupBy(accounts, x => x.institutionLabel + ' > ' + x.label))
+      .map(([, group]) => group)
+      .filter(group => group.length > 1)
   )
-    .map(([, group]) => group)
-    .filter(group => group.length > 1)
 
   return duplicateAccountGroups
 }
