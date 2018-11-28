@@ -189,7 +189,15 @@ const importData = async function(cozyClient, data, options) {
 
   for (let doctype of Object.keys(data)) {
     let docs = data[doctype]
-    assert(docs, 'No documents for doctype ' + doctype)
+
+    const hasDocs = docs && docs.length && docs.length > 0
+    if (!hasDocs) {
+      console.warn('No documents for doctype ' + doctype)
+      continue
+    }
+
+    console.log(`Importing ${docs.length} documents for doctype ${doctype}...`)
+
     const report = progressReport({
       doctype,
       docs,
