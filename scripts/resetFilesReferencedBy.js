@@ -2,26 +2,30 @@ const mkAPI = require('./api')
 
 const DOCTYPE_FILES = 'io.cozy.files'
 
-let client
+const referencesToRemove = files => {
+  const toRemove = {}
+  files.forEach(file => {
+    if (file.referenced_by) {
+      const refs = file.referenced_by.map(ref => {
+        return { data: ref }
+      })
+      toRemove[file._id] = refs
+    }
+  })
+  return toRemove
+}
 
 module.exports = {
   getDoctypes: function() {
     return [DOCTYPE_FILES]
   },
   run: async function(ach, dryRun) {
-    client = ach.client
+    const client = ach.client
     const api = mkAPI(client)
-    const files = await api.fetchAll(DOCTYPE_FILES)
 
-    const toRemove = {}
-    files.forEach(file => {
-      if (file.referenced_by) {
-        const refs = file.referenced_by.map(ref => {
-          return { data: ref }
-        })
-        toRemove[file._id] = refs
-      }
-    })
+    const files = await api.fetchAll(DOCTYPE_FILES)
+    const toRemove = referencesToRemove(files)
+
     if (dryRun) {
       console.log(`Would update ${Object.entries(toRemove).length} files`)
     } else {
@@ -36,5 +40,6 @@ module.exports = {
         }
       }
     }
-  }
+  },
+  referencesToRemove: referencesToRemove
 }
