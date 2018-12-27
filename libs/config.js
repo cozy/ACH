@@ -19,6 +19,10 @@
     "prod": {
       "adminURL": "https://localhost:6065",
       "adminAuth": "USER:PASSWORD"
+    },
+    "local": {
+      "adminURL": "http://localhost:6060",
+      "adminAuth": ""
     }
   }
 }
@@ -50,7 +54,8 @@ const domainToEnv = {
   'cozy.wtf': 'dev',
   'cozy.works': 'int',
   'cozy.rocks': 'stg',
-  'mycozy.cloud': 'prod'
+  'mycozy.cloud': 'prod',
+  'tools:8080': 'local'
 }
 
 const getAdminConfigForDomain = domain => {
