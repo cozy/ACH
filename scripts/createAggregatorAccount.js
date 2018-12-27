@@ -44,12 +44,12 @@ utils.ensureAggregatorAccountExists = async (client, dryRun) => {
       'GET',
       `/data/${ACCOUNT_DOCTYPE}/${AGGREGATOR_ACCOUNT_ID}`
     )
-    log('info', 'BI aggregator account already exists')
+    log('debug', 'BI aggregator account already exists')
   } catch (e) {
     agg = null
   }
   if (agg) {
-    return
+    return { created: false, already: true }
   }
   log('debug', `Need to create ${ACCOUNT_DOCTYPE}:${AGGREGATOR_ACCOUNT_ID}...`)
   if (dryRun) {
@@ -64,6 +64,7 @@ utils.ensureAggregatorAccountExists = async (client, dryRun) => {
       {}
     )
   }
+  return { created: true }
 }
 
 utils.fetchAllBankingKonnectors = async client => {
@@ -82,7 +83,7 @@ const ensureKonnectorHasAggregatorPermissions = async (
   const konnSlug = konn.attributes.slug
   if (dryRun) {
     log(
-      'info',
+      'debug',
       `Would have added permission on ${AGGREGATOR_ACCOUNT_ID} to ${konnSlug}`
     )
   } else {
@@ -100,8 +101,9 @@ const ensureKonnectorHasAggregatorPermissions = async (
         }
       }
     })
-    log('info', `Added permission on ${AGGREGATOR_ACCOUNT_ID} to ${konnSlug}`)
+    log('debug', `Added permission on ${AGGREGATOR_ACCOUNT_ID} to ${konnSlug}`)
   }
+  return { ok: true }
 }
 
 utils.ensureKonnectorsHaveAggregatorPermission = async (
@@ -115,14 +117,20 @@ utils.ensureKonnectorsHaveAggregatorPermission = async (
       .map(konn => konn.attributes.slug)
       .join(', ')}`
   )
+  const res = {}
   for (const konn of bankingKonnectors) {
-    await ensureKonnectorHasAggregatorPermissions(client, konn, dryRun)
+    res[konn._id] = await ensureKonnectorHasAggregatorPermissions(
+      client,
+      konn,
+      dryRun
+    )
   }
+  return res
 }
 
 const ensureAccountHasRelationship = async (client, account, dryRun) => {
   if (account.relationships && account.relationships.parent) {
-    return
+    return { created: false, already: true }
   } else {
     log(
       'debug',
@@ -132,7 +140,7 @@ const ensureAccountHasRelationship = async (client, account, dryRun) => {
     )
     if (dryRun) {
       log(
-        'info',
+        'debug',
         `Would have added "parent" relationship to ${AGGREGATOR_ACCOUNT_ID} to ${
           account._id
         }`
@@ -150,12 +158,13 @@ const ensureAccountHasRelationship = async (client, account, dryRun) => {
         }
       })
       log(
-        'info',
+        'debug',
         `Added "parent" relationship to ${AGGREGATOR_ACCOUNT_ID} to ${
           account._id
         }`
       )
     }
+    return { created: true }
   }
 }
 
@@ -174,23 +183,35 @@ utils.ensureBankingAccountsHaveAggregatorRelationship = async (
   dryRun
 ) => {
   const accounts = await fetchAllBankingAccounts(client)
+  const res = {}
   for (let acc of accounts) {
-    await ensureAccountHasRelationship(client, acc, dryRun)
+    res[acc._id] = await ensureAccountHasRelationship(client, acc, dryRun)
   }
+  return res
 }
 
 utils.run = async (api, client, dryRun) => {
   const bankingKonnectors = await utils.fetchAllBankingKonnectors(client)
   if (bankingKonnectors.length === 0) {
     log('info', 'No banking konnector, aborting...')
+    return { aborted: true }
   } else {
-    await utils.ensureAggregatorAccountExists(client, dryRun)
-    await utils.ensureKonnectorsHaveAggregatorPermission(
+    const infoAgg = await utils.ensureAggregatorAccountExists(client, dryRun)
+    const infoPermissions = await utils.ensureKonnectorsHaveAggregatorPermission(
       client,
       bankingKonnectors,
       dryRun
     )
-    await utils.ensureBankingAccountsHaveAggregatorRelationship(client, dryRun)
+    const infoRelationships = await utils.ensureBankingAccountsHaveAggregatorRelationship(
+      client,
+      dryRun
+    )
+    return {
+      aggregator: infoAgg,
+      permissions: infoPermissions,
+      relationships: infoRelationships,
+      dryRun
+    }
   }
 }
 
