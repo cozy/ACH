@@ -1,7 +1,7 @@
 const keyBy = require('lodash/keyBy')
 const DOCTYPE_BANK_OPERATIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
-const api = require('./api')
+const api = require('../api')
 
 const deleteOrphanBankOperations = async dryRun => {
   const accounts = keyBy(await api.fetchAll(DOCTYPE_BANK_ACCOUNTS), 'id')

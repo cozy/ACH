@@ -1,4 +1,4 @@
-const mkAPI = require('./api')
+const mkAPI = require('../api')
 const log = require('cozy-logger').namespace('create-agg-account')
 
 const ACCOUNT_DOCTYPE = 'io.cozy.accounts'

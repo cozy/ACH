@@ -1,4 +1,4 @@
-const mkAPI = require('./api')
+const mkAPI = require('../api')
 const groupBy = require('lodash/groupBy')
 
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'

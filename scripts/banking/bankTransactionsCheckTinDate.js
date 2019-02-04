@@ -1,5 +1,5 @@
 const jdiff = require('jest-diff')
-const mkAPI = require('./api')
+const mkAPI = require('../api')
 
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 
