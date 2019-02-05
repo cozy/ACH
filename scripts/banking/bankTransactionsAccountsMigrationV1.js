@@ -1,7 +1,7 @@
 const tz = require('timezone')
 const eu = tz(require('timezone/Europe'))
 const jdiff = require('jest-diff')
-const mkAPI = require('./api')
+const mkAPI = require('../api')
 
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'

@@ -1,7 +1,7 @@
-const mkAPI = require('./api')
+const mkAPI = require('../api')
 const groupBy = require('lodash/groupBy')
 const flatten = require('lodash/flatten')
-const log = require('../libs/log')
+const log = require('../../libs/log')
 
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
