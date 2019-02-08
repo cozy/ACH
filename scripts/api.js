@@ -25,6 +25,7 @@ const mkAPI = client => {
     },
 
     deleteAll: async (doctype, docs) => {
+      console.log('Deleting', doctype, docs.map(x => x._id))
       return api.updateAll(doctype, docs.map(x => ({ ...x, _deleted: true })))
     }
   }
