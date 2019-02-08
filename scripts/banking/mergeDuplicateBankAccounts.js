@@ -14,7 +14,12 @@ const BANK_GROUPS = 'io.cozy.bank.groups'
 
 const { matchAccounts } = require('cozy-doctypes/src/banking/matching-accounts')
 
-const strictMethods = ['originalNumber-exact', 'iban-exact', 'number-exact', 'vendorId-exact']
+const strictMethods = [
+  'originalNumber-exact',
+  'iban-exact',
+  'number-exact',
+  'vendorId-exact'
+]
 
 const isStrictMatchingMethod = method => {
   return some(strictMethods.map(sm => method.includes(sm)))
