@@ -8,6 +8,7 @@ const spawnSync = require('child_process').spawnSync
 
 const { ACH, importData, assert, log, askConfirmation } = require('./libs')
 const runBatch = require('./libs/runBatch')
+const scriptLib = require('./libs/scripts')
 
 const DEFAULT_COZY_URL = 'http://cozy.tools:8080'
 
@@ -234,16 +235,7 @@ program
   .option('-d, --doctypes', 'Print necessary doctypes (useful for automation)')
   .description('Launch script')
   .action(function(scriptName, action) {
-    const dir = path.join(__dirname, 'scripts')
-    let script
-    try {
-      script = require(path.join(dir, scriptName))
-    } catch (e) {
-      console.log(e)
-      console.error(`${scriptName} does not exist in ${dir}`)
-      process.exit(1)
-    }
-
+    const script = scriptLib.require(scriptName)
     const { getDoctypes, run } = script
     const url = program.url
     const doctypes = getDoctypes()
@@ -270,14 +262,9 @@ program
 
 program
   .command('ls-scripts')
-  .description('Lists all scripts, useful for autocompletion')
+  .description('Lists all built-in scripts, useful for autocompletion')
   .action(function() {
-    const dir = path.join(__dirname, 'scripts')
-    const scripts = fs
-      .readdirSync(dir)
-      .filter(x => /\.js$/.exec(x))
-      .filter(x => !/\.spec\.js$/.exec(x))
-      .map(x => x.replace(/\.js$/, ''))
+    const scripts = scriptLib.list()
     console.log(scripts.join('\n'))
   })
 
@@ -289,16 +276,7 @@ program
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .description('Launch script')
   .action(async function(scriptName, domainsFile, action) {
-    const dir = path.join(__dirname, 'scripts')
-    let script
-    try {
-      script = require(path.join(dir, scriptName))
-    } catch (e) {
-      console.log(e)
-      console.error(`${scriptName} does not exist in ${dir}`)
-      process.exit(1)
-    }
-
+    const script = scriptLib.require(scriptName)
     try {
       const limit = !isNaN(action.limit) ? action.limit : undefined
       await runBatch(script, domainsFile, limit, !action.execute)
