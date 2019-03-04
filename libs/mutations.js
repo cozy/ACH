@@ -27,25 +27,29 @@ const ensureNoConflicts = mutation => {
 const mutations = {
   execute: async (mutation, api) => {
     ensureNoConflicts(mutation)
-    for (const [doctype, docs] of Object.entries(mutation.toUpdate)) {
+    const toUpdate = mutation.toUpdate || {}
+    const toDelete = mutation.toDelete || {}
+    for (const [doctype, docs] of Object.entries(toUpdate)) {
       console.log('Updating', docs.length, 'documents')
       const res = await api.updateAll(doctype, docs)
       displayBulkResult(res)
     }
-    for (const [doctype, docs] of Object.entries(mutation.toDelete)) {
+    for (const [doctype, docs] of Object.entries(toDelete)) {
       console.log('Deleting', docs.length, 'documents')
       const res = await api.deleteAll(doctype, docs)
       displayBulkResult(res)
     }
   },
   display: mutation => {
-    for (const [doctype, docs] of Object.entries(mutation.toUpdate)) {
+    const toUpdate = mutation.toUpdate || {}
+    const toDelete = mutation.toDelete || {}
+    for (const [doctype, docs] of Object.entries(toUpdate)) {
       if (!docs || docs.length === 0) {
         continue
       }
       console.log(`Would update ${doctype} ${docs.length} docs`)
     }
-    for (const [doctype, docs] of Object.entries(mutation.toDelete)) {
+    for (const [doctype, docs] of Object.entries(toDelete)) {
       if (!docs || docs.length === 0) {
         continue
       }
