@@ -7,5 +7,6 @@ libs.utils = require('./utils')
 libs.ACH = require('./ACH')
 libs.askConfirmation = require('./askConfirmation')
 libs.log = require('./log')
+libs.mkAPI = require('./api')
 
 module.exports = libs
