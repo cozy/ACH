@@ -1,5 +1,7 @@
 const intersection = require('lodash/intersection')
 const some = require('lodash/some')
+const keyBy = require('lodash/keyBy')
+const jestDiff = require('jest-diff')
 
 const displayBulkResult = res => {
   if (some(res, x => x.error)) {
@@ -46,6 +48,21 @@ const mutations = {
     for (const [doctype, docs] of Object.entries(toUpdate)) {
       if (!docs || docs.length === 0) {
         continue
+      }
+      const originalDocs = mutation.originals
+        ? mutation.originals[doctype] || []
+        : []
+      const originalsById = keyBy(originalDocs, x => x._id)
+      if (mutation.originals) {
+        for (const doc of docs) {
+          const original = originalsById[doc._id]
+          console.log(
+            jestDiff(doc, original)
+              .split('\n')
+              .slice(2)
+              .join('\n')
+          )
+        }
       }
       console.log(`Would update ${doctype} ${docs.length} docs`)
     }
