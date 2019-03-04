@@ -1,8 +1,8 @@
 {
   "name": "cozy-ach",
   "version": "0.0.0-development",
-  "description": "",
-  "main": "index.js",
+  "description": "Manage documents on a local or a remote Cozy",
+  "main": "libs/index.js",
   "dependencies": {
     "btoa": "1.1.2",
     "colors": "^1.1.2",
@@ -43,7 +43,7 @@
   "author": "",
   "license": "ISC",
   "bin": {
-    "ACH": "./index.js"
+    "ACH": "./cli.js"
   },
   "repository": {
     "type": "git",
