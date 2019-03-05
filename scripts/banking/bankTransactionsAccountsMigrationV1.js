@@ -1,25 +1,16 @@
 const tz = require('timezone')
 const eu = tz(require('timezone/Europe'))
-const jdiff = require('jest-diff')
 const mkAPI = require('../api')
+const {
+  migrationDiff: diff,
+  getWithInstanceLogger
+} = require('../../libs/utils')
 
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 const DOCTYPE_BANK_ACCOUNTS = 'io.cozy.bank.accounts'
 const DOCTYPE_BANK_SETTINGS = 'io.cozy.bank.settings'
 
 let client, api
-
-const diff = (current, updated) => {
-  return jdiff(current, updated)
-    .replace('Received', 'Updated')
-    .replace('Expected', 'Current')
-}
-
-const logWithInstance = function() {
-  const args = [].slice.call(arguments)
-  args.splice(0, 0, client._url.replace('https://', ''))
-  console.log.apply(console, args)
-}
 
 const parisTime = date => {
   if (!date) {
@@ -56,6 +47,7 @@ const migrateAccountsV1 = docs => docs.map(migrateAccountV1)
 const migrateSettingsV1 = docs => docs.map(migrateSettingV1)
 
 const doMigrations = async dryRun => {
+  const logWithInstance = getWithInstanceLogger(client)
   const accounts = await api.fetchAll(DOCTYPE_BANK_ACCOUNTS)
   const transactions = await api.fetchAll(DOCTYPE_BANK_TRANSACTIONS)
   const settings = await api.fetchAll(DOCTYPE_BANK_SETTINGS)
