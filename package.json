@@ -29,6 +29,7 @@
     "eslint": "^5.7.0",
     "eslint-config-cozy-app": "^1.1.4",
     "jest": "^23.6.0",
+    "mockdate": "^2.0.2",
     "prettier-cli": "^0.1.0",
     "semantic-release": "^15.9.5",
     "travis-deploy-once": "^5.0.2"
