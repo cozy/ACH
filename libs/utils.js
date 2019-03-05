@@ -1,4 +1,6 @@
 const fs = require('fs')
+const jdiff = require('jest-diff')
+
 const log = require('./log')
 
 const getContentTypeFromExtension = function(extension) {
@@ -134,4 +136,18 @@ module.exports.handleBadToken = promise => {
       throw err
     }
   })
+}
+
+module.exports.migrationDiff = (current, updated) => {
+  return jdiff(current, updated)
+    .replace('Received', 'Updated')
+    .replace('Expected', 'Current')
+}
+
+module.exports.getWithInstanceLogger = function(client) {
+  return function() {
+    const args = [].slice.call(arguments)
+    args.splice(0, 0, client._url.replace('https://', ''))
+    console.log.apply(console, args)
+  }
 }

@@ -1,21 +1,12 @@
-const jdiff = require('jest-diff')
 const mkAPI = require('../api')
+const {
+  migrationDiff: diff,
+  getWithInstanceLogger
+} = require('../../libs/utils')
 
 const DOCTYPE_BANK_TRANSACTIONS = 'io.cozy.bank.operations'
 
 let client, api
-
-const diff = (current, updated) => {
-  return jdiff(current, updated)
-    .replace('Received', 'Updated')
-    .replace('Expected', 'Current')
-}
-
-const logWithInstance = function() {
-  const args = [].slice.call(arguments)
-  args.splice(0, 0, client._url.replace('https://', ''))
-  console.log.apply(console, args)
-}
 
 const removeSpaceFromDates = transaction => {
   const utransaction = { ...transaction }
@@ -27,6 +18,7 @@ const removeSpaceFromDates = transaction => {
 }
 
 const doMigrations = async dryRun => {
+  const logWithInstance = getWithInstanceLogger(client)
   const transactions = (await api.fetchAll('io.cozy.bank.operations')).filter(
     x => x.date.indexOf(' ') > -1
   )
