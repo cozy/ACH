@@ -287,8 +287,6 @@ program
     }
   })
 
-program.parse(process.argv)
-
 const findCommand = program => {
   const lastArg = program.args[program.args.length - 1]
   if (lastArg instanceof program.Command) {
@@ -298,16 +296,26 @@ const findCommand = program => {
   }
 }
 
-// Check for unknown commands
-const commands = keyBy(program.commands, '_name')
-const command = findCommand(program)
-if (!commands[command]) {
-  if (command) {
-    console.log(`Unknown command "${command}"`)
-  } else {
-    console.log('You must pass a command to ACH')
+const main = async () => {
+  program.parse(process.argv)
+  // Check for unknown commands
+  const commands = keyBy(program.commands, '_name')
+  const command = findCommand(program)
+  if (!commands[command]) {
+    if (command) {
+      console.log(`Unknown command "${command}"`)
+    } else {
+      console.log('You must pass a command to ACH')
+    }
+    const availableCommands = sortBy(Object.keys(commands)).join(', ')
+    console.log(`Available commands: ${availableCommands}`)
+    console.log('Use `ACH --help` to have more help.')
   }
-  const availableCommands = sortBy(Object.keys(commands)).join(', ')
-  console.log(`Available commands: ${availableCommands}`)
-  console.log('Use `ACH --help` to have more help.')
+}
+
+if (require.main === module) {
+  main().catch(e => {
+    console.error(e)
+    process.exit(1)
+  })
 }
