@@ -27,22 +27,21 @@ const matchIntraDay = function*(transactions) {
     for (let r of matchedResults) {
       if (r.match) {
         console.log(
-          '✅',
-          date,
-          r.transaction._id,
-          r.match._id,
-          r.transaction.label,
-          'matched',
-          r.match.label
+          `✅ ${date} ${r.transaction.label} matched ${r.match.label} (${
+            r.transaction._id
+          } -> ${r.match._id}) (${r.transaction.date.slice(
+            0,
+            10
+          )} -> ${r.match.date.slice(0, 10)})`
         )
         yield r
       } else {
         console.log(
-          '❌ unmatched',
+          '❌',
           getDisplayDate(r.transaction),
-          r.transaction.label
+          r.transaction.label,
+          'unmatched'
         )
-        console.log(linxoOps.map(x => '  ' + x.label).join('\n'))
       }
     }
   }

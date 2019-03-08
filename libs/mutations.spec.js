@@ -48,4 +48,22 @@ describe('mutation', () => {
       new Error('Conflict detected')
     )
   })
+
+  it('should not throw if either toUpdate/toDelete is not there', async () => {
+    const fakeAPI = {
+      deleteAll: jest.fn(),
+      updateAll: jest.fn()
+    }
+    const mutation = {
+      toUpdate: {
+        'io.cozy.bank.operations': fakeDocs([1, 8, 9])
+      }
+    }
+    await expect(
+      mutations.execute(mutation, fakeAPI)
+    ).resolves.not.toBeUndefined()
+    await expect(
+      mutations.execute({ toDelete: mutation.toUpdate }, fakeAPI)
+    ).resolves.not.toBeUndefined()
+  })
 })

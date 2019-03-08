@@ -26,26 +26,31 @@ const ensureNoConflicts = mutation => {
   }
 }
 
+const defaulted = mutation_ => ({
+  toUpdate: {},
+  toDelete: {},
+  ...mutation_
+})
+
 const mutations = {
-  execute: async (mutation, api) => {
+  execute: async (mutation_, api) => {
+    const mutation = defaulted(mutation_)
     ensureNoConflicts(mutation)
-    const toUpdate = mutation.toUpdate || {}
-    const toDelete = mutation.toDelete || {}
-    for (const [doctype, docs] of Object.entries(toUpdate)) {
+    for (const [doctype, docs] of Object.entries(mutation.toUpdate)) {
       console.log('Updating', docs.length, 'documents')
       const res = await api.updateAll(doctype, docs)
       displayBulkResult(res)
     }
-    for (const [doctype, docs] of Object.entries(toDelete)) {
+    for (const [doctype, docs] of Object.entries(mutation.toDelete)) {
       console.log('Deleting', docs.length, 'documents')
       const res = await api.deleteAll(doctype, docs)
       displayBulkResult(res)
     }
+    return true
   },
-  display: mutation => {
-    const toUpdate = mutation.toUpdate || {}
-    const toDelete = mutation.toDelete || {}
-    for (const [doctype, docs] of Object.entries(toUpdate)) {
+  display: mutation_ => {
+    const mutation = defaulted(mutation_)
+    for (const [doctype, docs] of Object.entries(mutation.toUpdate)) {
       if (!docs || docs.length === 0) {
         continue
       }
@@ -66,7 +71,7 @@ const mutations = {
       }
       console.log(`Would update ${doctype} ${docs.length} docs`)
     }
-    for (const [doctype, docs] of Object.entries(toDelete)) {
+    for (const [doctype, docs] of Object.entries(mutation.toDelete)) {
       if (!docs || docs.length === 0) {
         continue
       }
