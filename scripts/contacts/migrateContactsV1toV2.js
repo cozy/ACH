@@ -126,11 +126,9 @@ async function doMigrations(dryRun, api, logWithInstance) {
     logWithInstance('Dry run: would create contact account', contactAccount)
   } else if (konnectorAccount) {
     const contactAccount = createContactAccount(konnectorAccount, accountName)
-    const response = await api.updateAll(DOCTYPE_CONTACTS_ACCOUNT, [
-      contactAccount
-    ])
+    const response = await api.update(DOCTYPE_CONTACTS_ACCOUNT, contactAccount)
     accountId = konnectorAccount._id
-    contactAccountId = response[0].id
+    contactAccountId = response.id
   }
 
   const updatedContacts = contacts.map(contact =>

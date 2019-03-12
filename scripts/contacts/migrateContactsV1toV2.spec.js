@@ -120,11 +120,9 @@ describe('Contacts: migrate cozy metadata (konnector v1 to v2)', () => {
     fetchJSONSpy.mockResolvedValueOnce(contactsFixture)
 
     // create contact account
-    fetchJSONSpy.mockResolvedValueOnce([
-      {
-        id: CONTACT_ACCOUNT_ID
-      }
-    ])
+    fetchJSONSpy.mockResolvedValueOnce({
+      id: CONTACT_ACCOUNT_ID
+    })
 
     await migrateContactsV1toV2.run(fakeACH, false)
 
