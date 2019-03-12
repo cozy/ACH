@@ -18,7 +18,7 @@ const mkAPI = client => {
     },
 
     update: (doctype, doc) => {
-      return client.fetchJSON('POST', `/data/${doctype}`, doc)
+      return client.fetchJSON('POST', `/data/${doctype}/`, doc)
     },
 
     updateAll: async (doctype, docs) => {
