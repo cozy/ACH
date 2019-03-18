@@ -98,7 +98,7 @@ afterAll(() => {
   MockDate.reset()
 })
 
-describe('Contacts: migrate cozy metadata (konnector v1 to v2)', () => {
+describe('Contacts: migrate contacts v1 to v2', () => {
   const fakeClient = {
     fetchJSON: fetchJSONSpy
   }
@@ -115,9 +115,9 @@ describe('Contacts: migrate cozy metadata (konnector v1 to v2)', () => {
     jest.resetAllMocks()
   })
 
-  it('should migrate cozy metadata', async () => {
-    fetchJSONSpy.mockResolvedValueOnce(accountsFixture)
+  it('should migrate cozy contacts', async () => {
     fetchJSONSpy.mockResolvedValueOnce(contactsFixture)
+    fetchJSONSpy.mockResolvedValueOnce(accountsFixture)
 
     // create contact account
     fetchJSONSpy.mockResolvedValueOnce({
