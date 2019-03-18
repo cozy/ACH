@@ -113,8 +113,13 @@ const getAccountName = contacts => {
 }
 
 async function doMigrations(dryRun, api, logWithInstance) {
-  const accounts = await api.fetchAll(DOCTYPE_ACCOUNTS)
   const contacts = await api.fetchAll(DOCTYPE_CONTACTS)
+  if (contacts.length === 0) {
+    logWithInstance('No contacts, nothing to migrate')
+    return
+  }
+
+  const accounts = await api.fetchAll(DOCTYPE_ACCOUNTS)
   const konnectorAccount = accounts.find(doc => doc.account_type === 'google')
   const accountName = getAccountName(contacts)
 
