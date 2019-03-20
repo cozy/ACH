@@ -7,41 +7,9 @@ jest.mock('../../libs/utils')
 
 const fetchJSONSpy = jest.fn()
 
-const ACCOUNT_ID = '39c86201-8dda-489c-b313-eaa06ca4fe95'
-const CONTACT_ACCOUNT_ID = 'ee942dd5-a562-40b4-864d-162563985639'
+const JOHN_CONTACT_ACCOUNT_ID = 'ee942dd5-a562-40b4-864d-162563985639'
+const JANE_CONTACT_ACCOUNT_ID = 'b8ac66b5-867d-47aa-bab2-bcd9b81cb9ad'
 const MOCKED_DATE = '2017-03-04T08:28:24.054Z'
-
-const accountsFixture = {
-  rows: [
-    {
-      id: 'f0412ccf-aaf2-444c-922f-a7c5e8926705',
-      doc: {
-        account_type: 'whatever'
-      }
-    },
-    {
-      id: ACCOUNT_ID,
-      doc: {
-        _id: ACCOUNT_ID,
-        _rev: '2-8370061d-925b-40ee-b1d5-463d2049ae3f',
-        account_type: 'google',
-        auth: {},
-        name: '',
-        oauth: {
-          access_token: 'xxxxxxxx',
-          expires_at: '2019-03-04T15:28:24.054Z',
-          refresh_token: '1/xxxxxxxx',
-          token_type: 'Bearer'
-        },
-        oauth_callback_results: {
-          id_token: '',
-          scope:
-            'https://www.googleapis.com/auth/contacts.readonly openid https://www.googleapis.com/auth/userinfo.email'
-        }
-      }
-    }
-  ]
-}
 
 const contactsFixture = {
   rows: [
@@ -55,9 +23,48 @@ const contactsFixture = {
         address: [],
         metadata: {
           version: 1,
-          google: { metadata: {}, from: 'appvengers.cedric@gmail.com' }
+          google: {
+            metadata: {},
+            from: 'john@gmail.com'
+          }
         },
-        vendorId: 'people/c104447654193047000'
+        vendorId: 'people/10444765419'
+      }
+    },
+    // another contact imported from google (same account):
+    {
+      id: 'a0a9fb5d-70ac-412d-b923-74dbed191086',
+      doc: {
+        name: { familyName: 'Mathew', givenName: 'Cruickshank' },
+        phone: [],
+        email: [],
+        address: [],
+        metadata: {
+          version: 1,
+          google: {
+            metadata: {},
+            from: 'john@gmail.com'
+          }
+        },
+        vendorId: 'people/1277932194'
+      }
+    },
+    // contact imported from another google account:
+    {
+      id: 'bae637b9-916b-41d1-9e07-cbb59b710a3d',
+      doc: {
+        name: { familyName: 'Cydney', givenName: 'Brown' },
+        phone: [],
+        email: [],
+        address: [],
+        metadata: {
+          version: 1,
+          google: {
+            metadata: {},
+            from: 'jane@gmail.com'
+          }
+        },
+        vendorId: 'people/478836760'
       }
     },
     // contact created in Contacts app:
@@ -116,17 +123,41 @@ describe('Contacts: migrate contacts v1 to v2', () => {
   })
 
   it('should migrate cozy contacts', async () => {
-    fetchJSONSpy.mockResolvedValueOnce(contactsFixture)
-    fetchJSONSpy.mockResolvedValueOnce(accountsFixture)
+    // create io.cozy.contacts.accounts doctype
+    fetchJSONSpy.mockResolvedValueOnce({ ok: true })
 
-    // create contact account
+    // fetch contacts
+    fetchJSONSpy.mockResolvedValueOnce(contactsFixture)
+
+    // create contact accounts
+    fetchJSONSpy.mockResolvedValueOnce([
+      { ok: true, id: JOHN_CONTACT_ACCOUNT_ID, rev: 'rd7e7f3a6' },
+      { ok: true, id: JANE_CONTACT_ACCOUNT_ID, rev: 'r3b01928b' }
+    ])
+
+    // fetch contact accounts
     fetchJSONSpy.mockResolvedValueOnce({
-      id: CONTACT_ACCOUNT_ID
+      rows: [
+        {
+          id: JOHN_CONTACT_ACCOUNT_ID,
+          doc: {
+            _id: JOHN_CONTACT_ACCOUNT_ID,
+            name: 'john@gmail.com'
+          }
+        },
+        {
+          id: JANE_CONTACT_ACCOUNT_ID,
+          doc: {
+            _id: JANE_CONTACT_ACCOUNT_ID,
+            name: 'jane@gmail.com'
+          }
+        }
+      ]
     })
 
     await migrateContactsV1toV2.run(fakeACH, false)
 
-    expect(fetchJSONSpy).toHaveBeenCalledTimes(4)
+    expect(fetchJSONSpy).toHaveBeenCalledTimes(5)
 
     const expectedDocs = [
       {
@@ -142,13 +173,13 @@ describe('Contacts: migrate contacts v1 to v2', () => {
             }
           ],
           updatedAt: MOCKED_DATE,
-          sourceAccount: ACCOUNT_ID,
+          sourceAccount: null,
           sync: {
-            [CONTACT_ACCOUNT_ID]: {
+            [JOHN_CONTACT_ACCOUNT_ID]: {
               konnector: 'konnector-google',
               lastSync: MOCKED_DATE,
-              contactsAccountsId: CONTACT_ACCOUNT_ID,
-              id: 'people/c104447654193047000',
+              contactsAccountsId: JOHN_CONTACT_ACCOUNT_ID,
+              id: 'people/10444765419',
               remoteRev: undefined
             }
           }
@@ -159,13 +190,99 @@ describe('Contacts: migrate contacts v1 to v2', () => {
         email: [],
         address: [],
         metadata: {
-          google: { metadata: {}, from: 'appvengers.cedric@gmail.com' }
+          google: { metadata: {}, from: 'john@gmail.com' }
         },
         relationships: {
           accounts: {
             data: [
               {
-                _id: CONTACT_ACCOUNT_ID,
+                _id: JOHN_CONTACT_ACCOUNT_ID,
+                _type: 'io.cozy.contacts.accounts'
+              }
+            ]
+          }
+        }
+      },
+      {
+        cozyMetadata: {
+          doctypeVersion: 2,
+          createdAt: undefined,
+          createdByApp: 'konnector-google',
+          createdByAppVersion: undefined,
+          updatedByApps: [
+            {
+              date: MOCKED_DATE,
+              slug: 'konnector-google'
+            }
+          ],
+          updatedAt: MOCKED_DATE,
+          sourceAccount: null,
+          sync: {
+            [JOHN_CONTACT_ACCOUNT_ID]: {
+              konnector: 'konnector-google',
+              lastSync: MOCKED_DATE,
+              contactsAccountsId: JOHN_CONTACT_ACCOUNT_ID,
+              id: 'people/1277932194',
+              remoteRev: undefined
+            }
+          }
+        },
+        me: false,
+        name: { familyName: 'Mathew', givenName: 'Cruickshank' },
+        phone: [],
+        email: [],
+        address: [],
+        metadata: {
+          google: { metadata: {}, from: 'john@gmail.com' }
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                _id: JOHN_CONTACT_ACCOUNT_ID,
+                _type: 'io.cozy.contacts.accounts'
+              }
+            ]
+          }
+        }
+      },
+      {
+        cozyMetadata: {
+          doctypeVersion: 2,
+          createdAt: undefined,
+          createdByApp: 'konnector-google',
+          createdByAppVersion: undefined,
+          updatedByApps: [
+            {
+              date: MOCKED_DATE,
+              slug: 'konnector-google'
+            }
+          ],
+          updatedAt: MOCKED_DATE,
+          sourceAccount: null,
+          sync: {
+            [JANE_CONTACT_ACCOUNT_ID]: {
+              konnector: 'konnector-google',
+              lastSync: MOCKED_DATE,
+              contactsAccountsId: JANE_CONTACT_ACCOUNT_ID,
+              id: 'people/478836760',
+              remoteRev: undefined
+            }
+          }
+        },
+        me: false,
+        name: { familyName: 'Cydney', givenName: 'Brown' },
+        phone: [],
+        email: [],
+        address: [],
+        metadata: {
+          google: { metadata: {}, from: 'jane@gmail.com' }
+        },
+        relationships: {
+          accounts: {
+            data: [
+              {
+                _id: JANE_CONTACT_ACCOUNT_ID,
                 _type: 'io.cozy.contacts.accounts'
               }
             ]
@@ -186,7 +303,7 @@ describe('Contacts: migrate contacts v1 to v2', () => {
             }
           ],
           updatedAt: MOCKED_DATE,
-          sourceAccount: undefined,
+          sourceAccount: null,
           sync: undefined
         },
         me: false,
@@ -214,7 +331,7 @@ describe('Contacts: migrate contacts v1 to v2', () => {
             }
           ],
           updatedAt: MOCKED_DATE,
-          sourceAccount: undefined,
+          sourceAccount: null,
           sync: undefined
         },
         me: false,
@@ -230,7 +347,7 @@ describe('Contacts: migrate contacts v1 to v2', () => {
       }
     ]
     expect(fetchJSONSpy).toHaveBeenNthCalledWith(
-      4,
+      5,
       'POST',
       '/data/io.cozy.contacts/_bulk_docs',
       { docs: expectedDocs }
@@ -238,14 +355,25 @@ describe('Contacts: migrate contacts v1 to v2', () => {
   })
 
   it('should not update data in dry run mode', async () => {
-    fetchJSONSpy.mockResolvedValueOnce(accountsFixture)
     fetchJSONSpy.mockResolvedValueOnce(contactsFixture)
 
     await migrateContactsV1toV2.run(fakeACH, true)
 
-    expect(fetchJSONSpy).toHaveBeenCalledTimes(2)
+    expect(fetchJSONSpy).toHaveBeenCalledTimes(1)
     expect(fetchJSONSpy.mock.calls[0][0]).toEqual('GET')
-    expect(fetchJSONSpy.mock.calls[1][0]).toEqual('GET')
-    expect(logWithInstanceSpy).toHaveBeenCalledTimes(4)
+    expect(logWithInstanceSpy).toHaveBeenCalledTimes(5)
+  })
+
+  it("should do nothing if io.cozy.contacts.accounts doctype can't be created", async () => {
+    fetchJSONSpy.mockResolvedValueOnce({ ok: false })
+
+    await migrateContactsV1toV2.run(fakeACH, false)
+
+    expect(fetchJSONSpy).toHaveBeenCalledTimes(1)
+    expect(fetchJSONSpy.mock.calls[0][0]).toEqual('PUT')
+    expect(logWithInstanceSpy).toHaveBeenCalledTimes(1)
+    expect(logWithInstanceSpy).toHaveBeenCalledWith(
+      'Failed to create io.cozy.contacts.accounts'
+    )
   })
 })

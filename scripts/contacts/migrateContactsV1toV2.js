@@ -1,6 +1,7 @@
-const has = require('lodash/has')
+const get = require('lodash/get')
 const isEmpty = require('lodash/isEmpty')
 const omit = require('lodash/omit')
+const uniq = require('lodash/uniq')
 
 const mkAPI = require('../api')
 const {
@@ -42,11 +43,16 @@ const filterContact = contact => {
   return filteredContact
 }
 
-const migrateContactV1toV2 = (contact, accountId, contactAccountId) => {
+const migrateContactV1toV2 = (contact, contactsAccountsMapping) => {
   const now = new Date().toISOString()
   const createdByApp = getCreatedByApp(contact)
   let accounts = []
-  let sourceAccount, sync
+  const contactAccountId = get(
+    contactsAccountsMapping,
+    get(contact, 'metadata.google.from'),
+    null
+  )
+  let sync
   if (contactAccountId && createdByApp === KONNECTOR_APP_NAME) {
     sync = {
       [contactAccountId]: {
@@ -57,7 +63,6 @@ const migrateContactV1toV2 = (contact, accountId, contactAccountId) => {
         remoteRev: undefined
       }
     }
-    sourceAccount = accountId
     accounts = [
       {
         _id: contactAccountId,
@@ -75,7 +80,7 @@ const migrateContactV1toV2 = (contact, accountId, contactAccountId) => {
       createdByApp,
       createdByAppVersion: undefined,
       doctypeVersion: DOCTYPE_CONTACTS_VERSION,
-      sourceAccount,
+      sourceAccount: null,
       updatedAt: now,
       updatedByApps: [
         {
@@ -94,50 +99,60 @@ const migrateContactV1toV2 = (contact, accountId, contactAccountId) => {
   }
 }
 
-const createContactAccount = (account, accountName) => ({
+const createContactAccount = accountName => ({
   canLinkContacts: true,
   shouldSyncOrphan: true,
   lastSync: null,
   lastLocalSync: null,
   name: accountName,
   type: KONNECTOR_APP_NAME,
-  sourceAccount: account._id,
+  sourceAccount: null,
   version: ACCOUNT_APP_VERSION
 })
 
-const getAccountName = contacts => {
-  const contactWithFrom = contacts.find(contact =>
-    has(contact, 'metadata.google.from')
-  )
-  return contactWithFrom ? contactWithFrom.metadata.google.from : ''
-}
-
 async function doMigrations(dryRun, api, logWithInstance) {
+  if (!dryRun) {
+    const result = await api.createDoctype(DOCTYPE_CONTACTS_ACCOUNT)
+    if (!result.ok) {
+      logWithInstance(`Failed to create ${DOCTYPE_CONTACTS_ACCOUNT}`)
+      return
+    }
+  }
+
   const contacts = await api.fetchAll(DOCTYPE_CONTACTS)
   if (contacts.length === 0) {
     logWithInstance('No contacts, nothing to migrate')
     return
   }
 
-  const accounts = await api.fetchAll(DOCTYPE_ACCOUNTS)
-  const konnectorAccount = accounts.find(doc => doc.account_type === 'google')
-  const accountName = getAccountName(contacts)
+  const accountsNames = uniq(
+    contacts
+      .map(contact => get(contact, 'metadata.google.from'))
+      .filter(name => name !== undefined)
+  )
 
-  let accountId, contactAccountId
+  let contactsAccountsMapping = {}
+  const contactsAccounts = accountsNames.map(name => createContactAccount(name))
   if (dryRun) {
-    accountId = 'dryRunAccountId'
-    contactAccountId = 'dryRunContactAccountId'
-    const contactAccount = createContactAccount({ _id: accountId }, accountName)
-    logWithInstance('Dry run: would create contact account', contactAccount)
-  } else if (konnectorAccount) {
-    const contactAccount = createContactAccount(konnectorAccount, accountName)
-    const response = await api.update(DOCTYPE_CONTACTS_ACCOUNT, contactAccount)
-    accountId = konnectorAccount._id
-    contactAccountId = response.id
+    contactsAccounts.forEach(contactAccount => {
+      logWithInstance('Dry run: would create contact account', contactAccount)
+      const name = contactAccount.name
+      contactsAccountsMapping[name] = `contactAccount-${name}`
+    })
+  } else {
+    await api.updateAll(DOCTYPE_CONTACTS_ACCOUNT, contactsAccounts)
+    const createdContactsAccounts = await api.fetchAll(DOCTYPE_CONTACTS_ACCOUNT)
+    contactsAccountsMapping = createdContactsAccounts.reduce(
+      (mapping, contactAccount) => ({
+        ...mapping,
+        [contactAccount.name]: contactAccount._id
+      }),
+      {}
+    )
   }
 
   const updatedContacts = contacts.map(contact =>
-    migrateContactV1toV2(contact, accountId, contactAccountId)
+    migrateContactV1toV2(contact, contactsAccountsMapping)
   )
 
   if (!dryRun) {
@@ -151,7 +166,7 @@ async function doMigrations(dryRun, api, logWithInstance) {
 
   logWithInstance(
     dryRun ? 'Would create' : 'Has created',
-    1,
+    Object.keys(contactsAccountsMapping).length,
     DOCTYPE_CONTACTS_ACCOUNT
   )
 
