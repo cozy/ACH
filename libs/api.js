@@ -1,5 +1,19 @@
 const mkAPI = client => {
   const api = {
+    createDoctype: async doctype => {
+      try {
+        return await client.fetchJSON('PUT', `/data/${doctype}/`)
+      } catch (e) {
+        if (e.reason && e.reason.error === 'file_exists') {
+          return {
+            ok: true,
+            alreadyExists: true
+          }
+        }
+        throw e
+      }
+    },
+
     fetchAll: async doctype => {
       try {
         const result = await client.fetchJSON(
