@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+require('isomorphic-fetch')
 const fs = require('fs')
 const appPackage = require('./package.json')
 const path = require('path')
