@@ -10,13 +10,23 @@ const requireScript = scriptName => {
     try {
       return { ok: true, path, script: require(path) }
     } catch (e) {
-      return { err: true, path: path }
+      return { err: true, errorMessage: e.message, path: path }
     }
   })
   const ok = results.filter(result => result.ok)
   if (ok.length === 0) {
     console.error(`Tried ${results.map(x => x.path).join(',')}`)
-    throw new Error(`No script found for name ${scriptName}`)
+    const errors = results
+      .filter(result => result.err)
+      .filter(
+        result => result.errorMessage !== `Cannot find module '${result.path}'`
+      )
+      .map(result => `${result.path}: ${result.errorMessage}`)
+    if (errors.length > 0) {
+      throw new Error(errors[0])
+    } else {
+      throw new Error(`No script found for name ${scriptName}`)
+    }
   } else if (ok.length === 1) {
     return ok[0].script
   } else {
