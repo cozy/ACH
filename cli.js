@@ -274,13 +274,19 @@ program
   .option('-l, --limit <n>', 'Only take limit instances from the file', x =>
     parseInt(x, 10)
   )
+  .option(
+    '-p, --pool-size <n>',
+    'Limit the number of instances on which we execute the script at the same time',
+    x => parseInt(x, 10)
+  )
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .description('Launch script')
   .action(async function(scriptName, domainsFile, action) {
     const script = scriptLib.require(scriptName)
     try {
       const limit = !isNaN(action.limit) ? action.limit : undefined
-      await runBatch(script, domainsFile, limit, !action.execute)
+      const poolSize = !isNaN(action.poolSize) ? action.poolSize : 30
+      await runBatch(script, domainsFile, limit, poolSize, !action.execute)
     } catch (e) {
       console.error('Error during batch execution')
       console.error(e)

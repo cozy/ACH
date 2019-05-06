@@ -39,7 +39,7 @@ const progress = (i, arr) => {
   }
 }
 
-const runBatch = async (script, domainsFile, limit, dryRun) => {
+const runBatch = async (script, domainsFile, limit, poolSize, dryRun) => {
   const domains = fs
     .readFileSync(domainsFile)
     .toString()
@@ -54,7 +54,7 @@ const runBatch = async (script, domainsFile, limit, dryRun) => {
       progress,
       dryRun
     ),
-    30
+    poolSize
   )
   await pool.start()
   const end = new Date()
