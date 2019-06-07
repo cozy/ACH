@@ -39,10 +39,10 @@ const fetchAll = async (cozyClient, doctype) => {
       .filter(x => x.id.indexOf('_design') !== 0)
       .map(x => x.doc)
   } catch (e) {
-    console.error(e)
     if (e.reason.reason == 'Database does not exist.') {
       return []
     }
+    console.error(e)
     throw e
   }
 }
