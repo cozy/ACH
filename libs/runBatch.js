@@ -39,12 +39,24 @@ const progress = (i, arr) => {
   }
 }
 
-const runBatch = async (script, domainsFile, limit, poolSize, dryRun) => {
-  const domains = fs
+const runBatch = async ({
+  script,
+  domainsFile,
+  limit,
+  poolSize,
+  dryRun,
+  fromDomain
+}) => {
+  let domains = fs
     .readFileSync(domainsFile)
     .toString()
     .split('\n')
     .filter(x => x != '')
+
+  if (fromDomain) {
+    const i = domains.findIndex(domain => domain === fromDomain)
+    domains = domains.slice(i)
+  }
 
   const start = new Date()
   const pool = new PromisePool(

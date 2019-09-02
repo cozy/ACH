@@ -275,6 +275,10 @@ program
     parseInt(x, 10)
   )
   .option(
+    '--fromDomain <domain>',
+    'Only consider <domainsFile> from <domain>. Useful for unfinished jobs.'
+  )
+  .option(
     '-p, --pool-size <n>',
     'Limit the number of instances on which we execute the script at the same time',
     x => parseInt(x, 10)
@@ -286,7 +290,15 @@ program
     try {
       const limit = !isNaN(action.limit) ? action.limit : undefined
       const poolSize = !isNaN(action.poolSize) ? action.poolSize : 30
-      await runBatch(script, domainsFile, limit, poolSize, !action.execute)
+      const dryRun = !action.execute
+      await runBatch({
+        script,
+        domainsFile,
+        limit,
+        poolSize,
+        dryRun,
+        fromDomain: action.fromDomain
+      })
     } catch (e) {
       console.error('Error during batch execution')
       console.error(e)
