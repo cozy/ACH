@@ -1,7 +1,7 @@
 var readline = require('readline')
 
 const askInput = question =>
-  new Promise(resolve => {
+  new Promise((resolve, reject) => {
     try {
       console.log(question)
       const rl = readline.createInterface({
