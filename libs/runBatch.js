@@ -2,6 +2,7 @@ const PromisePool = require('es6-promise-pool')
 const ACH = require('./ACH')
 const log = require('./log')
 const admin = require('./admin')
+const config = require('./config')
 const fs = require('fs')
 
 const runScript = async (script, domain, dryRun) => {
@@ -39,12 +40,25 @@ const progress = (i, arr) => {
   }
 }
 
-const runBatch = async (script, domainsFile, limit, poolSize, dryRun) => {
-  const domains = fs
+const runBatch = async ({
+  script,
+  domainsFile,
+  limit,
+  poolSize,
+  dryRun,
+  fromDomain
+}) => {
+  await config.loadConfig()
+  let domains = fs
     .readFileSync(domainsFile)
     .toString()
     .split('\n')
     .filter(x => x != '')
+
+  if (fromDomain) {
+    const i = domains.findIndex(domain => domain === fromDomain)
+    domains = domains.slice(i)
+  }
 
   const start = new Date()
   const pool = new PromisePool(

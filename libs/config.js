@@ -1,7 +1,25 @@
-/**
- * Sample config file to put in ~/.ACH.json
+var readline = require('readline')
 
-```
+const askInput = question =>
+  new Promise((resolve, reject) => {
+    try {
+      console.log(question)
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+        terminal: false
+      })
+
+      rl.on('line', function(cmd) {
+        resolve(cmd)
+      })
+    } catch (e) {
+      reject(e)
+    }
+  })
+
+// Sample config file to put in ~/.ACH.json
+const SAMPLE = `
 {
   "envs": {
     "dev": {
@@ -26,16 +44,20 @@
     }
   }
 }
-```
-
- */
+`
 
 const fs = require('fs')
 
-const loadConfig = configPath => {
+let config
+
+/**
+ * Must be called prior to call getAdminConfigForDomain
+ */
+const loadConfig = async () => {
+  const configPath = `${process.env.HOME}/.ACH.json`
   if (fs.existsSync(configPath)) {
     try {
-      return JSON.parse(fs.readFileSync(configPath).toString())
+      config = JSON.parse(fs.readFileSync(configPath).toString())
     } catch (e) {
       console.error(
         `Config file ${configPath} does not seem to be a valid JSON.`
@@ -43,12 +65,19 @@ const loadConfig = configPath => {
       throw new Error('Wrong config file')
     }
   } else {
-    return {}
+    const answer = await askInput(
+      `${configPath} does not exist, do you want to create a sample file in ${configPath}, y to say yes.`
+    )
+    if (answer.trim() === 'y') {
+      fs.writeFileSync(configPath, SAMPLE)
+      console.log(`Created ${configPath}, exiting to let you fill it...`)
+      process.exit(0)
+    } else {
+      console.log('Did not create sample file, exiting...')
+      process.exit(1)
+    }
   }
 }
-
-const CONFIG_PATH = `${process.env.HOME}/.ACH.json`
-const config = loadConfig(CONFIG_PATH)
 
 const domainToEnv = {
   'cozy.wtf': 'dev',
@@ -75,5 +104,6 @@ const getAdminConfigForDomain = domain => {
 }
 
 module.exports = {
-  getAdminConfigForDomain
+  getAdminConfigForDomain,
+  loadConfig
 }

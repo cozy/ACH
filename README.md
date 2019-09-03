@@ -27,27 +27,27 @@ the result of `yarn global bin`.
 ## Usage
 
 ```
-$ ACH --help
+Usage: ACH [options] [command]
 
-  Usage: ACH [options] [command]
+Options:
+  -V, --version                               output the version number
+  -t --token [token]                          Token file to use
+  -y --yes                                    Does not ask for confirmation on sensitive operations
+  -u --url [url]                              URL of the cozy to use. Defaults to "http://cozy.tools:8080".' (default: "http://cozy.tools:8080")
+  -h, --help                                  output usage information
 
-
-  Options:
-
-    -V, --version       output the version number
-    -t --token [token]  Token file to use (defaults to token.json)
-    -y --yes            Does not ask for confirmation on sensitive operations
-    -u --url [url]      URL of the cozy to use. Defaults to "http://cozy.tools:8080".'
-    -h, --help          output usage information
-
-
-  Commands:
-
-    import [options] [filepath] [handlebarsOptionsFile]  The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).
-    importDir [directoryPath]                            The path to the directory content to import. Defaults to "./DirectoriesToInject".
-    generateFiles [path] [filesCount]                    Create any number of small files on the Cozy.
-    drop <doctypes...>                                   Deletes all documents of the provided doctypes. For real.
-    export [doctypes] [filename]                         Exports data from the doctypes (separated by commas) to filename
+Commands:
+  import <filepath> [handlebarsOptionsFile]   The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).
+  importDir <directoryPath>                   The path to the directory content to import. Defaults to "./DirectoriesToInject".
+  generateFiles [path] [filesCount]           Generates a given number of small files.
+  drop <doctypes...>                          Deletes all documents of the provided doctypes. For real.
+  export <doctypes> [filename]                Exports data from the doctypes (separated by commas) to filename
+  downloadFile <fileid>                       Download the file
+  delete <doctype> <ids...>                   Delete document(s)
+  updateSettings                              Update settings
+  script [options] <scriptName>               Launch script
+  ls-scripts                                  Lists all built-in scripts, useful for autocompletion
+  batch [options] <scriptName> <domainsFile>  Launch script
 ```
 
 ## Examples
@@ -207,5 +207,3 @@ env ACH_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.
 ```
 
 `ACH_KEEP_REV` does the same to keep the `_rev` field.
-
-
