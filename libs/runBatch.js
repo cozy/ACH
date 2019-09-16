@@ -67,6 +67,20 @@ const progress = (i, arr) => {
   }
 }
 
+/**
+ * Reads a domain file into an Array
+ *
+ * Each domain is on 1 line
+ * Empty lines ares removed
+ */
+const readDomainFile = filename => {
+  return fs
+    .readFileSync(filename)
+    .toString()
+    .split('\n')
+    .filter(x => x != '')
+}
+
 const runBatch = async ({
   script,
   domains,
@@ -83,13 +97,7 @@ const runBatch = async ({
       'runBatch: Invalid arguments. Need at least `domains` or `domainsFile`'
     )
   }
-  domains =
-    domains ||
-    fs
-      .readFileSync(domainsFile)
-      .toString()
-      .split('\n')
-      .filter(x => x != '')
+  domains = domains || readDomainFile(domainsFile)
 
   if (fromDomain) {
     const i = domains.findIndex(domain => domain === fromDomain)
