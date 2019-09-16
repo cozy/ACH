@@ -154,6 +154,7 @@ module.exports = (tokenPath, cozyUrl, docTypes) => {
         )
       } else {
         console.warn(err)
+        throw new Error('Could not create client, see error above.')
       }
 
       return err

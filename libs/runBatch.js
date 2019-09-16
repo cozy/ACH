@@ -4,32 +4,59 @@ const log = require('./log')
 const admin = require('./admin')
 const config = require('./config')
 const fs = require('fs')
+const CozyClient = require('cozy-client').default
 
-const runScript = async (script, domain, dryRun) => {
+const namespacedLogger = namespace => ({
+  log: console.log.bind(console, namespace),
+  warn: console.warn.bind(console, namespace),
+  info: console.info.bind(console, namespace),
+  error: console.error.bind(console, namespace)
+})
+
+const runScript = async (script, domain, globalCtx) => {
   const doctypes = script.getDoctypes()
   const token =
     process.env.BATCH_TOKEN || (await admin.createToken(domain, doctypes))
+
   const protocol = domain === 'cozy.tools:8080' ? 'http' : 'https'
   const ach = new ACH(token, protocol + '://' + domain, doctypes)
   await ach.connect()
-  return script.run(ach, dryRun)
+  const client = CozyClient.fromOldClient(ach.client)
+  const logger = namespacedLogger(domain)
+  const localCtx = {
+    client,
+    logger
+  }
+  return script.run({
+    ...globalCtx,
+    ...localCtx
+  })
 }
 
-const runScriptPool = function*(script, domains, progress, dryRun) {
+const runScriptPool = function*(script, domains, progress, globalCtx) {
   let i = 0
 
   for (const domain of domains) {
-    const onResultOrError = (domain => res => {
-      if (res instanceof Error) {
-        res = { message: res.message, stack: res.stack }
+    const onResultOrError = (domain => (type, res) => {
+      if (type == 'catch') {
+        res = {
+          error: {
+            message: res.message,
+            stack: res.stack
+          }
+        }
       }
       i++
-      console.log(JSON.stringify({ ...res, domain }))
+      const data = { ...res, domain }
+      if (globalCtx.verbose) {
+        console.log(JSON.stringify(data))
+      }
       progress(i, domains)
+      return data
     })(domain)
-    yield runScript(script, domain, dryRun).then(
-      onResultOrError,
-      onResultOrError
+    yield runScript(script, domain, globalCtx).then(
+      onResultOrError.bind(null, 'then'),
+      onResultOrError.bind(null, 'catch')
     )
   }
 }
@@ -44,10 +71,11 @@ const runBatch = async ({
   script,
   domains,
   domainsFile,
-  limit,
-  poolSize,
-  dryRun,
-  fromDomain
+  limit = null,
+  poolSize = 10,
+  dryRun = true,
+  fromDomain = null,
+  verbose = true
 }) => {
   await config.loadConfig()
   if (!domains && !domainsFile) {
@@ -68,19 +96,37 @@ const runBatch = async ({
     domains = domains.slice(i)
   }
 
+  // An object that will be passed to functions run on each cozy
+  // Can be used to store global stats
+  const stats = {}
+
+  const globalCtx = {
+    stats,
+    dryRun,
+    verbose
+  }
+
   const start = new Date()
   const pool = new PromisePool(
     runScriptPool(
       script,
       limit ? domains.slice(0, limit) : domains,
       progress,
-      dryRun
+      globalCtx
     ),
     poolSize
   )
+  const results = []
+  pool.addEventListener('fulfilled', function(event) {
+    results.push(event.data.result)
+  })
   await pool.start()
   const end = new Date()
   log.success(`Done in ${Math.round((end - start) / 1000, 2)}s`)
+  return {
+    results,
+    stats
+  }
 }
 
 module.exports = runBatch
