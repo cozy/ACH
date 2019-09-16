@@ -33,24 +33,26 @@ const runScript = async (script, domain, globalCtx) => {
   })
 }
 
+const makeResultFromError = err => ({
+  error: {
+    message: err.message,
+    stack: err.stack
+  }
+})
+
 const runScriptPool = function*(script, domains, progress, globalCtx) {
   let i = 0
 
   for (const domain of domains) {
     const onResultOrError = (domain => (type, res) => {
       if (type == 'catch') {
-        res = {
-          error: {
-            message: res.message,
-            stack: res.stack
-          }
-        }
+        res = makeResultFromError(res)
       }
-      i++
       const data = { ...res, domain }
       if (globalCtx.verbose) {
         console.log(JSON.stringify(data))
       }
+      i++
       progress(i, domains)
       return data
     })(domain)
