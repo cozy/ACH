@@ -42,6 +42,7 @@ const progress = (i, arr) => {
 
 const runBatch = async ({
   script,
+  domains,
   domainsFile,
   limit,
   poolSize,
@@ -49,11 +50,18 @@ const runBatch = async ({
   fromDomain
 }) => {
   await config.loadConfig()
-  let domains = fs
-    .readFileSync(domainsFile)
-    .toString()
-    .split('\n')
-    .filter(x => x != '')
+  if (!domains && !domainsFile) {
+    throw new Error(
+      'runBatch: Invalid arguments. Need at least `domains` or `domainsFile`'
+    )
+  }
+  domains =
+    domains ||
+    fs
+      .readFileSync(domainsFile)
+      .toString()
+      .split('\n')
+      .filter(x => x != '')
 
   if (fromDomain) {
     const i = domains.findIndex(domain => domain === fromDomain)
