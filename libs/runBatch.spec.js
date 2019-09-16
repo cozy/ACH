@@ -11,6 +11,11 @@ jest.mock('./admin', () => ({
   createToken: jest.fn().mockReturnValue('mock-token')
 }))
 
+jest.mock('./config', () => ({
+  loadConfig: () => {},
+  getAdminConfigForDomain: () => {}
+}))
+
 describe('batch', () => {
   beforeEach(() => {
     // Return a fake cozy-client-js
