@@ -37,7 +37,7 @@ const makeResultFromError = err => ({
   }
 })
 
-const runScriptPool = function*(script, domains, progress, globalCtx) {
+const runScriptPool = function*(script, domains, globalCtx, progress) {
   let i = 0
 
   for (const domain of domains) {
@@ -46,9 +46,6 @@ const runScriptPool = function*(script, domains, progress, globalCtx) {
         res = makeResultFromError(res)
       }
       const data = { ...res, domain }
-      if (globalCtx.verbose) {
-        console.log(JSON.stringify(data))
-      }
       i++
       progress(i, domains)
       return data
@@ -111,7 +108,7 @@ const runBatch = async ({
   poolSize = 10,
   dryRun = true,
   fromDomain = null,
-  verbose = true
+  logResults = true
 }) => {
   await config.loadConfig()
   if (!domains && !domainsFile) {
@@ -134,8 +131,7 @@ const runBatch = async ({
   // `run` function
   const globalCtx = {
     stats,
-    dryRun,
-    verbose
+    dryRun
   }
 
   const start = new Date()
@@ -143,14 +139,17 @@ const runBatch = async ({
     runScriptPool(
       script,
       limit ? domains.slice(0, limit) : domains,
-      progress,
-      globalCtx
+      globalCtx,
+      progress
     ),
     poolSize
   )
   const results = []
   pool.addEventListener('fulfilled', function(event) {
     results.push(event.data.result)
+    if (logResults) {
+      console.log(JSON.stringify(event.data.result))
+    }
   })
   await pool.start()
   const end = new Date()

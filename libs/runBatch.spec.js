@@ -59,7 +59,7 @@ describe('batch', () => {
         'klmno.mycozy.cloud'
       ],
       script,
-      verbose: false
+      logResults: false
     })
 
     expect(script.run).toHaveBeenCalledTimes(3)
@@ -67,8 +67,7 @@ describe('batch', () => {
       client: expect.any(CozyClient),
       dryRun: true,
       logger: expect.any(Object),
-      stats: expect.any(Object),
-      verbose: false
+      stats: expect.any(Object)
     })
     expect(res.stats.count).toBe(3)
     expect(res.results.map(r => r.reversedDomain)).toEqual([
@@ -102,7 +101,7 @@ describe('batch', () => {
         'klmno.mycozy.cloud'
       ],
       script,
-      verbose: false
+      logResults: false
     })
 
     expect(script.run).toHaveBeenCalledTimes(3)
@@ -110,8 +109,7 @@ describe('batch', () => {
       client: expect.any(CozyClient),
       dryRun: true,
       logger: expect.any(Object),
-      stats: expect.any(Object),
-      verbose: false
+      stats: expect.any(Object)
     })
     expect(res.stats.count).toBe(2)
     expect(
