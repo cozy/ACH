@@ -23,13 +23,10 @@ const runScript = async (script, domain, globalCtx) => {
   await ach.connect()
   const client = CozyClient.fromOldClient(ach.client)
   const logger = namespacedLogger(domain)
-  const localCtx = {
-    client,
-    logger
-  }
   return script.run({
     ...globalCtx,
-    ...localCtx
+    client,
+    logger
   })
 }
 
@@ -83,6 +80,29 @@ const readDomainFile = filename => {
     .filter(x => x != '')
 }
 
+/**
+ * Provides a way to run a function across a large number of
+ * cozies.
+ *
+ * @param  {Object}  options.script - { run, getDoctypes }
+ * Must be an object containing
+ *
+ * - a `getDoctypes` function returning the doctypes needed for the script
+ * - a `run` function that will receive a `context` object containing
+ *   - `client`: an authorized CozyClient
+ *   - `logger`: a logger namespaced with the domain of the cozy
+ *   - `dryRun`: whether the script should be in dry-run mode
+ *
+ * @param  {Array}  options.domains     - List of cozy domains the script will be run on
+ * @param  {String}  options.domainsFile - File containing a list of domains the script will run on
+ * @param  {Boolean} options.dryRun - Will be passed by the `run` function that must handle it
+ * @param  {Boolean} options.verbose - Whether each result of `run` should be logged to stdout
+ *
+ * @param  {Number}  options.limit
+ * @param  {Number}  options.poolSize
+ * @param  {String}  options.fromDomain
+ * @return {Promise}
+ */
 const runBatch = async ({
   script,
   domains,
@@ -110,6 +130,8 @@ const runBatch = async ({
   // Can be used to store global stats
   const stats = {}
 
+  // Will be spread into the context object passed to scripts'
+  // `run` function
   const globalCtx = {
     stats,
     dryRun,
