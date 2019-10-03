@@ -139,8 +139,32 @@ const startSSHTunnel = async ({
   }
 }
 
+const getLogsFromJob = (env, jobID) =>
+  new Promise(resolve => {
+    const config = getAdminConfigForEnv(env)
+    if (!config.logs) {
+      throw new Error('Not "logs" section in ACH config for env ' + env)
+    }
+    const spawned = spawn('ssh', [
+      '-tt',
+      '-N',
+      '-f',
+      `${configs.logs.user}@${config.logs.host}`,
+      'grep',
+      jobID,
+      config.logs.host
+    ])
+
+    let stdout = ''
+    spawned.stdout.on('data', data => (stdout += data.toString()))
+    spawned.on('exit', () => {
+      resolve(stdout)
+    })
+  })
+
 module.exports = {
   withEnvTunnel,
+  getLogsFromJob,
   createToken,
   enableDebug,
   disableDebug
