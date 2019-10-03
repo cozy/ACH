@@ -4,7 +4,7 @@ const { getAdminConfigForDomain } = require('./config')
 
 // Required since we use a self signed certificate
 const https = require('https')
-const agent = new https.Agent({
+const httpsAgent = new https.Agent({
   rejectUnauthorized: false
 })
 
@@ -24,7 +24,7 @@ const baseFetch = (domain, route, options) => {
       Accept: 'application/json',
       ...(options.headers || {})
     },
-    agent
+    agent: adminURL.startsWith('https') ? httpsAgent : undefined
   }
   return fetch(url, allOptions).then(async resp => {
     if (resp.status > 299 && resp.status >= 200) {
