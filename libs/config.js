@@ -89,7 +89,14 @@ const domainToEnv = {
   'tools:8080': 'local'
 }
 
+const getAdminConfigForEnv = env => {
+  return config.envs[env]
+}
+
 const getAdminConfigForDomain = domain => {
+  if (!config) {
+    throw new Error('Please call loadConfig before')
+  }
   const host = domain
     .split('.')
     .slice(1)
@@ -107,5 +114,6 @@ const getAdminConfigForDomain = domain => {
 
 module.exports = {
   getAdminConfigForDomain,
+  getAdminConfigForEnv,
   loadConfig
 }
