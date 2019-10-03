@@ -49,6 +49,19 @@ const createToken = (domain, doctypes) => {
   }).then(resp => resp.text())
 }
 
+const enableDebug = domain => {
+  return baseFetch(domain, `/instances/${domain}/debug`, {
+    method: 'POST'
+  })
+}
+
+const disableDebug = domain => {
+  return baseFetch(domain, `/instances/${domain}/debug`, {
+    method: 'DELETE'
+  })
+}
 module.exports = {
   createToken
+  enableDebug,
+  disableDebug
 }
