@@ -27,7 +27,7 @@ const baseFetch = (domain, route, options) => {
     agent
   }
   return fetch(url, allOptions).then(async resp => {
-    if (resp.status !== 200) {
+    if (resp.status > 299 && resp.status >= 200) {
       throw resp
     } else {
       return resp
