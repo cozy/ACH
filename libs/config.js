@@ -89,6 +89,19 @@ const domainToEnv = {
   'tools:8080': 'local'
 }
 
+const getEnvFromClient = client => {
+  const uri = client.stackClient.uri
+  const domain = uri
+    .split('.')
+    .slice(-2)
+    .join('.')
+  const env = domainToEnv[domain]
+  if (!env) {
+    throw new Error(`Cannot found env for ${uri}`)
+  }
+  return env
+}
+
 const getAdminConfigForEnv = env => {
   return config.envs[env]
 }
@@ -115,5 +128,6 @@ const getAdminConfigForDomain = domain => {
 module.exports = {
   getAdminConfigForDomain,
   getAdminConfigForEnv,
+  getEnvFromClient,
   loadConfig
 }

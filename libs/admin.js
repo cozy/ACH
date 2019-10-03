@@ -145,11 +145,13 @@ const getLogsFromJob = (env, jobID) =>
     if (!config.logs) {
       throw new Error('Not "logs" section in ACH config for env ' + env)
     }
+
+    // TODO should use a graylog query
     const spawned = spawn('ssh', [
       '-tt',
       '-N',
       '-f',
-      `${configs.logs.user}@${config.logs.host}`,
+      `${config.logs.user}@${config.logs.host}`,
       'grep',
       jobID,
       config.logs.host
