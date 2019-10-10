@@ -2,7 +2,6 @@ jest.mock('node-fetch')
 jest.mock('./config', () => ({
   loadConfig: jest.fn(),
   getAdminConfigForEnv: env => {
-    console.lo
     if (env === 'prod') {
       return {
         adminURL: 'http://localhost:6065',
