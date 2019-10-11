@@ -73,7 +73,7 @@ const startEnvTunnel = async env => {
 
   const config = getAdminConfigForEnv(env)
   const host = config['host']
-  const remotePort = '6060'
+  const remotePort = '6061'
   const localPort = config['adminURL'].split(':').slice(-1)[0]
   return startSSHTunnel({ host, remotePort, localPort })
 }
