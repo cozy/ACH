@@ -179,9 +179,9 @@ You can import to a remote Cozy with the `--url` option :
 $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js --url https://recette.cozy.works
 ```
 
-### Import repositories with files
+### Import directories with files
 
-You can also import a full repository content into a Cozy by using the command `importDir`:
+To import a directory into a Cozy, use the `importDir` command:
 
 ```shell
 $ ACH importDir myDirectoryPath # default will be ./DirectoriesToInject
