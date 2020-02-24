@@ -21,18 +21,6 @@ process.on('unhandledRejection', function(err) {
   log.error('Unhandled promise rejection.\n' + err.stack)
 })
 
-// the CLI interface
-let program = require('commander')
-program
-  .version(appPackage.version)
-  .option('-t --token [token]', 'Token file to use')
-  .option('-y --yes', 'Does not ask for confirmation on sensitive operations')
-  .option(
-    '-u --url [url]',
-    `URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`,
-    DEFAULT_COZY_URL
-  )
-
 function fileExists(p) {
   if (p && !fs.existsSync(path.resolve(p))) {
     return false
@@ -46,7 +34,9 @@ const logAndExit = e => {
   process.exit(1)
 }
 
-const handleImportCommand = (filepath, handlebarsOptionsFile) => {
+const handleImportCommand = args => {
+  const { filepath, handlebarsOptionsFile, url } = args
+  let { token } = args
   assert(fileExists(filepath), `${filepath} does not exist`)
   assert(
     fileExists(handlebarsOptionsFile),
@@ -57,21 +47,22 @@ const handleImportCommand = (filepath, handlebarsOptionsFile) => {
   const templateDir = path.dirname(path.resolve(filepath))
   const data = parseDataFile(filepath, handlebarsOptions)
   const doctypes = Object.keys(data)
-  const { url } = program
-  const token = program.token || autotoken(url, doctypes)
-
+  token = token || autotoken(url, doctypes)
   return importData(url, token, data, templateDir, options).catch(logAndExit)
 }
 
-const handleImportDirCommand = directoryPath => {
+const handleImportDirCommand = args => {
+  const { url } = args
+  let { directoryPath, token } = args
   if (!directoryPath) directoryPath = './DirectoriesToInject'
 
   // get directories tree in JSON format
   const dirTree = require('directory-tree')
   const JSONtree = dirTree(directoryPath, {})
 
-  const { url, token } = program
-  const ach = new ACH(token, url, ['io.cozy.files'])
+  const doctypes = ['io.cozy.files']
+  token = token || autotoken(url, doctypes)
+  const ach = new ACH(token, url, doctypes)
   ach
     .connect()
     .then(() => {
@@ -80,8 +71,8 @@ const handleImportDirCommand = directoryPath => {
     .catch(logAndExit)
 }
 
-const handleGenerateFilesCommand = (path = '/', filesCount = 10) => {
-  const { url, token } = program
+const handleGenerateFilesCommand = args => {
+  const { path = '/', filesCount = 10, url, token } = args
   const ach = new ACH(token, url, ['io.cozy.files'])
   ach
     .connect()
@@ -91,14 +82,18 @@ const handleGenerateFilesCommand = (path = '/', filesCount = 10) => {
     .catch(logAndExit)
 }
 
-const handleDropCommand = doctypes => {
+const handleDropCommand = args => {
+  const { doctypes, yes, url } = args
+  let { token } = args
+  token = token || autotoken(url, doctypes)
+
   const question = `This doctypes will be removed.
 
 ${doctypes.map(x => `* ${x}`).join(' \n')}
 
 Type "yes" if ok.
 `
-  const confirm = program.yes
+  const confirm = yes
     ? function(question, cb) {
         cb()
       }
@@ -106,8 +101,6 @@ Type "yes" if ok.
   confirm(
     question,
     () => {
-      // get the url of the cozy
-      const { url, token } = program
       const ach = new ACH(token, url, doctypes)
       ach
         .connect()
@@ -122,10 +115,10 @@ Type "yes" if ok.
   )
 }
 
-const handleExportCommand = (doctypes, filename) => {
-  doctypes = doctypes.split(',')
-  const url = program.url
-  const token = program.token || autotoken(url, doctypes)
+const handleExportCommand = args => {
+  let { doctypes, filename, url, token } = args
+  doctypes = doctypes.split(',') // should be done with type
+  token = token || autotoken(url, doctypes)
   const ach = new ACH(token, url, doctypes)
   ach
     .connect()
@@ -135,9 +128,10 @@ const handleExportCommand = (doctypes, filename) => {
     .catch(logAndExit)
 }
 
-const handleUpdateSettingsCommand = settings => {
-  const { url, token } = program
-  settings = JSON.parse(settings)
+const handleUpdateSettingsCommand = args => {
+  const { url, token } = args
+  let { settings } = args
+  settings = JSON.parse(settings) // should be done with type
   const ach = new ACH(token, url, ['io.cozy.settings'])
   ach
     .connect()
@@ -147,8 +141,8 @@ const handleUpdateSettingsCommand = settings => {
     .catch(logAndExit)
 }
 
-const handleGenerateTokenCommand = doctypes => {
-  const { url, token } = program
+const handleGenerateTokenCommand = args => {
+  const { url, token, doctypes } = args
   const ach = new ACH(token, url, doctypes)
   ach
     .connect()
@@ -158,19 +152,21 @@ const handleGenerateTokenCommand = doctypes => {
     .catch(logAndExit)
 }
 
-const handleBatchCommand = async function(scriptName, domainsFile, action) {
+const handleBatchCommand = async function(args) {
+  const { scriptName, domainsFile, execute, fromDomain } = args
+  let { poolSize, limit } = args
   const script = scriptLib.require(scriptName)
   try {
-    const limit = !isNaN(action.limit) ? action.limit : undefined
-    const poolSize = !isNaN(action.poolSize) ? action.poolSize : 30
-    const dryRun = !action.execute
+    limit = !isNaN(limit) ? limit : undefined
+    poolSize = !isNaN(poolSize) ? poolSize : 30
+    const dryRun = !execute
     await runBatch({
       script,
       domainsFile,
       limit,
       poolSize,
       dryRun,
-      fromDomain: action.fromDomain
+      fromDomain
     })
   } catch (e) {
     console.error('Error during batch execution')
@@ -179,34 +175,33 @@ const handleBatchCommand = async function(scriptName, domainsFile, action) {
   }
 }
 
-const handleScriptCommand = function(scriptName, action) {
+const handleScriptCommand = function(args) {
+  const { scriptName, autotoken, execute, url } = args
+  let { token } = args
   const script = scriptLib.require(scriptName)
   const { getDoctypes, run } = script
-  const url = program.url
   const doctypes = getDoctypes()
-  let token = program.token
-  if (action.autotoken) {
+  if (autotoken) {
     token = autotoken(url, doctypes)
   }
 
-  if (action.doctypes) {
-    console.log(doctypes.join(' '))
-  } else {
-    const ach = new ACH(token, url, doctypes)
-    const dryRun = !action.execute
-    log.info(`Launching script ${scriptName}...`)
-    log.info(`Dry run : ${dryRun}`)
-    ach
-      .connect()
-      .then(() => {
-        return run(ach, dryRun)
-      })
-      .catch(logAndExit)
-  }
-const handleDownloadFileCommand = fileid => {
+  const ach = new ACH(token, url, doctypes)
+  const dryRun = !execute
+  log.info(`Launching script ${scriptName}...`)
+  log.info(`Dry run : ${dryRun}`)
+  ach
+    .connect()
+    .then(() => {
+      return run(ach, dryRun)
+    })
+    .catch(logAndExit)
+}
+
+const handleDownloadFileCommand = args => {
+  const { url, fileid } = args
+  let { token } = args
   const doctypes = ['io.cozy.files']
-  const url = program.url
-  const token = program.token || autotoken(url, doctypes)
+  token = token || autotoken(url, doctypes) // should be done with types
   const ach = new ACH(token, url, doctypes)
   ach
     .connect()
@@ -232,8 +227,8 @@ const isCommandAvailable = command => {
   }
 }
 
-const handleDeleteDocumentsCommand = (doctype, ids) => {
-  const { url, token } = program
+const handleDeleteDocumentsCommand = args => {
+  const { url, token, doctype, ids } = args
   const ach = new ACH(token, url, [doctype])
   ach
     .connect()
@@ -268,56 +263,121 @@ const autotoken = (url, doctypes) => {
   }
 }
 
+// the CLI interface
+let program = require('commander')
+program
+  .version(appPackage.version)
+  .option('-t --token [token]', 'Token file to use')
+  .option('-y --yes', 'Does not ask for confirmation on sensitive operations')
+  .option(
+    '-u --url [url]',
+    `URL of the cozy to use. Defaults to "${DEFAULT_COZY_URL}".'`,
+    DEFAULT_COZY_URL
+  )
+
 program
   .command('import <filepath> [handlebarsOptionsFile]')
   .description(
     'The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).'
   )
-  .action(handleImportCommand)
+  .action(function(filepath, handlebarsOptionsFile) {
+    handleImportCommand({
+      url: program.url,
+      token: program.token,
+      filepath,
+      handlebarsOptionsFile
+    })
+  })
 
 program
   .command('importDir <directoryPath>')
   .description(
     'The path to the directory content to import. Defaults to "./DirectoriesToInject".'
   )
-  .action(handleImportDirCommand)
+  .action(function(directoryPath) {
+    handleImportDirCommand({
+      url: program.url,
+      token: program.token,
+      directoryPath
+    })
+  })
 
 program
   .command('generateFiles [path] [filesCount]')
   .description('Generates a given number of small files.')
-  .action(handleGenerateFilesCommand)
+  .action(function(path, filesCount) {
+    handleGenerateFilesCommand({ path, filesCount })
+  })
 
 program
   .command('drop <doctypes...>')
+  .option('-y, --yes', 'Do not ask for confirmation')
   .description('Deletes all documents of the provided doctypes. For real.')
-  .action(handleDropCommand)
+  .action(function(doctypes, action) {
+    handleDropCommand({
+      url: program.url,
+      token: program.token,
+      doctypes,
+      yes: program.yes
+    })
+  })
 
 program
   .command('export <doctypes> [filename]')
   .description(
     'Exports data from the doctypes (separated by commas) to filename'
   )
-  .action(handleExportCommand)
+  .action(function(doctypes, filename) {
+    handleExportCommand({
+      url: program.url,
+      token: program.token,
+      doctypes,
+      filename
+    })
+  })
 
 program
   .command('downloadFile <fileid>')
   .description('Download the file')
-  .action(handleDownloadFileCommand)
+  .action(function(fileid) {
+    handleDownloadFileCommand({
+      url: program.url,
+      token: program.token,
+      fileid
+    })
+  })
 
 program
   .command('delete <doctype> <ids...>')
   .description('Delete document(s)')
-  .action(handleDeleteDocumentsCommand)
+  .action(function(doctype, ids) {
+    handleDeleteDocumentsCommand({
+      url: program.url,
+      token: program.token,
+      doctype,
+      ids
+    })
+  })
 
 program
   .command('updateSettings')
   .description('Update settings')
-  .action(handleUpdateSettingsCommand)
+  .action(function(settings) {
+    handleUpdateSettingsCommand({
+      url: program.url,
+      token: program.token,
+      settings
+    })
+  })
 
 program
   .command('token <doctypes...>')
   .description('Generate token')
-  .action(handleGenerateTokenCommand)
+  .action(function(doctypes) {
+    handleGenerateTokenCommand({
+      doctypes
+    })
+  })
 
 program
   .command('script <scriptName>')
@@ -325,7 +385,14 @@ program
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .option('-d, --doctypes', 'Print necessary doctypes (useful for automation)')
   .description('Launch script')
-  .action(handleScriptCommand)
+  .action(function(scriptName, action) {
+    handleScriptCommand({
+      url: program.url,
+      token: program.token,
+      scriptName,
+      ...action
+    })
+  })
 
 program
   .command('ls-scripts')
@@ -348,7 +415,15 @@ program
   )
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .description('Launch script')
-  .action(handleBatchCommand)
+  .action(function(scriptName, domainsFile, action) {
+    handleBatchCommand({
+      url: program.url,
+      token: program.token,
+      scriptName,
+      domainsFile,
+      ...action
+    })
+  })
 
 const findCommand = program => {
   const lastArg = program.args[program.args.length - 1]
