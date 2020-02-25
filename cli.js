@@ -83,6 +83,7 @@ const handleGenerateFilesCommand = args => {
 }
 
 const handleDropCommand = args => {
+  console.log(args)
   const { doctypes, yes, url } = args
   let { token } = args
   token = token || autotoken(url, doctypes)
@@ -280,8 +281,8 @@ program
   .description(
     'The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).'
   )
-  .action(function(filepath, handlebarsOptionsFile) {
-    handleImportCommand({
+  .action(async function(filepath, handlebarsOptionsFile) {
+    await handleImportCommand({
       url: program.url,
       token: program.token,
       filepath,
@@ -294,8 +295,8 @@ program
   .description(
     'The path to the directory content to import. Defaults to "./DirectoriesToInject".'
   )
-  .action(function(directoryPath) {
-    handleImportDirCommand({
+  .action(async function(directoryPath) {
+    await handleImportDirCommand({
       url: program.url,
       token: program.token,
       directoryPath
@@ -313,8 +314,8 @@ program
   .command('drop <doctypes...>')
   .option('-y, --yes', 'Do not ask for confirmation')
   .description('Deletes all documents of the provided doctypes. For real.')
-  .action(function(doctypes, action) {
-    handleDropCommand({
+  .action(async function(doctypes) {
+    await handleDropCommand({
       url: program.url,
       token: program.token,
       doctypes,
@@ -327,8 +328,8 @@ program
   .description(
     'Exports data from the doctypes (separated by commas) to filename'
   )
-  .action(function(doctypes, filename) {
-    handleExportCommand({
+  .action(async function(doctypes, filename) {
+    await handleExportCommand({
       url: program.url,
       token: program.token,
       doctypes,
@@ -339,8 +340,8 @@ program
 program
   .command('downloadFile <fileid>')
   .description('Download the file')
-  .action(function(fileid) {
-    handleDownloadFileCommand({
+  .action(async function(fileid) {
+    await handleDownloadFileCommand({
       url: program.url,
       token: program.token,
       fileid
@@ -362,8 +363,8 @@ program
 program
   .command('updateSettings')
   .description('Update settings')
-  .action(function(settings) {
-    handleUpdateSettingsCommand({
+  .action(async function(settings) {
+    await handleUpdateSettingsCommand({
       url: program.url,
       token: program.token,
       settings
@@ -385,8 +386,8 @@ program
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .option('-d, --doctypes', 'Print necessary doctypes (useful for automation)')
   .description('Launch script')
-  .action(function(scriptName, action) {
-    handleScriptCommand({
+  .action(async function(scriptName, action) {
+    await handleScriptCommand({
       url: program.url,
       token: program.token,
       scriptName,
@@ -415,8 +416,8 @@ program
   )
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .description('Launch script')
-  .action(function(scriptName, domainsFile, action) {
-    handleBatchCommand({
+  .action(async function(scriptName, domainsFile, action) {
+    await handleBatchCommand({
       url: program.url,
       token: program.token,
       scriptName,
@@ -448,6 +449,7 @@ const main = async () => {
     const availableCommands = sortBy(Object.keys(commands)).join(', ')
     console.log(`Available commands: ${availableCommands}`)
     console.log('Use `ACH --help` to have more help.')
+    process.exit(1)
   }
 }
 
