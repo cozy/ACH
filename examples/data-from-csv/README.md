@@ -18,6 +18,12 @@ ACH. THe parser is basic here, the main point of attention here is the
 reference helper being used to link operations to accounts after accounts
 have been inserted into the Cozy.
 
+⚠️ The parser is *very* barebone and is just intended as an example. Parsing
+CSV is [much harder than what it seems][parsing-csv]. You'd be better of with
+a real CSV parsing library.
+
+[parsing-csv]: http://thomasburette.com/blog/2014/05/25/so-you-want-to-write-your-own-CSV-code/
+
 ### Usage
 
 ```
