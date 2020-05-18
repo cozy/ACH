@@ -23,7 +23,7 @@ CSV is [much harder than what it seems][parsing-csv]. You'd be better of with
 a real CSV parsing library.
 
 ⚠️ There are many other attributes that can be put on accounts and operations. You
-can see https://docs.cozy.io/en/cozy-doctypes/docs/io.cozy.bank/#iocozybankoperations
+can see [the docs on operations](https://docs.cozy.io/en/cozy-doctypes/docs/io.cozy.bank/#iocozybankoperations)
 for more documentation.
 
 [parsing-csv]: http://thomasburette.com/blog/2014/05/25/so-you-want-to-write-your-own-CSV-code/
