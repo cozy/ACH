@@ -42,7 +42,7 @@ const main = () => {
   )
 
   // Operations must be linked to accounts via the account id
-  // The account id is only know when we insert data in the Cozy.
+  // The account id is only known when we insert data in the Cozy.
   // This is why we use the {{ reference }} syntax understood by ACH
   // to reference to get the _id of the account that has been inserted
   const accountWithIndexByVendorId = keyBy(
