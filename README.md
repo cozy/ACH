@@ -207,3 +207,9 @@ env ACH_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.
 ```
 
 `ACH_KEEP_REV` does the same to keep the `_rev` field.
+
+
+### Import data from a CSV
+
+See the [example](./examples/data-from-csv/README.md).
+
