@@ -37,12 +37,26 @@ const requireScript = scriptName => {
 
 /** List all builtin scripts */
 const list = () => {
-  const dir = path.join(__dirname, 'scripts')
-  return fs
-    .readdirSync(dir)
-    .filter(x => /\.js$/.exec(x))
-    .filter(x => !/\.spec\.js$/.exec(x))
-    .map(x => x.replace(/\.js$/, ''))
+  const walkDir = dir => {
+    let files = []
+    const dirContent = fs.readdirSync(dir)
+    dirContent.forEach(fileOrDir => {
+      const pathFileOrDir = path.join(dir, fileOrDir)
+      const stat = fs.statSync(pathFileOrDir)
+      if (stat && stat.isDirectory()) {
+        // Recursively walk in subdir
+        files = files.concat(walkDir(pathFileOrDir))
+      } else {
+        if (/\.js$/.exec(fileOrDir) && !/\.spec\.js$/.exec(fileOrDir)) {
+          const file = fileOrDir.replace(/\.js$/, '')
+          files.push(file)
+        }
+      }
+    })
+    return files
+  }
+  const dir = path.join(__dirname, '../scripts')
+  return walkDir(dir)
 }
 
 module.exports = {
