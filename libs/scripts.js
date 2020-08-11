@@ -48,7 +48,11 @@ const list = () => {
         files = files.concat(walkDir(pathFileOrDir))
       } else {
         if (/\.js$/.exec(fileOrDir) && !/\.spec\.js$/.exec(fileOrDir)) {
-          const file = fileOrDir.replace(/\.js$/, '')
+          let file = fileOrDir.replace(/\.js$/, '')
+          if (path.basename(dir) !== 'scripts') {
+            // Add dir basename for subdirectories
+            file = path.join(path.basename(dir), file)
+          }
           files.push(file)
         }
       }
