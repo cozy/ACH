@@ -102,7 +102,7 @@ const methods = {
   },
   dropCollections: {
     method: dropCollections,
-    oldClient: true
+    oldClient: false
   },
   importFolder: {
     method: importFolderContent,
