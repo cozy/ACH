@@ -5,9 +5,6 @@ jest.mock('./getClient', () => jest.fn())
 
 const CozyClient = require('cozy-client').default
 
-jest.mock('cozy-client/dist/cli')
-const { createClientInteractive } = require('cozy-client/dist/cli')
-
 const getClient = require('./getClient')
 const runBatch = require('./runBatch')
 
@@ -31,7 +28,6 @@ describe('batch', () => {
         _url: url
       }
     })
-    createClientInteractive.mockImplementation(async () => {})
   })
 
   const setup = () => {
