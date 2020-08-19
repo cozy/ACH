@@ -16,7 +16,7 @@ const stripMeta = function(obj) {
 
 const fetchAll = async (cozyClient, doctype) => {
   try {
-    const result = await cozyClient.fetchJSON(
+    const result = await cozyClient.stackClient.fetchJSON(
       'GET',
       `/data/${doctype}/_all_docs?include_docs=true`
     )

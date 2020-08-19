@@ -114,7 +114,7 @@ const methods = {
   },
   export: {
     method: exportData,
-    oldClient: true
+    oldClient: false
   },
   fetch: {
     method: cozyFetch,
