@@ -4,7 +4,6 @@ const log = require('./log')
 const admin = require('./admin')
 const config = require('./config')
 const fs = require('fs')
-const CozyClient = require('cozy-client').default
 
 const namespacedLogger = namespace => ({
   log: console.log.bind(console, namespace),

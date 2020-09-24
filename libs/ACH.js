@@ -10,7 +10,6 @@ const cozyFetch = require('./cozyFetch')
 const log = require('./log')
 const request = require('request')
 const fs = require('fs')
-const { createClientInteractive } = require('cozy-client/dist/cli')
 
 const { handleBadToken } = require('../libs/utils')
 

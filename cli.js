@@ -53,7 +53,7 @@ const handleImportCommand = args => {
   const data = parseDataFile(filepath, handlebarsOptions)
   const doctypes = Object.keys(data)
   token = token || autotoken(url, doctypes)
-  return importData(url, token, data, templateDir, options).catch(logAndExit)
+  return importData(url, token, data, templateDir, options)
 }
 
 const handleImportDirCommand = async args => {
@@ -320,7 +320,6 @@ program
         token: program.token,
         fileid
       })
-      logAndExit(e)
     })
   )
 
