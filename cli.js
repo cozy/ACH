@@ -357,6 +357,7 @@ program
   .action(
     handleErrors(async function(doctypes) {
       await handleGenerateTokenCommand({
+        url: program.url,
         doctypes
       })
     })
