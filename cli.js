@@ -126,7 +126,7 @@ const handleGenerateTokenCommand = async args => {
   const { url, token, doctypes } = args
   const ach = new ACH(token, url, doctypes)
   await ach.connect()
-  console.log(ach.client._token.token)
+  console.log(ach.client.stackClient.token.token)
 }
 
 const handleBatchCommand = async function(args) {
