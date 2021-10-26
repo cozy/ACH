@@ -167,7 +167,6 @@ const handleScriptCommand = async args => {
   log.info(`Launching script ${scriptName}...`)
   log.info(`Dry run : ${dryRun}`)
   await ach.connect()
-  console.log('connected')
   await run(ach, dryRun, parameters)
 }
 
