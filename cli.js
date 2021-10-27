@@ -392,7 +392,10 @@ program
 
 program
   .command('script <scriptName>')
-  .arguments('[params...]', 'A list of parameters to be passed to the script')
+  .arguments(
+    '[params...]',
+    'A list of parameters to be passed to the script, separated by a space'
+  )
   .option('--autotoken', 'Automatically generate the permission token')
   .option('-x, --execute', 'Execute the script (disable dry run)')
   .option('-d, --doctypes', 'Print necessary doctypes (useful for automation)')
