@@ -33,7 +33,7 @@ Options:
   -V, --version                               output the version number
   -t --token [token]                          Token file to use
   -y --yes                                    Does not ask for confirmation on sensitive operations
-  -u --url [url]                              URL of the cozy to use. Defaults to "http://cozy.tools:8080".' (default: "http://cozy.tools:8080")
+  -u --url [url]                              URL of the cozy to use. Defaults to "http://cozy.localhost:8080".' (default: "http://cozy.localhost:8080")
   -h, --help                                  output usage information
 
 Commands:
