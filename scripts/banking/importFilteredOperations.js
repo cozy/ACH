@@ -11,6 +11,7 @@ const DOCTYPE_OPERATIONS = 'io.cozy.bank.operations'
  * @param {string} filepath The path to the JSON fixtures file
  * @param {string[]} categories A comma-separated list of category IDs
  * @param {number} nOperations Optional maximum number of records to import
+ * @param {boolean} deterministic Should data be deterministic
  */
 module.exports = {
   getDoctypes: function() {
@@ -18,7 +19,7 @@ module.exports = {
   },
   run: async function(ach, dryRun, parameters) {
     // Parsing script parameters
-    const [filepath, categories, nOperations] = parameters
+    const [filepath, categories, nOperations, deterministic] = parameters
 
     const client = ach.client
     const categoriesList = categories.split(',')
@@ -37,6 +38,7 @@ module.exports = {
       })
       .map(e => ({ ...e, _type: DOCTYPE_OPERATIONS }))
       .slice(0, nOperations)
+      .sort(() => (deterministic ? 1 : Math.random() - 0.5))
 
     if (dryRun) {
       console.log(`${filteredData.length} would have been uploaded`)
