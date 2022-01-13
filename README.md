@@ -37,7 +37,7 @@ Options:
   -h, --help                                  output usage information
 
 Commands:
-  import <filepath> [handlebarsOptionsFile]   The file containing the JSON data to import. Defaults to "example-data.json". Then the dummy helpers JS file (optional).
+  import <filepath> [handlebarsOptionsFile]   The file containing the JSON data to import. Defaults to "example-data.json". If the file doesn't exist in the application, ACH will try to find it inside its data folder. Then the dummy helpers JS file (optional).
   importDir <directoryPath>                   The path to the directory content to import. Defaults to "./DirectoriesToInject".
   generateFiles [path] [filesCount]           Generates a given number of small files.
   drop [options] <doctypes...>                Deletes all documents of the provided doctypes. For real.
@@ -54,7 +54,6 @@ Commands:
 ## Examples
 
 ### Import data
-
 
 ```shell
 $ cat data.json
@@ -165,6 +164,8 @@ $ cat data.json
 
 $ ACH import data.json
 ```
+
+If the file doesn't exist in the application, ACH will try to find it inside its data folder.
 
 Some JSON files use handlebars helpers, for those file, you need to specify the file where the helpers are defined.
 
