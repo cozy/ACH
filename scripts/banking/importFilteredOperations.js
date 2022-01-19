@@ -9,10 +9,10 @@ const DOCTYPE_OPERATIONS = 'io.cozy.bank.operations'
  * This can be used to fill an instance with only bank operations of a specific kind.
  *
  * The parameters of the script use the following format :
- * @param {string} filepath The path to the JSON fixtures file
- * @param {string[]} categories A comma-separated list of category IDs
- * @param {number} nOperations Optional maximum number of records to import
- * @param {boolean | string} deterministic Can be a seed, true to use the default order, or false for fully random
+ * @param {string} filepath - The path to the JSON fixtures file
+ * @param {string[]} categories - A comma-separated list of category IDs
+ * @param {number} nOperations - Optional maximum number of records to import
+ * @param {boolean | string} randomOrder - Can be a seed, true to use the default order, or false for fully random
  */
 module.exports = {
   getDoctypes: function() {
@@ -20,12 +20,12 @@ module.exports = {
   },
   run: async function(ach, dryRun, parameters) {
     // Parsing script parameters
-    const [filepath, categories, nOperations, deterministic] = parameters
+    const [filepath, categories, nOperations, randomOrder] = parameters
 
-    // Using a seeded PRNG when deterministic is a seed
+    // Using a seeded PRNG when randomOrder is a seed
     let randomGenerator
-    if (typeof deterministic === 'string') {
-      randomGenerator = createGenerator(deterministic)
+    if (typeof randomOrder === 'string') {
+      randomGenerator = createGenerator(randomOrder)
     }
 
     const client = ach.client
@@ -46,10 +46,10 @@ module.exports = {
       .map(e => ({ ...e, _type: DOCTYPE_OPERATIONS }))
       .slice(0, nOperations)
       .sort(() => {
-        if (typeof deterministic === 'string') {
+        if (typeof randomOrder === 'string') {
           return randomGenerator() - 0.5
         } else {
-          return deterministic ? 0 : Math.random() - 0.5
+          return randomOrder ? Math.random() - 0.5 : 0
         }
       })
 
