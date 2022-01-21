@@ -167,6 +167,8 @@ $ ACH import data.json
 
 If the file doesn't exist in the application, ACH will try to find it inside its data folder.
 
+#### handlebars
+
 Some JSON files use handlebars helpers, for those file, you need to specify the file where the helpers are defined.
 
 ```shell
@@ -175,10 +177,20 @@ $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js
 
 You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
 
+#### --url param
+
 You can import to a remote Cozy with the `--url` option :
 
 ```shell
 $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js --url https://recette.cozy.works
+```
+
+#### serial import
+
+By default, ACH imports data in parallel, by batches of 25. It is possible to import serially :
+
+```shell
+$ env ACH_PARALLEL=false ACH import data.json
 ```
 
 ### Import directories with files
