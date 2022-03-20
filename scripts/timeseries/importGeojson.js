@@ -1,5 +1,6 @@
-const { isEqual, uniqWith, cloneDeep } = require('lodash')
+const { cloneDeep } = require('lodash')
 
+const { getRandomValueFromArray } = require('../../helpers/array')
 const GEODOC01 = require('../../data/timeseries/geojson-01.json')
 const GEODOC02 = require('../../data/timeseries/geojson-02.json')
 const GEODOC03 = require('../../data/timeseries/geojson-03.json')
@@ -24,20 +25,6 @@ const allModes = [
   'WALKING',
   'UNKNOWN'
 ]
-
-const arrayHasSameValue = arr => {
-  return uniqWith(arr, isEqual).length === 1
-}
-
-const getRandomValueFromArray = (arr, exclude) => {
-  const randIdx = Math.floor(Math.random() * arr.length)
-  const selectedValue =
-    exclude && isEqual(exclude, arr[randIdx]) && !arrayHasSameValue(arr)
-      ? getRandomValueFromArray(arr, exclude)
-      : arr[randIdx]
-
-  return selectedValue
-}
 
 const createTrips = () => {
   const trips = []
@@ -67,7 +54,6 @@ const createTrips = () => {
 }
 
 module.exports = {
-  arrayHasSameValue,
   getRandomValueFromArray,
   createTrips,
   getDoctypes: function() {
