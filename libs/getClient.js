@@ -129,7 +129,7 @@ exported.getClientWithTokenString = tokenString => async url => {
 
 // convenience wrapper around the 2 client getters
 module.exports = (tokenPath, cozyUrl, docTypes) => {
-  const absoluteTokenPath = tokenPath.startsWith('/')
+  const absoluteTokenPath = path.isAbsolute(tokenPath)
     ? tokenPath
     : path.join(process.cwd(), tokenPath)
 
