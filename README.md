@@ -217,7 +217,7 @@ By default, `_id` and `_rev` are stripped from the exported data. Sometimes, you
 environment variable `ACH_KEEP_ID` to do so :
 
 ```bash
-env ACH_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.rocks /tmp/bills.json
+env ACH_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.rocks ./bills.json
 ```
 
 `ACH_KEEP_REV` does the same to keep the `_rev` field.
