@@ -84,7 +84,9 @@ const handleImportDirCommand = async args => {
 
 const handleGenerateFilesCommand = async args => {
   const { path = '/', filesCount = 10, url, token } = args
-  const ach = new ACH(token, url, ['io.cozy.files'])
+  const ach = new ACH(token || autotoken(url, ['io.cozy.files']), url, [
+    'io.cozy.files'
+  ])
   await ach.connect()
   await ach.createFiles(path, parseInt(filesCount))
 }
