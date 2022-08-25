@@ -211,16 +211,17 @@ You can create photo albums from a folder on your disk.
 $ python scripts/albums-from-dir.py my-photos-directory resulting-albums.json
 ```
 
-### Export data keeping the ids
+### Export data removing the ids
 
-By default, `_id` and `_rev` are stripped from the exported data. Sometimes, you want to keep the ids/rev of the documents you export. Set the
-environment variable `ACH_KEEP_ID` to do so :
+By default, exported data contains all `_id`. Sometimes, you want to strip the ids from the documents you export. Set the
+environment variable `ACH_NO_KEEP_ID` to do so :
 
 ```bash
-env ACH_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.rocks /tmp/bills.json
+env ACH_NO_KEEP_ID=true ACH export io.cozy.bills --url https://isabelledurand.cozy.rocks ./bills.json
 ```
 
-`ACH_KEEP_REV` does the same to keep the `_rev` field.
+Contrary to `_id`, `_rev` is stripped by default. To keep the `_rev` field, set the
+environment variable `ACH_KEEP_REV`.
 
 
 ### Import data from a CSV
