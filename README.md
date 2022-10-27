@@ -175,7 +175,7 @@ Some JSON files use handlebars helpers, for those file, you need to specify the 
 $ ACH import data/bank/bankData.json data/bank/helpers/bankDummyHelpers.js
 ```
 
-You can see an example of helpers [here](https://gitlab.cozycloud.cc/labs/ACH/blob/master/data/bank/helpers/bankDummyHelpers.js).
+You can see an example of helpers [here](https://github.com/cozy/cozy-banks/blob/master/test/fixtures/helpers/freshDate.js).
 
 #### --url param
 
