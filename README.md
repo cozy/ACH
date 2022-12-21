@@ -1,6 +1,6 @@
 # ACH
 
-Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **request, create and remove documents in your Cozy**.
+Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **request, create and remove records in your Cozy**.
 
 + [Install](#install)
 + [Usage](#usage)
