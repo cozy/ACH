@@ -1,7 +1,20 @@
+const startDate = '2021-12-07T19:48:09.172000+01:00'
+const endDate = '2021-12-07T21:55:18.947000+01:00'
+const time1 = '2021-12-07T20:55:04.759932+01:00'
+const time2 = '2021-12-07T21:15:26+01:00'
+const time3 = '2021-12-07T21:15:57+01:00'
+const time4 = '2021-12-07T21:40:51.684000+01:00'
+const time5 = '2021-12-07T21:41:25.878000+01:00'
+const time6 = '2021-12-07T21:42:26.800000+01:00'
+const time7 = '2021-12-07T21:42:58+01:00'
+const time8 = '2021-12-07T21:53:12.326000+01:00'
+const time9 = '2021-12-07T21:53:28+01:00'
+const time10 = '2021-12-07T21:54:47.924000+01:00'
+
 const geojson = {
   source: 'agremob.com',
-  startDate: '2021-12-07T19:48:09.172000+01:00',
-  endDate: '2021-12-07T21:55:18.947000+01:00',
+  startDate: startDate,
+  endDate: endDate,
   series: [
     {
       type: 'FeatureCollection',
@@ -18,7 +31,7 @@ const geojson = {
           weekday: 1,
           timezone: 'Europe/Paris'
         },
-        end_fmt_time: '2021-12-07T21:55:18.947000+01:00',
+        end_fmt_time: endDate,
         end_loc: {
           type: 'Point',
           coordinates: [2.31251, 48.7799432]
@@ -37,7 +50,7 @@ const geojson = {
           weekday: 1,
           timezone: 'Europe/Paris'
         },
-        start_fmt_time: '2021-12-07T20:55:04.759932+01:00',
+        start_fmt_time: time1,
         start_loc: {
           type: 'Point',
           coordinates: [2.2529379, 48.840809]
@@ -72,7 +85,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            enter_fmt_time: '2021-12-07T19:48:09.172000+01:00',
+            enter_fmt_time: startDate,
             raw_places: [
               {
                 $oid: '61aff9aaf3a4a081f777f350'
@@ -89,7 +102,7 @@ const geojson = {
               $oid: '61aff9aef3a4a081f777f45b'
             },
             exit_ts: 1638906904.759932,
-            exit_fmt_time: '2021-12-07T20:55:04.759932+01:00',
+            exit_fmt_time: time1,
             exit_local_dt: {
               year: 2021,
               month: 12,
@@ -124,7 +137,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            enter_fmt_time: '2021-12-07T21:55:18.947000+01:00',
+            enter_fmt_time: endDate,
             raw_places: [
               {
                 $oid: '61aff9aaf3a4a081f777f352'
@@ -166,7 +179,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            enter_fmt_time: '2021-12-07T21:15:26+01:00',
+            enter_fmt_time: time2,
             enter_loc: {
               type: 'Point',
               coordinates: [2.2710563, 48.8382937]
@@ -182,7 +195,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            exit_fmt_time: '2021-12-07T21:15:57+01:00',
+            exit_fmt_time: time3,
             exit_loc: {
               type: 'Point',
               coordinates: [2.2710811, 48.8381629]
@@ -221,7 +234,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            enter_fmt_time: '2021-12-07T21:40:51.684000+01:00',
+            enter_fmt_time: time4,
             enter_loc: {
               type: 'Point',
               coordinates: [2.3390498, 48.8204992]
@@ -237,7 +250,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            exit_fmt_time: '2021-12-07T21:41:25.878000+01:00',
+            exit_fmt_time: time5,
             exit_loc: {
               type: 'Point',
               coordinates: [2.3389558, 48.8209542]
@@ -276,7 +289,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            enter_fmt_time: '2021-12-07T21:42:26.800000+01:00',
+            enter_fmt_time: time6,
             enter_loc: {
               type: 'Point',
               coordinates: [2.3390886, 48.8210667]
@@ -292,7 +305,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            exit_fmt_time: '2021-12-07T21:42:58+01:00',
+            exit_fmt_time: time7,
             exit_loc: {
               type: 'Point',
               coordinates: [2.3390193, 48.8211684]
@@ -331,7 +344,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            enter_fmt_time: '2021-12-07T21:53:12.326000+01:00',
+            enter_fmt_time: time8,
             enter_loc: {
               type: 'Point',
               coordinates: [2.3122178, 48.7797742]
@@ -347,7 +360,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            exit_fmt_time: '2021-12-07T21:53:28+01:00',
+            exit_fmt_time: time9,
             exit_loc: {
               type: 'Point',
               coordinates: [2.3126869, 48.7803774]
@@ -386,7 +399,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            enter_fmt_time: '2021-12-07T21:54:47.924000+01:00',
+            enter_fmt_time: time10,
             enter_loc: {
               type: 'Point',
               coordinates: [2.3137567, 48.7796829]
@@ -402,7 +415,7 @@ const geojson = {
               weekday: 1,
               timezone: 'Europe/Paris'
             },
-            exit_fmt_time: '2021-12-07T21:55:18.947000+01:00',
+            exit_fmt_time: endDate,
             exit_loc: {
               type: 'Point',
               coordinates: [2.3136378, 48.7795847]
@@ -569,7 +582,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                start_fmt_time: '2021-12-07T20:55:04.759932+01:00',
+                start_fmt_time: time1,
                 end_ts: 1638908126,
                 end_local_dt: {
                   year: 2021,
@@ -581,7 +594,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                end_fmt_time: '2021-12-07T21:15:26+01:00',
+                end_fmt_time: time2,
                 duration: 1221.2400679588318,
                 speeds: [
                   0,
@@ -865,7 +878,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                start_fmt_time: '2021-12-07T21:15:57+01:00',
+                start_fmt_time: time3,
                 end_ts: 1638909651.684,
                 end_local_dt: {
                   year: 2021,
@@ -877,7 +890,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                end_fmt_time: '2021-12-07T21:40:51.684000+01:00',
+                end_fmt_time: time4,
                 duration: 1494.6840000152588,
                 speeds: [
                   0,
@@ -1041,7 +1054,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                start_fmt_time: '2021-12-07T21:41:25.878000+01:00',
+                start_fmt_time: time5,
                 end_ts: 1638909746.8,
                 end_local_dt: {
                   year: 2021,
@@ -1053,7 +1066,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                end_fmt_time: '2021-12-07T21:42:26.800000+01:00',
+                end_fmt_time: time6,
                 duration: 60.92199993133545,
                 speeds: [
                   0,
@@ -1177,7 +1190,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                start_fmt_time: '2021-12-07T21:42:58+01:00',
+                start_fmt_time: time7,
                 end_ts: 1638910392.326,
                 end_local_dt: {
                   year: 2021,
@@ -1189,7 +1202,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                end_fmt_time: '2021-12-07T21:53:12.326000+01:00',
+                end_fmt_time: time8,
                 duration: 614.3259999752045,
                 speeds: [
                   0,
@@ -1290,7 +1303,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                start_fmt_time: '2021-12-07T21:53:28+01:00',
+                start_fmt_time: time9,
                 end_ts: 1638910487.924,
                 end_local_dt: {
                   year: 2021,
@@ -1302,7 +1315,7 @@ const geojson = {
                   weekday: 1,
                   timezone: 'Europe/Paris'
                 },
-                end_fmt_time: '2021-12-07T21:54:47.924000+01:00',
+                end_fmt_time: time10,
                 duration: 79.92400002479553,
                 speeds: [
                   0,

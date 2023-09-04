@@ -1,7 +1,17 @@
+const startDate = '2021-12-07T16:21:49+01:00'
+const endDate = '2021-12-07T17:08:28.026731+01:00'
+const time1 = '2021-12-07T16:24:49+01:00'
+const time2 = '2021-12-07T17:06:26+01:00'
+const time3 = '2021-12-07T17:08:28.026731+01:00'
+const time4 = '2021-12-07T16:39:16+01:00'
+const time5 = '2021-12-07T16:39:31+01:00'
+const time6 = '2021-12-07T17:04:07+01:00'
+const time7 = '2021-12-07T17:04:34+01:00'
+
 const geojson = {
   source: 'agremob.com',
-  startDate: '2021-12-07T16:21:49+01:00',
-  endDate: '2021-12-07T17:08:28.026731+01:00',
+  startDate: startDate,
+  endDate: endDate,
   series: [
     {
       features: [
@@ -17,7 +27,7 @@ const geojson = {
             ending_trip: {
               $oid: '61aff9acf3a4a081f777f378'
             },
-            enter_fmt_time: '2021-12-07T16:21:49+01:00',
+            enter_fmt_time: startDate,
             enter_local_dt: {
               day: 7,
               hour: 16,
@@ -29,7 +39,7 @@ const geojson = {
               year: 2021
             },
             enter_ts: 1638890509,
-            exit_fmt_time: '2021-12-07T16:24:49+01:00',
+            exit_fmt_time: time1,
             exit_local_dt: {
               day: 7,
               hour: 16,
@@ -69,7 +79,7 @@ const geojson = {
             ending_trip: {
               $oid: '61aff9adf3a4a081f777f39c'
             },
-            enter_fmt_time: '2021-12-07T17:06:26+01:00',
+            enter_fmt_time: time2,
             enter_local_dt: {
               day: 7,
               hour: 17,
@@ -81,7 +91,7 @@ const geojson = {
               year: 2021
             },
             enter_ts: 1638893186,
-            exit_fmt_time: '2021-12-07T17:08:28.026731+01:00',
+            exit_fmt_time: time3,
             exit_local_dt: {
               day: 7,
               hour: 17,
@@ -121,7 +131,7 @@ const geojson = {
             ending_section: {
               $oid: '61aff9adf3a4a081f777f39e'
             },
-            enter_fmt_time: '2021-12-07T16:39:16+01:00',
+            enter_fmt_time: time4,
             enter_loc: {
               coordinates: [2.3384146, 48.820499],
               type: 'Point'
@@ -137,7 +147,7 @@ const geojson = {
               year: 2021
             },
             enter_ts: 1638891556,
-            exit_fmt_time: '2021-12-07T16:39:31+01:00',
+            exit_fmt_time: time5,
             exit_loc: {
               coordinates: [2.3383294, 48.8205031],
               type: 'Point'
@@ -176,7 +186,7 @@ const geojson = {
             ending_section: {
               $oid: '61aff9adf3a4a081f777f3bd'
             },
-            enter_fmt_time: '2021-12-07T17:04:07+01:00',
+            enter_fmt_time: time6,
             enter_loc: {
               coordinates: [2.2707612, 48.8384364],
               type: 'Point'
@@ -192,7 +202,7 @@ const geojson = {
               year: 2021
             },
             enter_ts: 1638893047,
-            exit_fmt_time: '2021-12-07T17:04:34+01:00',
+            exit_fmt_time: time7,
             exit_loc: {
               coordinates: [2.2705187, 48.8385616],
               type: 'Point'
@@ -293,7 +303,7 @@ const geojson = {
                   41.04065435422053
                 ],
                 duration: 867,
-                end_fmt_time: '2021-12-07T16:39:16+01:00',
+                end_fmt_time: time4,
                 end_local_dt: {
                   day: 7,
                   hour: 16,
@@ -343,7 +353,7 @@ const geojson = {
                   0.7321891006466853,
                   1.520024235341501
                 ],
-                start_fmt_time: '2021-12-07T16:24:49+01:00',
+                start_fmt_time: time1,
                 start_local_dt: {
                   day: 7,
                   hour: 16,
@@ -544,7 +554,7 @@ const geojson = {
                   5.814857809914868
                 ],
                 duration: 1476,
-                end_fmt_time: '2021-12-07T17:04:07+01:00',
+                end_fmt_time: time6,
                 end_local_dt: {
                   day: 7,
                   hour: 17,
@@ -615,7 +625,7 @@ const geojson = {
                   1.05277408440398,
                   0.9691429683191446
                 ],
-                start_fmt_time: '2021-12-07T16:39:31+01:00',
+                start_fmt_time: time5,
                 start_local_dt: {
                   day: 7,
                   hour: 16,
@@ -769,7 +779,7 @@ const geojson = {
                   12.314482787141156
                 ],
                 duration: 112,
-                end_fmt_time: '2021-12-07T17:06:26+01:00',
+                end_fmt_time: time2,
                 end_local_dt: {
                   day: 7,
                   hour: 17,
@@ -791,7 +801,7 @@ const geojson = {
                   0.34610225362509434,
                   0.5597492175973252
                 ],
-                start_fmt_time: '2021-12-07T17:04:34+01:00',
+                start_fmt_time: time7,
                 start_local_dt: {
                   day: 7,
                   hour: 17,
@@ -834,7 +844,7 @@ const geojson = {
       properties: {
         distance: 10574.223034821085,
         duration: 2497,
-        end_fmt_time: '2021-12-07T17:06:26+01:00',
+        end_fmt_time: time2,
         end_loc: {
           coordinates: [2.2700177, 48.8393046],
           type: 'Point'
@@ -858,7 +868,7 @@ const geojson = {
           $oid: '61aff9aaf3a4a081f777f34b'
         },
         source: 'DwellSegmentationTimeFilter',
-        start_fmt_time: '2021-12-07T16:24:49+01:00',
+        start_fmt_time: time1,
         start_loc: {
           coordinates: [2.31251, 48.7799432],
           type: 'Point'

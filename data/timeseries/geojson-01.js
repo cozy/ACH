@@ -1,7 +1,12 @@
+const startDate = '2021-06-30T14:18:52.778000+02:00'
+const endDate = '2021-06-30T16:40:05.086000+02:00'
+const time1 = '2021-06-30T14:47:51.081201+02:00'
+const time2 = '2021-06-30T16:37:05.086000+02:00'
+
 const geojson = {
   source: 'agremob.com',
-  startDate: '2021-06-30T14:18:52.778000+02:00',
-  endDate: '2021-06-30T16:40:05.086000+02:00',
+  startDate: startDate,
+  endDate: endDate,
   series: [
     {
       features: [
@@ -17,7 +22,7 @@ const geojson = {
             ending_trip: {
               $oid: '60dcf8f7e448f61ed9837c0c'
             },
-            enter_fmt_time: '2021-06-30T14:18:52.778000+02:00',
+            enter_fmt_time: startDate,
             enter_local_dt: {
               day: 30,
               hour: 14,
@@ -29,7 +34,7 @@ const geojson = {
               year: 2021
             },
             enter_ts: 1625055532.778,
-            exit_fmt_time: '2021-06-30T14:47:51.081201+02:00',
+            exit_fmt_time: time1,
             exit_local_dt: {
               day: 30,
               hour: 14,
@@ -75,7 +80,7 @@ const geojson = {
             ending_trip: {
               $oid: '60dcf8f7e448f61ed9837c42'
             },
-            enter_fmt_time: '2021-06-30T16:37:05.086000+02:00',
+            enter_fmt_time: time2,
             enter_local_dt: {
               day: 30,
               hour: 16,
@@ -87,7 +92,7 @@ const geojson = {
               year: 2021
             },
             enter_ts: 1625063825.086,
-            exit_fmt_time: '2021-06-30T16:40:05.086000+02:00',
+            exit_fmt_time: endDate,
             exit_local_dt: {
               day: 30,
               hour: 16,
@@ -569,7 +574,7 @@ const geojson = {
                   0
                 ],
                 duration: 6554.004799365997,
-                end_fmt_time: '2021-06-30T16:37:05.086000+02:00',
+                end_fmt_time: time2,
                 end_local_dt: {
                   day: 30,
                   hour: 16,
@@ -806,7 +811,7 @@ const geojson = {
                   0.46971406938048993,
                   0
                 ],
-                start_fmt_time: '2021-06-30T14:47:51.081201+02:00',
+                start_fmt_time: time1,
                 start_local_dt: {
                   day: 30,
                   hour: 14,
@@ -1276,7 +1281,7 @@ const geojson = {
       properties: {
         distance: 4724.886507346166,
         duration: 6554.004799365997,
-        end_fmt_time: '2021-06-30T16:37:05.086000+02:00',
+        end_fmt_time: time2,
         end_loc: {
           coordinates: [5.9115889, 45.3595833],
           type: 'Point'
@@ -1300,7 +1305,7 @@ const geojson = {
           $oid: '60dcf8eee448f61ed983691d'
         },
         source: 'DwellSegmentationTimeFilter',
-        start_fmt_time: '2021-06-30T14:47:51.081201+02:00',
+        start_fmt_time: time1,
         start_loc: {
           coordinates: [5.8742427, 45.3445711],
           type: 'Point'
