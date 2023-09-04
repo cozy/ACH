@@ -1,8 +1,8 @@
 const { isEqual, uniqWith, cloneDeep } = require('lodash')
 
-const GEODOC01 = require('../../data/timeseries/geojson-01.json')
-const GEODOC02 = require('../../data/timeseries/geojson-02.json')
-const GEODOC03 = require('../../data/timeseries/geojson-03.json')
+const { geojson: GEODOC01 } = require('../../data/timeseries/geojson-01.js')
+const { geojson: GEODOC02 } = require('../../data/timeseries/geojson-02.js')
+const { geojson: GEODOC03 } = require('../../data/timeseries/geojson-03.js')
 const STREETS = require('../../data/timeseries/streetsOfLyon.json')
 const {
   'io.cozy.accounts': ACCOUNTS
