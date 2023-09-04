@@ -1,8 +1,8 @@
 const { isEqual, uniqWith, cloneDeep } = require('lodash')
 
-const { geojson: GEODOC01 } = require('../../data/timeseries/geojson-01.js')
-const { geojson: GEODOC02 } = require('../../data/timeseries/geojson-02.js')
-const { geojson: GEODOC03 } = require('../../data/timeseries/geojson-03.js')
+const { getGeojson01 } = require('../../data/timeseries/geojson-01.js')
+const { getGeojson02 } = require('../../data/timeseries/geojson-02.js')
+const { getGeojson03 } = require('../../data/timeseries/geojson-03.js')
 const STREETS = require('../../data/timeseries/streetsOfLyon.json')
 const {
   'io.cozy.accounts': ACCOUNTS
@@ -11,7 +11,7 @@ const {
 const DOCTYPE_GEOJSON_AGGREGATE = 'io.cozy.timeseries.geojson.aggregate'
 const DOCTYPE_GEOJSON = 'io.cozy.timeseries.geojson'
 
-const GEODOCS = [GEODOC01, GEODOC02, GEODOC03]
+const GEODOCS = [getGeojson01(), getGeojson02(), getGeojson03()]
 const N_DOCS = 75
 
 const allModes = [
