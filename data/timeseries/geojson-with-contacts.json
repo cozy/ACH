@@ -1,0 +1,258 @@
+{
+  "source": "agremob.com",
+  "startDate": "2023-06-07T12:18:52.778000+02:00",
+  "endDate": "2023-06-07T17:40:05.086000+02:00",
+  "series": [
+    {
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              2.36874,
+              48.73141
+            ],
+            "type": "Point"
+          },
+          "id": "60dcf8fde448f61ed9837d95",
+          "properties": {
+            "display_name": "Terminal 1, Orly",
+            "duration": 630,
+            "ending_trip": {
+              "$oid": "60dcf8f7e448f61ed9837c0c"
+            },
+            "enter_fmt_time": "2021-06-07T17:18:52.778000+02:00",
+            "enter_local_dt": {
+              "day": 30,
+              "hour": 14,
+              "minute": 18,
+              "month": 6,
+              "second": 52,
+              "timezone": "Europe/Paris",
+              "weekday": 2,
+              "year": 2021
+            },
+            "enter_ts": 1625055532.778,
+            "exit_fmt_time": "2021-06-07T14:47:51.081201+02:00",
+            "exit_local_dt": {
+              "day": 30,
+              "hour": 14,
+              "minute": 47,
+              "month": 6,
+              "second": 51,
+              "timezone": "Europe/Paris",
+              "weekday": 2,
+              "year": 2021
+            },
+            "exit_ts": 1625057271.0812006,
+            "feature_type": "start_place",
+            "raw_places": [
+              {
+                "$oid": "60dcf8eee448f61ed9836918"
+              },
+              {
+                "$oid": "60dcf8eee448f61ed9836918"
+              },
+              {
+                "$oid": "60dcf8eee448f61ed983691a"
+              },
+              {
+                "$oid": "60dcf8eee448f61ed983691c"
+              }
+            ],
+            "source": "DwellSegmentationTimeFilter",
+            "starting_trip": {
+              "$oid": "60dcf8f7e448f61ed9837c42"
+            }
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              1.3438457,
+              45.9724985
+            ],
+            "type": "Point"
+          },
+          "id": "60dcf8ffe448f61ed9837d97",
+          "properties": {
+            "display_name": "Le Cloud",
+            "duration": 180,
+            "ending_trip": {
+              "$oid": "60dcf8f7e448f61ed9837c42"
+            },
+            "enter_fmt_time": "2023-06-07T16:37:05.086000+02:00",
+            "enter_local_dt": {
+              "day": 30,
+              "hour": 16,
+              "minute": 37,
+              "month": 6,
+              "second": 5,
+              "timezone": "Europe/Paris",
+              "weekday": 2,
+              "year": 2021
+            },
+            "enter_ts": 1625063825.086,
+            "exit_fmt_time": "2023-06-07T17:40:05.086000+02:00",
+            "exit_local_dt": {
+              "day": 30,
+              "hour": 16,
+              "minute": 40,
+              "month": 6,
+              "second": 5,
+              "timezone": "Europe/Paris",
+              "weekday": 2,
+              "year": 2021
+            },
+            "exit_ts": 1625064005.086,
+            "feature_type": "end_place",
+            "raw_places": [
+              {
+                "$oid": "60dcf8eee448f61ed983691e"
+              },
+              {
+                "$oid": "60dcf8eee448f61ed983691e"
+              }
+            ],
+            "source": "DwellSegmentationTimeFilter",
+            "starting_trip": {
+              "$oid": "60dcf8f8e448f61ed9837d20"
+            }
+          },
+          "type": "Feature"
+        },
+        {
+          "features": [
+            {
+              "geometry": {
+                "coordinates": [
+                  [
+                    2.36874,
+                    48.73141
+                  ],
+                  [
+                    1.3438457,
+                    45.9724985
+                  ]
+                ],
+                "type": "LineString"
+              },
+              "id": "60dcf8f8e448f61ed9837c44",
+              "properties": {
+                "distance": 372400.886507346166,
+                "distances": [
+                  0,
+                  372400.070212335948813
+                ],
+                "duration": 322,
+                "end_fmt_time": "2023-06-07T16:37:05.086000+02:00",
+                "end_local_dt": {
+                  "day": 30,
+                  "hour": 16,
+                  "minute": 37,
+                  "month": 6,
+                  "second": 5,
+                  "timezone": "Europe/Paris",
+                  "weekday": 2,
+                  "year": 2021
+                },
+                "end_ts": 1625063825.086,
+                "feature_type": "section",
+                "sensed_mode": "PredictedModeTypes.AIR_OR_HSR",
+                "source": "SmoothedHighConfidenceMotion",
+                "speeds": [
+                  0,
+                  0.8356737445316271
+                ],
+                "timestamps": [
+                  1625057271081,
+                  1625057301081
+                ],
+                "trip_id": {
+                  "$oid": "60dcf8f7e448f61ed9837c42"
+                }
+              },
+              "type": "Feature"
+            }
+          ],
+          "type": "FeatureCollection"
+        }
+      ],
+      "id": "60dcf8f7e448f61ed9837c42",
+      "properties": {
+        "distance": 372400.886507346166,
+        "duration": 322,
+        "end_fmt_time": "2023-06-07T17:18:52.778000+02:00",
+        "end_loc": {
+          "coordinates": [
+            1.3438457,
+            45.9724985
+          ],
+          "type": "Point"
+        },
+        "end_local_dt": {
+          "day": 30,
+          "hour": 16,
+          "minute": 37,
+          "month": 6,
+          "second": 5,
+          "timezone": "Europe/Paris",
+          "weekday": 2,
+          "year": 2021
+        },
+        "end_place": {
+          "$oid": "60dcf8ffe448f61ed9837d97"
+        },
+        "end_ts": 1625063825.086,
+        "feature_type": "trip",
+        "raw_trip": {
+          "$oid": "60dcf8eee448f61ed983691d"
+        },
+        "source": "DwellSegmentationTimeFilter",
+        "start_fmt_time": "2021-06-07T17:40:05.086000+02:00",
+        "start_loc": {
+          "coordinates": [
+            2.36874,
+            48.73141
+          ],
+          "type": "Point"
+        },
+        "start_local_dt": {
+          "day": 30,
+          "hour": 14,
+          "minute": 47,
+          "month": 6,
+          "second": 51,
+          "timezone": "Europe/Paris",
+          "weekday": 2,
+          "year": 2021
+        },
+        "start_place": {
+          "$oid": "60dcf8fde448f61ed9837d95"
+        },
+        "start_ts": 1625057271.0812006
+      },
+      "type": "FeatureCollection"
+    }
+  ],
+  "relationships": {
+    "startPlaceContact": {
+      "data": {
+        "_id": "33f5bc63735ceb535db0073dcb0376b8",
+        "_type": "io.cozy.contacts",
+        "metadata": {
+          "addressId": "5a057278-bc2d-4698-9ddc-c8f26b34b338"
+        }
+      }
+    },
+    "endPlaceContact": {
+      "data": {
+        "_id": "33f5bc63735ceb535db0073dcb0354e5",
+        "_type": "io.cozy.contacts",
+        "metadata": {
+          "addressId": "ae060afe-af94-4f40-abfa-49ecd20031f5"
+        }
+      }
+    }
+  }
+}

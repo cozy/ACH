@@ -1,0 +1,48 @@
+{
+  "_id": "33f5bc63735ceb535db0073dcb0354e5",
+  "_type": "io.cozy.contacts",
+  "address": [
+    {
+      "formattedAddress": "Le Cloud",
+      "geo": {
+        "cozyCategory": "work",
+        "geo": [
+              1.3438457,
+              45.9724985
+        ]
+      },
+      "id": "ae060afe-af94-4f40-abfa-49ecd20031f5",
+      "type": "Cozy Cloud"
+    }
+  ],
+  "birthday": "",
+  "birthplace": "",
+  "company": "",
+  "cozy": [],
+  "displayName": "Cloud",
+  "email": [],
+  "fullname": "Cloud",
+  "gender": "",
+  "indexes": {
+    "byFamilyNameGivenNameEmailCozyUrl": "Cloud"
+  },
+  "jobTitle": "",
+  "metadata": {
+    "cozy": true,
+    "version": 1
+  },
+  "name": {
+    "familyName": "",
+    "givenName": "Cloud"
+  },
+  "note": "",
+  "phone": [],
+  "relationships": {
+    "accounts": {
+      "data": []
+    },
+    "groups": {
+      "data": []
+    }
+  }
+}

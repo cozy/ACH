@@ -1,0 +1,48 @@
+{
+  "_id": "33f5bc63735ceb535db0073dcb0376b8",
+  "_type": "io.cozy.contacts",
+  "address": [
+    {
+      "formattedAddress": "Terminal 1, Orly",
+      "geo": {
+        "cozyCategory": "home",
+        "geo": [
+          2.36874,
+          48.73141
+        ]
+      },
+      "id": "5a057278-bc2d-4698-9ddc-c8f26b34b338",
+      "type": "Home sweet Home"
+    }
+  ],
+  "birthday": "",
+  "birthplace": "",
+  "company": "",
+  "cozy": [],
+  "displayName": "Aeroport Orly",
+  "email": [],
+  "fullname": "Aeroport Orly",
+  "gender": "",
+  "indexes": {
+    "byFamilyNameGivenNameEmailCozyUrl": "Aeroport Orly"
+  },
+  "jobTitle": "",
+  "metadata": {
+    "cozy": true,
+    "version": 1
+  },
+  "name": {
+    "familyName": "",
+    "givenName": "Aeroport Orly"
+  },
+  "note": "",
+  "phone": [],
+  "relationships": {
+    "accounts": {
+      "data": []
+    },
+    "groups": {
+      "data": []
+    }
+  }
+}
