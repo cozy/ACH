@@ -83,12 +83,12 @@ const handleImportDirCommand = async args => {
 }
 
 const handleGenerateFilesCommand = async args => {
-  const { path = '/', filesCount = 10, url, token } = args
+  const { dirId = 'io.cozy.files.root-dir', filesCount = 10, url, token } = args
   const ach = new ACH(token || autotoken(url, ['io.cozy.files']), url, [
     'io.cozy.files'
   ])
   await ach.connect()
-  await ach.createFiles(path, parseInt(filesCount))
+  await ach.createFiles(parseInt(filesCount), dirId)
 }
 
 const handleDropCommand = async args => {
@@ -321,14 +321,14 @@ program
   )
 
 program
-  .command('generateFiles [path] [filesCount]')
+  .command('generateFiles [filesCount] [dirId]')
   .description('Generates a given number of small files.')
   .action(
-    handleErrors(async function(path, filesCount) {
+    handleErrors(async function(filesCount, dirId) {
       await handleGenerateFilesCommand({
         url: program.url,
         token: program.token,
-        path,
+        dirId,
         filesCount
       })
     })
