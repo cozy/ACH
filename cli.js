@@ -83,12 +83,24 @@ const handleImportDirCommand = async args => {
 }
 
 const handleGenerateFilesCommand = async args => {
-  const { dirId = 'io.cozy.files.root-dir', filesCount = 10, url, token } = args
+  const { dirId, filesCount, url, token, qualify, mime } = args
+
+  if (qualify && !token) {
+    log.warn(
+      'To view files in MyPapers, an app/kconnector token is required to create qualified files.\nThis token allows you to have the `cozyMetadata.createdByApp` prop on files.'
+    )
+  }
+
   const ach = new ACH(token || autotoken(url, ['io.cozy.files']), url, [
     'io.cozy.files'
   ])
   await ach.connect()
-  await ach.createFiles(parseInt(filesCount), dirId)
+  await ach.createFiles({
+    filesCount: parseInt(filesCount),
+    dirId,
+    qualify,
+    mime
+  })
 }
 
 const handleDropCommand = async args => {
@@ -322,14 +334,17 @@ program
 
 program
   .command('generateFiles [filesCount] [dirId]')
+  .option('-q, --qualify', 'Add qualification to the files')
+  .option('-m, --mime <s>', 'Create files with this mime type')
   .description('Generates a given number of small files.')
   .action(
-    handleErrors(async function(filesCount, dirId) {
+    handleErrors(async function(filesCount, dirId, options) {
       await handleGenerateFilesCommand({
         url: program.url,
         token: program.token,
+        filesCount,
         dirId,
-        filesCount
+        ...options
       })
     })
   )

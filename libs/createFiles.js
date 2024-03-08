@@ -1,13 +1,30 @@
+const crypto = require('crypto')
 const ProgressBar = require('progress')
 const faker = require('faker')
+
 const {
   uploadFileWithConflictStrategy
 } = require('cozy-client/dist/models/file')
+const { Qualification } = require('cozy-client/dist/models/document')
+const {
+  qualifications
+} = require('cozy-client/dist/assets/qualifications.json')
+
+const addQualification = () => {
+  const { label } = qualifications[crypto.randomInt(0, qualifications.length)]
+  const qualification = Qualification.getByLabel(label)
+
+  return { qualification }
+}
 
 module.exports = async (
   client,
-  filesCount,
-  dirId = 'io.cozy.files.root-dir'
+  {
+    filesCount = 10,
+    dirId = 'io.cozy.files.root-dir',
+    qualify,
+    mime = 'text/plain'
+  }
 ) => {
   const bar = new ProgressBar(':bar', { total: filesCount })
 
@@ -19,7 +36,8 @@ module.exports = async (
     await uploadFileWithConflictStrategy(client, buffer.toString(), {
       name,
       dirId,
-      contentType: 'text/plain',
+      contentType: mime,
+      ...(qualify ? { metadata: addQualification() } : {}),
       conflictStrategy: 'rename'
     })
     bar.tick()
