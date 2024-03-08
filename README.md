@@ -8,8 +8,9 @@ Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **request, create an
   + [Import data](#import-data)
   + [Import repositories with files](#import-repositories-with-files)
   + [Create photo albums with ACH](#create-photo-albums-with-ach)
-  + [Export data keeping the ids](#export-data-keeping-the-ids)
-  + [How to export all data from a konnector](#how-to-export-all-data-from-a-konnector)
+  + [Export data removing the ids](#export-data-removing-the-ids)
+  + [Import data from a CSV](#Import-data-from-a-CSV)
+  + [Generate some files](#Generate-some-files)
 
 ## Install
 
@@ -38,7 +39,7 @@ Options:
 Commands:
   import <filepath> [handlebarsOptionsFile]   The file containing the JSON data to import. Defaults to "example-data.json". If the file doesn't exist in the application, ACH will try to find it inside its data folder. Then the dummy helpers JS file (optional).
   importDir <directoryPath>                   The path to the directory content to import. Defaults to "./DirectoriesToInject".
-  generateFiles [path] [filesCount]           Generates a given number of small files.
+  generateFiles [filesCount] [dirId]          Generates a given number of small files. (optional dirId)
   drop [options] <doctypes...>                Deletes all documents of the provided doctypes. For real.
   export <doctypes> [filename]                Exports data from the doctypes (separated by commas) to filename
   downloadFile <fileid>                       Download the file
@@ -227,3 +228,13 @@ environment variable `ACH_KEEP_REV`.
 
 See the [example](./examples/data-from-csv/README.md).
 
+### Generate some files
+
+To create files into a Cozy, use the `generateFiles` command:
+
+```shell
+$ ACH generateFiles 10 <id of directory> # by default will be at the root of your Drive
+```
+Options:
+- `-q`/`--qualify`: In order to have a random qualification on your files
+- `-m`/`--mime`: In order to change the default mime of files (`text/plain`)
