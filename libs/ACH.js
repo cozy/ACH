@@ -109,7 +109,7 @@ const updateSettings = function(client, attrs) {
 const methods = {
   deleteDocuments: {
     method: deleteDocuments,
-    oldClient: true
+    oldClient: false
   },
   dropCollections: {
     method: dropCollections,
