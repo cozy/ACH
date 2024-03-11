@@ -10,6 +10,7 @@ Automated Cozy Hydrater (ACH *[ax]*) is a CLI that lets you **request, create an
   + [Create photo albums with ACH](#create-photo-albums-with-ach)
   + [Export data keeping the ids](#export-data-keeping-the-ids)
   + [How to export all data from a konnector](#how-to-export-all-data-from-a-konnector)
+  + [Generate some qualified files with referenced contacts (mespapiers)](#Generate-some-papers)
 
 ## Install
 
@@ -227,3 +228,18 @@ environment variable `ACH_KEEP_REV`.
 
 See the [example](./examples/data-from-csv/README.md).
 
+### Generate some papers
+(usefull for MesPapiers)
+
+To create qualified files with contacts referenced in a Cozy, use the `script papers/createPapers` command.
+
+```shell
+ACH script papers/createPapers [numberFile] [folderId] -t <token>
+```
+
+Parameters:
+- `numberFile`: Number of papers to create (default: 1)
+- `folderId`: ID of the folder where the files will be created. (default: 'io.cozy.files.root-dir')
+
+Options:
+- `-t`/`--token`: app/konnector token, **required to view files in the MesPapiers app.**(Creates the `cozyMetadata.createdByApp` prop)
