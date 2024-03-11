@@ -8,9 +8,10 @@ const {
 const { Q } = require('cozy-client')
 const { Qualification } = require('cozy-client/dist/models/document')
 const data = require('../../data/papers/data.json')
-
-const FILES_DOCTYPE = 'io.cozy.files'
-const CONTACTS_DOCTYPE = 'io.cozy.contacts'
+const {
+  DOCTYPE_CONTACTS: CONTACTS_DOCTYPE,
+  DOCTYPE_FILES
+} = require('../../libs/doctypes')
 
 const makeMetadata = (qualificationLabel, metadata) => {
   const qualification = Qualification.getByLabel(qualificationLabel)
@@ -75,7 +76,7 @@ const createPapers = async (
   dirId = 'io.cozy.files.root-dir'
 ) => {
   const papersCreated = []
-  const fileCollection = client.collection(FILES_DOCTYPE)
+  const fileCollection = client.collection(DOCTYPE_FILES)
 
   for (let i = 0; i < filesCount; i++) {
     const pdfBytes = await makePdf()
@@ -105,7 +106,7 @@ const createPapers = async (
 
 module.exports = {
   getDoctypes: function() {
-    return [FILES_DOCTYPE, CONTACTS_DOCTYPE]
+    return [DOCTYPE_FILES, CONTACTS_DOCTYPE]
   },
   run: async function(ach, _, params) {
     const [fileCount, dirId] = params
