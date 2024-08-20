@@ -117,12 +117,12 @@ Type "yes" if ok.
 }
 
 const handleExportCommand = async args => {
-  let { doctypes, filename, url, token, last } = args
+  let { doctypes, filename, url, token, last, designDocs } = args
   doctypes = doctypes.split(',') // should be done with type
   token = token || autotoken(url, doctypes)
   const ach = new ACH(token, url, doctypes)
   await ach.connect()
-  await ach.export(doctypes, filename, last)
+  await ach.export(doctypes, filename, { last, designDocs })
 }
 
 const handleExportSingleCommand = async args => {
@@ -356,6 +356,7 @@ program
     'Retrieve only the last documents, sorted by updated date',
     x => parseInt(x, 10)
   )
+  .option('-d, --designDocs', 'Retrieve only the design docs')
   .description(
     'Exports data from the doctypes (separated by commas) to filename'
   )

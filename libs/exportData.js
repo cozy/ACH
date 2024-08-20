@@ -35,6 +35,22 @@ const fetchAll = async (cozyClient, doctype) => {
   }
 }
 
+const fetchDesignDocs = async (cozyClient, doctype) => {
+  try {
+    const result = await cozyClient.stackClient.fetchJSON(
+      'GET',
+      `/data/${doctype}/_design_docs`
+    )
+    return result.rows
+  } catch (e) {
+    if (e.reason.reason == 'Database does not exist.') {
+      return []
+    }
+    console.error(e)
+    throw e
+  }
+}
+
 const fetchRecent = async (cozyClient, doctype, last) => {
   try {
     const query = Q(doctype)
@@ -82,14 +98,24 @@ const exportSingleDoc = async (cozyClient, doctype, id, filename) => {
   return exportToFile(doc, filename)
 }
 
-const exportDocs = async (cozyClient, doctypes, filename, last) => {
+const exportDocs = async (
+  cozyClient,
+  doctypes,
+  filename,
+  { last, designDocs }
+) => {
   log.debug('Exporting data...')
 
   const allExports = doctypes.map(async doctype => {
     try {
-      const docs = last
-        ? await fetchRecent(cozyClient, doctype, last)
-        : await fetchAll(cozyClient, doctype)
+      let docs
+      if (designDocs) {
+        docs = await fetchDesignDocs(cozyClient, doctype)
+      } else if (last) {
+        docs = await fetchRecent(cozyClient, doctype, last)
+      } else {
+        docs = await fetchAll(cozyClient, doctype)
+      }
 
       log.success('Exported documents for ' + doctype + ' : ' + docs.length)
       return docs
